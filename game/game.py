@@ -1,31 +1,56 @@
-import pygame
-from pygame import Vector2
+import random
+
+from pygame import Vector2, Rect
 
 from engine.engine import Engine
 from engine.managers.input_manager.key import Key
-from game.car import Car
+from game.ai.ai_manager import AIManager
+from game.game_mode import GameMode
+from game.game_state.field_of_view import FOV
+from game.game_state.game_state import GameState
+from game.entities.NPC import NPC
+from game.entities.car import Car
 from game.map.tile_map import TileMap
 
 
 class Game(Engine):
     def __init__(self):
         super().__init__()
+        self.game_mode = GameMode.MANUAL
         self.play_music("GameMusic")
+        # self.cars = self._initialize_cars()
         self.car = Car(self.create_entity("entities/car", has_collider=True, is_static=False))
         self.tile_map = TileMap(self)
-        self.car.set_position(Vector2(400, 300))
+        self.car.set_position(Vector2(11 * 16, 42 * 16))
+        self.NPCs: list[NPC] = []
+        self.initialize_npcs()
+        self.game_state = GameState()
+        self.field_of_view = FOV()
+
+        self.ai_manager = AIManager(self.restore_previous_state)
+
+    # def initialize_cars(self):
+        
 
     def update(self, delta_time):
+        self.field_of_view.update(self.car.car_entity, self.tile_map, [npc.NPC_entity for npc in self.NPCs])
+
         super().update(delta_time)
         self.car.update_input(self.input_manager)
         self.car.update(delta_time)
         self.move_camera()
 
-        car_pos = self.car.car_entity.get_transform().get_position() + self.camera.get_position()
-        closest_tile = self.tile_map.get_closest_tile((self.camera.get_position().x, self.camera.get_position().y))
-        print(closest_tile.get_transform().get_position())
-        # draw a rect on the stepped tile
-        self.renderer.draw_rect(closest_tile.get_sprite_rect(), (255, 0, 0), 3)
+        self.game_state.update(self.car.car_entity)
+        if self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
+            self.ai_manager.update(self.game_state)
+
+
+    def game_render(self):
+        vision = self.car.car_entity.get_transform().get_position()
+        vision_rect = Rect(vision.x - 96, vision.y - 96, 192, 192)
+        self.renderer.draw_rect(vision_rect, (255, 0, 0), 3)
+
+        self._render_field_of_view()
 
     def move_camera(self):
         if self.input_manager.is_key_down(Key.K_UP):
@@ -62,3 +87,27 @@ class Game(Engine):
         if abs(distance_to_box.x) > camera_box_width or abs(distance_to_box.y) > camera_box_height:
             # Move the camera by the distance needed to re-center the car
             self.camera.move(-distance_to_box)
+
+    def _initialize_cars(self):
+        self.car = Car(self.create_entity("entities/car", has_collider=True, is_static=False))
+
+    def initialize_npcs(self):
+        for i in range(5):
+            self.NPCs.append(NPC(self.create_entity("entities/car", has_collider=True, is_static=False)))
+            self.NPCs[i].set_position(Vector2(random.randint(0, 100) * 16, random.randint(0, 60) * 16))
+
+    def restore_previous_state(self, game_state: GameState):
+        self.game_state = game_state
+
+    def _render_field_of_view(self):
+        field_of_view = self.field_of_view.get()
+        for tile, npc in field_of_view:
+            if tile is not None:
+                if npc == 0:
+                    self.renderer.draw_rect(tile.tile_entity.get_sprite_rect(), (255, 0, 0), 1)
+                elif npc == 1:
+                    self.renderer.draw_rect(tile.tile_entity.get_sprite_rect(), (0, 0, 255), 1)
+
+    def _change_input_manager_to_AI(self):
+        if self.game_mode is GameMode.AI_TRAINING:
+            self.input_manager = self.ai_manager.ai_input_manager

@@ -1,7 +1,5 @@
 import pygame as pygame
 
-from engine.components.transform import Transform
-
 class Intersection:
     def __init__(self, intersects: bool, intersection_area: float):
         self.intersects = intersects

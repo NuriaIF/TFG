@@ -1,10 +1,14 @@
+import math
+
 from pygame import Vector2
 
 from engine.engine import Engine
-from engine.entities.entity import Entity
 from engine.managers.render_manager.render_layers import RenderLayer
+from game.map.checkpoints.checkpoint import Checkpoint
+from game.map.checkpoints.checkpoints_loader import CheckpointsLoader
 from game.map.map_loader import MapLoader
 from game.map.map_types import MapType
+from game.entities.tile import Tile
 
 TILE_SIZE = 16
 MAP_WALL_DEPTH = 100
@@ -13,11 +17,17 @@ MAP_WALL_DEPTH = 100
 class TileMap:
     def __init__(self, engine: Engine):
         # Map position -> tile
-        self.tiles: dict[tuple[int, int], Entity] = {}
+        # self.tiles: dict[tuple[int, int], Entity] = {}
+        # self.tiles: set[Tile] = set()
+        self.tiles: list[Tile] = []
         self.type_map_list = MapLoader.load_map("road01-uni")
+
+        self.checkpoints: list[Checkpoint] = []
+        self.checkpoints_dict = CheckpointsLoader.read_checkpoints("road01-uni")
+
         self.generate_tiles(engine)
-        self.lateral_height = self.type_map_list.get_height() * TILE_SIZE
-        self.vertical_width = self.type_map_list.get_width() * TILE_SIZE
+        self.height = self.type_map_list.get_height() * TILE_SIZE
+        self.width = self.type_map_list.get_width() * TILE_SIZE
         self.generate_walls(engine)
 
     def generate_tiles(self, engine: Engine) -> None:
@@ -25,27 +35,80 @@ class TileMap:
             x_pos = (i % self.type_map_list.get_width()) * TILE_SIZE
             y_pos = (i // self.type_map_list.get_width()) * TILE_SIZE
 
+            index_x_pos = i % self.type_map_list.get_width()
+            index_y_pos = i // self.type_map_list.get_width()
+            # print(index_x_pos, index_y_pos, self.type_map_list[i])
+
             if self.type_map_list[i] == MapType.TRACK:
                 tile_entity = engine.create_entity("tiles/track", background_batched=True, is_static=True)
+                tile = Tile(tile_entity, MapType.TRACK)
+                if self.checkpoints_dict.get((index_x_pos, index_y_pos)) is not None:
+                    self.checkpoints.append(Checkpoint(tile))
             elif self.type_map_list[i] == MapType.GRASS:
                 tile_entity = engine.create_entity("tiles/grass", background_batched=True, is_static=True)
+                tile = Tile(tile_entity, MapType.GRASS)
             elif self.type_map_list[i] == MapType.SIDEWALK:
                 tile_entity = engine.create_entity("tiles/sidewalk", background_batched=True, is_static=True)
+                tile = Tile(tile_entity, MapType.SIDEWALK)
             elif self.type_map_list[i] == MapType.FOREST:
                 tile_entity = engine.create_entity("tiles/forest", background_batched=True, is_static=True)
+                tile = Tile(tile_entity, MapType.FOREST)
             else:
                 tile_entity = engine.create_entity("tiles/road_centre_line", background_batched=True, is_static=True)
-                tile_entity.debug_config_show_collider()
+                tile = Tile(tile_entity, MapType.TRACK)
 
             # Set the tile's position
             tile_entity.get_transform().set_position(Vector2(x_pos, y_pos))
 
-            self.tiles[(x_pos, y_pos)] = tile_entity
+            # self.tiles[(x_pos, y_pos)] = tile_entity
+            self.tiles.append(tile)
 
-    def get_closest_tile(self, position: tuple[int, int]) -> Entity:
-        remaining = (position[0] % TILE_SIZE, position[1] % TILE_SIZE)
-        closest_tile_pos = (position[0] - remaining[0], position[1] - remaining[1])
-        return self.tiles[closest_tile_pos]
+    # def get_closest_tile(self, position: tuple[int, int]) -> Entity:
+    #     remaining = (position[0] % TILE_SIZE, position[1] % TILE_SIZE)
+    #     closest_tile_pos = (position[0] - remaining[0], position[1] - remaining[1])
+    #     return self.tiles[closest_tile_pos]
+    def get_closest_tile(self, position: tuple[int, int]) -> Tile:
+        nearest_distance = float("inf")
+        nearest_tile = None
+        for tile in self.tiles:
+            distance = (tile.tile_entity.get_transform().get_position().x - position[0]) ** 2 + (
+                    tile.tile_entity.get_transform().get_position().y - position[1]) ** 2
+            if distance < nearest_distance:
+                nearest_distance = distance
+                nearest_tile = tile
+        return nearest_tile
+
+    def get_tiles_in(self, position: tuple[int, int]) -> Tile:
+        nearest_distance = float("inf")
+        nearest_tile = None
+        for tile in self.tiles:
+            distance = (tile.tile_entity.get_transform().get_position().x - position[0]) ** 2 + (
+                    tile.tile_entity.get_transform().get_position().y - position[1]) ** 2
+            if distance < nearest_distance:
+                nearest_distance = distance
+                nearest_tile = tile
+        return nearest_tile
+
+    # def get_tiles_within_circle(self, position: tuple[int, int], radius: int):
+    #     within_circle = set()
+    #     for tile in self.tiles:
+    #         distance = math.sqrt((tile.tile_entity.get_transform().get_position().x - position[0]) ** 2 + (
+    #                 tile.tile_entity.get_transform().get_position().y - position[1]) ** 2)
+    #         if distance <= radius:
+    #             within_circle.add(tile)
+    #     return within_circle
+
+    def get_tiles_within_square(self, position: tuple[float, float], radius: int):
+        within_square: list[Tile | None] = []
+        tile = self.get_closest_tile(position)
+        tile_index = self.tiles.index(tile)
+        for i in range(-radius - 1, radius + 1):
+            for j in range(-radius - 1, radius + 1):
+                if 0 <= tile_index + i + j * self.type_map_list.get_width() < len(self.tiles):
+                    within_square.append(self.tiles[tile_index + i + j * self.type_map_list.get_width()])
+                else:
+                    within_square.append(None)
+        return within_square
 
     def generate_walls(self, engine: Engine) -> None:
         # Create large entities that surround the map that have colliders, so the car can't leave the map
@@ -56,18 +119,18 @@ class TileMap:
 
         bottom_wall = engine.create_entity("tiles/map_border_center", has_collider=True, is_static=True)
         bottom_wall.get_transform().set_position(
-            Vector2(self.type_map_list.get_width() * TILE_SIZE / 2, self.lateral_height))
+            Vector2(self.type_map_list.get_width() * TILE_SIZE / 2, self.height))
         bottom_wall.get_transform().rotate(180)
         bottom_wall.set_layer(RenderLayer.TILES)
         bottom_wall.debug_config_show_collider()
 
         right_wall = engine.create_entity("tiles/map_border_lateral", has_collider=True, is_static=True)
-        right_wall.get_transform().set_position(Vector2(-TILE_SIZE, self.lateral_height / 2))
+        right_wall.get_transform().set_position(Vector2(-TILE_SIZE, self.height / 2))
         right_wall.set_layer(RenderLayer.TILES)
         right_wall.debug_config_show_collider()
 
         left_wall = engine.create_entity("tiles/map_border_lateral", has_collider=True, is_static=True)
-        left_wall.get_transform().set_position(Vector2(self.vertical_width, self.lateral_height / 2))
+        left_wall.get_transform().set_position(Vector2(self.width, self.height / 2))
         left_wall.get_transform().rotate(180)
         left_wall.set_layer(RenderLayer.TILES)
         left_wall.debug_config_show_collider()

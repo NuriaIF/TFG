@@ -23,17 +23,17 @@ class MapLoader:
     def load_map(map_name: str) -> MapTypeList:
         map_path = GLOBAL_MAP_PATH + map_name + MAP_EXTENSION
         text_map = FileLoader.load(map_path)
-        mapWidth = len(text_map.split("\n")[0])
-        mapHeight = len(text_map.split("\n"))
-        loaded_map = MapTypeList(map_name, mapWidth, mapHeight)
+        map_width = len(text_map.split("\n")[0])
+        map_height = len(text_map.split("\n"))
+        loaded_map = MapTypeList(map_name, map_width, map_height)
 
         # Exception if it has more or less height than the map
-        if len(text_map.split("\n")) != mapHeight:
+        if len(text_map.split("\n")) != map_height:
             raise ValueError("Map height is not consistent")
 
         for line in text_map.split("\n"):
             # Exception if it has more or less width than the map
-            if len(line) != mapWidth:
+            if len(line) != map_width:
                 raise ValueError("Map width is not consistent")
 
             for char in line:

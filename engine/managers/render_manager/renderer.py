@@ -30,8 +30,7 @@ class Renderer:
 
     def render_background_batch(self) -> None:
         # Scale the surface with the scale
-        self.window.get_window().blit(self.surface_batch,
-                                      (0, 0))
+        self.window.get_window().blit(self.surface_batch, (0, 0))
 
     def render_debug_information(self, entity: Entity) -> None:
         self._draw_entity_collider(entity)
@@ -145,3 +144,9 @@ class Renderer:
     def draw_line(self, start_pos: Vector2, end_pos: tuple[int, int], color: tuple[int, int, int],
                   thickness: int = 1) -> None:
         pygame.draw.line(self.window.get_window(), color, start_pos, end_pos, thickness)
+
+    def draw_circle(self, center: Vector2, radius: int, color: tuple[int, int, int] = (255, 0, 0),
+                    thickness: int = 1) -> None:
+        if not isinstance(center, pygame.Vector2):
+            raise ValueError("Center must be a Vector2")
+        pygame.draw.circle(self.window.get_window(), color, center, radius, width=thickness)

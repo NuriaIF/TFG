@@ -50,6 +50,9 @@ class Engine:
         self.renderer.render()
 
         if self.renderer.debug_mode is False:
+            # self.renderer.draw_surface(
+            #     EngineFonts.get_fonts().debug_UI_font.render(f"FPS: {round(FPSManager.get_average_fps(), 2)}",
+            #                                                  True, EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 0))
             self.window.swap_buffers()
             return
         self.renderer.draw_surface(
@@ -61,7 +64,12 @@ class Engine:
         for entity in self.entities:
             self.renderer.render_debug_information(entity)
 
+        self.game_render()
+
         self.window.swap_buffers()
+
+    def game_render(self):
+        pass
 
     def create_entity(self, sprite_path: str, has_collider: bool = False, background_batched: bool = False,
                       is_static: bool = True) -> Entity:

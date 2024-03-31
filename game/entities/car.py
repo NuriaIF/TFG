@@ -26,8 +26,9 @@ class Car:
         self.car_entity.debug_config_show_collider()
         self.car_entity.debug_config_show_transform()
         self.car_entity.debug_config_show_forward()
-        
+
         self.field_of_view = FOV()
+        self.last_nearest_tile = None
 
     def update_input(self, input_manager: InputManager):
         self._is_accelerating = False

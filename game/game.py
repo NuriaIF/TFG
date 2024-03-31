@@ -6,7 +6,6 @@ from engine.engine import Engine
 from engine.managers.input_manager.key import Key
 from game.ai.ai_manager import AIManager
 from game.game_mode import GameMode
-from game.game_state.field_of_view import FOV
 from game.game_state.game_state import GameState
 from game.entities.NPC import NPC
 from game.entities.car import Car
@@ -16,47 +15,61 @@ from game.map.tile_map import TileMap
 class Game(Engine):
     def __init__(self):
         super().__init__()
-        self.game_mode = GameMode.MANUAL
+        self.game_mode = GameMode.AI_TRAINING
         self.play_music("GameMusic")
-        # self.cars = self._initialize_cars()
-        self.car = Car(self.create_entity("entities/car", has_collider=True, is_static=False))
-        self.tile_map = TileMap(self)
-        self.car.set_position(Vector2(11 * 16, 42 * 16))
-        self.NPCs: list[NPC] = []
-        self.initialize_npcs()
-        self.game_state = GameState()
-        self.field_of_view = FOV()
+        self.cars: list[Car] = []
 
+        # self.car = Car(self.create_entity("entities/car", has_collider=True, is_static=False))
+        self.tile_map = TileMap(self)
+        # self.car.set_position(Vector2(11 * 16, 42 * 16))
+        self.NPCs: list[NPC] = []
+        
+        # self.game_state = GameState()
         self.ai_manager = AIManager(self.restore_previous_state)
 
-    # def initialize_cars(self):
-        
+        self._initialize_cars()
+        self.initialize_npcs()
+
+    def _initialize_cars(self):
+        if self.game_mode == GameMode.MANUAL or self.game_mode == GameMode.AI_PLAYING:
+            self.cars.append(Car(self.create_entity("entities/car", has_collider=True, is_static=False)))
+        elif self.game_mode == GameMode.AI_TRAINING:
+            for i in range(self.ai_manager.get_population_size()):
+                self.cars.append(Car(self.create_entity("entities/car", has_collider=True, is_static=False)))
+
+        for car in self.cars:
+            car.set_position(Vector2(11 * 16, 42 * 16))
+
 
     def update(self, delta_time):
-        self.field_of_view.update(self.car.car_entity, self.tile_map, [npc.NPC_entity for npc in self.NPCs])
+        for car in self.cars:
+            car.field_of_view.update(car.car_entity, self.tile_map, [npc.NPC_entity for npc in self.NPCs])
 
         super().update(delta_time)
-        self.car.update_input(self.input_manager)
-        self.car.update(delta_time)
+        if self.game_mode is GameMode.MANUAL:
+            self.cars[0].update_input(self.input_manager)
+        for car in self.cars:
+            car.update(delta_time)
         self.move_camera()
 
-        self.game_state.update(self.car.car_entity)
+        # self.game_state.update(self.car.car_entity)
         if self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
-            self.ai_manager.update(self.game_state)
+            self.ai_manager.update(self.cars)  # ([car.car_entity for car in self.cars])
 
 
     def game_render(self):
-        vision = self.car.car_entity.get_transform().get_position()
-        vision_rect = Rect(vision.x - 96, vision.y - 96, 192, 192)
-        self.renderer.draw_rect(vision_rect, (255, 0, 0), 3)
+        for car in self.cars:
+            vision = car.car_entity.get_transform().get_position()
+            vision_rect = Rect(vision.x - 96, vision.y - 96, 192, 192)
+            self.renderer.draw_rect(vision_rect, (255, 0, 0), 3)
 
-        self._render_field_of_view()
+            self._render_field_of_view(car)
 
     def move_camera(self):
         if self.input_manager.is_key_down(Key.K_UP):
-            self.camera.move(Vector2(0, 100))
-        if self.input_manager.is_key_down(Key.K_DOWN):
             self.camera.move(Vector2(0, -100))
+        if self.input_manager.is_key_down(Key.K_DOWN):
+            self.camera.move(Vector2(0, 100))
         if self.input_manager.is_key_down(Key.K_LEFT):
             self.camera.move(Vector2(-100, 0))
         if self.input_manager.is_key_down(Key.K_RIGHT):
@@ -69,7 +82,8 @@ class Game(Engine):
         self.center_camera_on_car()
 
     def center_camera_on_car(self):
-        car_position = self.car.car_entity.get_transform().get_position()
+        # TODO: The camera should follow the first car (best fitness)
+        car_position = self.cars[0].car_entity.get_transform().get_position()
         camera_position = -self.camera.get_position() + Vector2(self.window.get_width(), self.window.get_height())
         difference = camera_position - car_position
         if difference.length() > 1:
@@ -81,15 +95,13 @@ class Game(Engine):
         camera_box_height = self.window.get_height() / 5
 
         # Calculate the distance from the car to the camera
-        distance_to_box = self.car.car_entity.get_transform().get_position() - self.camera.get_position()
+        # TODO: The camera should follow the first car (best fitness)
+        distance_to_box = self.cars[0].car_entity.get_transform().get_position() - self.camera.get_position()
 
         # Check if the car is outside the "box" area
         if abs(distance_to_box.x) > camera_box_width or abs(distance_to_box.y) > camera_box_height:
             # Move the camera by the distance needed to re-center the car
             self.camera.move(-distance_to_box)
-
-    def _initialize_cars(self):
-        self.car = Car(self.create_entity("entities/car", has_collider=True, is_static=False))
 
     def initialize_npcs(self):
         for i in range(5):
@@ -99,8 +111,8 @@ class Game(Engine):
     def restore_previous_state(self, game_state: GameState):
         self.game_state = game_state
 
-    def _render_field_of_view(self):
-        field_of_view = self.field_of_view.get()
+    def _render_field_of_view(self, car: Car):
+        field_of_view = car.field_of_view.get()
         for tile, npc in field_of_view:
             if tile is not None:
                 if npc == 0:

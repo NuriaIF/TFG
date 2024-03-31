@@ -2,7 +2,7 @@ import numpy as np
 
 
 class NeuralNetwork:
-    def __init__(self, layer_sizes):
+    def __init__(self, layer_sizes: list[int]):
         """
         Initialize the neural network with a list of layers.
 

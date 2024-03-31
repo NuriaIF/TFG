@@ -28,6 +28,7 @@ class TileMap:
         self.generate_tiles(engine)
         self.height = self.type_map_list.get_height() * TILE_SIZE
         self.width = self.type_map_list.get_width() * TILE_SIZE
+
         self.generate_walls(engine)
 
     def generate_tiles(self, engine: Engine) -> None:
@@ -67,7 +68,8 @@ class TileMap:
     #     remaining = (position[0] % TILE_SIZE, position[1] % TILE_SIZE)
     #     closest_tile_pos = (position[0] - remaining[0], position[1] - remaining[1])
     #     return self.tiles[closest_tile_pos]
-    def get_closest_tile(self, position: tuple[int, int]) -> Tile:
+
+    def get_closest_tile_with_no_info(self, position: tuple[int, int]) -> Tile:
         nearest_distance = float("inf")
         nearest_tile = None
         for tile in self.tiles:
@@ -77,6 +79,40 @@ class TileMap:
                 nearest_distance = distance
                 nearest_tile = tile
         return nearest_tile
+
+    def get_closest_tile_knowing_previous(self, position: tuple[int, int], previous_nearest_tile: Tile) -> Tile:
+        if previous_nearest_tile is None:
+            return self.get_closest_tile_with_no_info(position)
+        # Verify if the previous tile is still the nearest
+        prev_distance = (previous_nearest_tile.tile_entity.get_transform().get_position().x - position[0]) ** 2 + \
+                        (previous_nearest_tile.tile_entity.get_transform().get_position().y - position[1]) ** 2
+
+        nearest_tile = previous_nearest_tile
+        nearest_distance = prev_distance
+
+        # Obtain adjacent tiles to previous_nearest_tile and include previous_nearest_tile in the search
+        adjacent_tiles = self.get_adjacent_tiles(previous_nearest_tile)
+
+        adjacent_tiles.append(previous_nearest_tile)
+
+        for tile in adjacent_tiles:
+            distance = (tile.tile_entity.get_transform().get_position().x - position[0]) ** 2 + \
+                       (tile.tile_entity.get_transform().get_position().y - position[1]) ** 2
+            if distance < nearest_distance:
+                nearest_distance = distance
+                nearest_tile = tile
+
+        return nearest_tile
+
+    def get_adjacent_tiles(self, tile: Tile) -> list[Tile]:
+        adjacent_tiles = []
+        tile_index = self.tiles.index(tile)
+        map_width = self.type_map_list.get_width()
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                if 0 <= tile_index + i + j * map_width < len(self.tiles):
+                    adjacent_tiles.append(self.tiles[tile_index + i + j * map_width])
+        return adjacent_tiles
 
     def get_tiles_in(self, position: tuple[int, int]) -> Tile:
         nearest_distance = float("inf")
@@ -89,26 +125,18 @@ class TileMap:
                 nearest_tile = tile
         return nearest_tile
 
-    # def get_tiles_within_circle(self, position: tuple[int, int], radius: int):
-    #     within_circle = set()
-    #     for tile in self.tiles:
-    #         distance = math.sqrt((tile.tile_entity.get_transform().get_position().x - position[0]) ** 2 + (
-    #                 tile.tile_entity.get_transform().get_position().y - position[1]) ** 2)
-    #         if distance <= radius:
-    #             within_circle.add(tile)
-    #     return within_circle
-
-    def get_tiles_within_square(self, position: tuple[float, float], radius: int):
+    def get_tiles_within_square(self, position: tuple[float, float], previous_nearest_tile, radius: int):
+        map_width = self.type_map_list.get_width()
         within_square: list[Tile | None] = []
-        tile = self.get_closest_tile(position)
+        tile = self.get_closest_tile_knowing_previous(position, previous_nearest_tile)
         tile_index = self.tiles.index(tile)
-        for i in range(-radius - 1, radius + 1):
-            for j in range(-radius - 1, radius + 1):
-                if 0 <= tile_index + i + j * self.type_map_list.get_width() < len(self.tiles):
-                    within_square.append(self.tiles[tile_index + i + j * self.type_map_list.get_width()])
+        for i in range(-radius, radius):
+            for j in range(-radius, radius):
+                if 0 <= tile_index + i + j * map_width < len(self.tiles):
+                    within_square.append(self.tiles[tile_index + i + j * map_width])
                 else:
                     within_square.append(None)
-        return within_square
+        return within_square, tile
 
     def generate_walls(self, engine: Engine) -> None:
         # Create large entities that surround the map that have colliders, so the car can't leave the map

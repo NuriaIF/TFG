@@ -50,9 +50,9 @@ class Engine:
         self.renderer.render()
 
         if self.renderer.debug_mode is False:
-            # self.renderer.draw_surface(
-            #     EngineFonts.get_fonts().debug_UI_font.render(f"FPS: {round(FPSManager.get_average_fps(), 2)}",
-            #                                                  True, EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 0))
+            self.renderer.draw_surface(
+                EngineFonts.get_fonts().debug_UI_font.render(f"FPS: {round(FPSManager.get_average_fps(), 2)}",
+                                                             True, EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 0))
             self.window.swap_buffers()
             return
         self.renderer.draw_surface(

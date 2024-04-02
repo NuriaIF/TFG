@@ -1,10 +1,5 @@
-import numpy as np
-
-from game.ai.neural_network.neural_network import NeuralNetwork
-
-
 class AIAgent():
-    def __init__(self, controlled_entity, neural_network=NeuralNetwork([])):
+    def __init__(self, controlled_entity, neural_network):
         self.neural_network = neural_network
         self.fitness_score = 0
         self.controlled_entity = controlled_entity

@@ -20,6 +20,9 @@ class Camera:
         self._previous_position = self._position
         self._position = position
 
+    def reset_position(self):
+        self._position = Vector2(self._window_size / 2)
+
     def update(self, delta_time: float, entities: list[Entity]) -> None:
         self._delta_time = delta_time
 

@@ -17,29 +17,34 @@ class Game(Engine):
         super().__init__()
         self.game_mode = GameMode.AI_TRAINING
         self.play_music("GameMusic")
+
         self.cars: list[Car] = []
-
-        # self.car = Car(self.create_entity("entities/car", has_collider=True, is_static=False))
         self.tile_map = TileMap(self)
-        # self.car.set_position(Vector2(11 * 16, 42 * 16))
         self.NPCs: list[NPC] = []
-        
-        # self.game_state = GameState()
-        self.ai_manager = AIManager(self.restore_previous_state)
 
+        self.ai_manager = AIManager(self._initialize_cars)
+
+        self._initialize()
+
+        # self._initialize_cars()
+        # self._initialize_npcs()
+
+    def _initialize(self):
         self._initialize_cars()
-        self.initialize_npcs()
+        self._initialize_npcs()
 
     def _initialize_cars(self):
-        if self.game_mode == GameMode.MANUAL or self.game_mode == GameMode.AI_PLAYING:
-            self.cars.append(Car(self.create_entity("entities/car", has_collider=True, is_static=False)))
-        elif self.game_mode == GameMode.AI_TRAINING:
-            for i in range(self.ai_manager.get_population_size()):
+        if len(self.cars) == 0:
+            if self.game_mode == GameMode.MANUAL or self.game_mode == GameMode.AI_PLAYING:
                 self.cars.append(Car(self.create_entity("entities/car", has_collider=True, is_static=False)))
+            elif self.game_mode == GameMode.AI_TRAINING:
+                for i in range(self.ai_manager.get_population_size()):
+                    self.cars.append(Car(self.create_entity("entities/car", has_collider=True, is_static=False)))
+        else:
+            self.camera.reset_position()
 
         for car in self.cars:
             car.set_position(Vector2(11 * 16, 42 * 16))
-
 
     def update(self, delta_time):
         for car in self.cars:
@@ -75,8 +80,8 @@ class Game(Engine):
         if self.input_manager.is_key_down(Key.K_RIGHT):
             self.camera.move(Vector2(100, 0))
 
-        """ 
-        The camera follows the car, if the car leaves a box centered on the camera, the camera moves to the car's 
+        """
+        The camera follows the car, if the car leaves a box centered on the camera, the camera moves to the car's
         position
         """
         self.center_camera_on_car()
@@ -103,7 +108,8 @@ class Game(Engine):
             # Move the camera by the distance needed to re-center the car
             self.camera.move(-distance_to_box)
 
-    def initialize_npcs(self):
+    def _initialize_npcs(self):
+        self.NPCs: list[NPC] = []
         for i in range(5):
             self.NPCs.append(NPC(self.create_entity("entities/car", has_collider=True, is_static=False)))
             self.NPCs[i].set_position(Vector2(random.randint(0, 100) * 16, random.randint(0, 60) * 16))

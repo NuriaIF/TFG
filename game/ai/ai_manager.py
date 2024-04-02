@@ -1,21 +1,21 @@
 from pygame import Vector2
 
-from engine.entities.entity import Entity
+from game.ai.ai_agent import AIAgent
 from game.ai.neural_network.neural_network import NeuralNetwork
 from game.entities.car import Car
 from game.game_state.game_state import GameState
-from game.ai.genetic_algorithm import GeneticAlgorithm
-from game.map.map_types import MapType
+from game.ai.genetic_algorithm.genetic_algorithm import GeneticAlgorithm
 
 
 class AIManager:
-    def __init__(self, restore_previous_state_callback):
+    def __init__(self, initialization_callback):
         self.generation_duration: int = 100
         self.initial_state_for_this_generation: GameState = GameState()
-        self.neural_networks: list[NeuralNetwork] = []
+        # self.neural_networks: list[NeuralNetwork] = []
+        # self.ai_agents: list[AIAgent] = []
         self.current_agent_index = 0
         self.population_size = 10
-        self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm(self.population_size)
+        self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm(initialization_callback)
 
         # self.num_generations = 10
         # self.current_generation = 0
@@ -25,15 +25,15 @@ class AIManager:
         # self.nn_hidden = 5
         # self.nn_output = 1
         # self.create_population()
-    
+
     def get_population_size(self):
         return self.population_size
 
     def update(self, cars: list[Car]):
         # self.prepare_input(game_state)
-        if not self.neural_networks:
-            self.create_population()
-        self.simulate(cars)
+        if not self.genetic_algorithm.get_agents():
+            self.create_population(cars)
+        self.simulate()
 
     # def next_agent(self):
     #     if self.current_agent_index < len(self.neural_networks) - 1:
@@ -44,11 +44,17 @@ class AIManager:
     # def save_game_state(self, game_state):
     #     self.initial_state_for_this_generation = game_state
 
-    def simulate(self, cars: list[Car]):
+    def simulate(self):
         # for agent in self.ai_agents:
         #     self.prepare_input(agent, game, tilemap)
-        for car in cars:
-            self.prepare_input(car)
+        for agent in self.genetic_algorithm.get_agents():
+            inputs = self.prepare_input(agent.controlled_entity)
+            outputs = agent.neural_network.forward(inputs)
+            # TODO: Convert outputs to commands
+        # Evolve best agent
+        # TODO: check if generation is over
+        if True:
+            self.genetic_algorithm.evolve_agents()
         # 0. Si es el primer agente, guardar game_state
         # if self.current_agent_index == 0:
         #     self.save_game
@@ -80,6 +86,8 @@ class AIManager:
         inputs = [agent_forward.x, agent_forward.y, agent_velocity, agent_acceleration]
         inputs.extend(agent_field_of_view)
 
+        return inputs
+
         # print(len(inputs))
         # print(len(agent_field_of_view))
 
@@ -90,14 +98,13 @@ class AIManager:
         # inputs.extend(game_state.mapinfo)
         # return inputs
 
-    def create_population(self):
+    def create_population(self, cars: list[Car]):
         """
         Initialize population
         :return:
         """
         for i in range(self.population_size):
-            self.neural_networks.append(NeuralNetwork([292, 150, 60, 6]))  # FOV 12x12, radius=6
-        pass
+            self.genetic_algorithm.get_agents().append(AIAgent(cars[i], NeuralNetwork(layer_sizes=[292, 150, 60, 6])))  # FOV 12x12, radius=6
 
     # def calculate_field_of_vision(self, tiles_within_square, npcs_within_square) -> list[float]:
     #     # tiles = tile_map.get_tiles_within_square((self.agent_position.x, self.agent_position.y), vision_range)

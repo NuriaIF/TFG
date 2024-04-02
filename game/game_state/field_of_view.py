@@ -14,6 +14,9 @@ class FOV:
     def get(self) -> list[[Tile | None], bool] | None:
         return self.field_of_view
 
+    def get_tiles_in_FOV(self) -> list[Tile]:
+        return [tile for tile, _ in self.field_of_view if tile is not None]
+
     def get_nearest_tile(self) -> Tile | None:
         return self.nearest_tile
 

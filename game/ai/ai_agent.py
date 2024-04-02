@@ -9,4 +9,12 @@ class AIAgent():
         return self.neural_network.get_parameters()
 
     def evaluate_fitness(self):
-        pass
+        # TODO: get the checkpoint number of the car
+        self.fitness_score = self.controlled_entity.checkpoint_number
+        # TODO: get the distance to the next checkpoint
+        # TODO: reward the agent for going fast
+        # TODO: penalize the agent for going off track
+        # TODO: reward the agent for staying on track
+        # TODO: reward the agent for not crashing
+        # TODO: reward the agent for not going backwards
+        # TODO: reward the agent for not running over pedestrians

@@ -49,6 +49,8 @@ class Game(Engine):
     def update(self, delta_time):
         for car in self.cars:
             car.field_of_view.update(car.car_entity, self.tile_map, [npc.NPC_entity for npc in self.NPCs])
+            checkpoint = self.tile_map.get_checkpoint_in(car.field_of_view.get_tiles_in_FOV())
+            car.reach_checkpoint(checkpoint)
 
         super().update(delta_time)
         if self.game_mode is GameMode.MANUAL:

@@ -14,9 +14,10 @@ class CheckpointsLoader:
         checkpoints_dict: dict[tuple[int, int]] = {}
         checkpoints_path = GLOBAL_CHECKPOINTS_PATH + map_name + CHECKPOINTS_EXTENSION
         text_checkpoints = FileLoader.load(checkpoints_path)
+        index = 0
         for line in text_checkpoints.split("\n"):
             parts = line.strip().split(", ")
             if len(parts) == 4:
-                checkpoint = Vector2(float(parts[1]), float(parts[2]))
-                checkpoints_dict[(int(parts[1]), int(parts[2]))] = checkpoint
+                checkpoints_dict[(int(parts[1]), int(parts[2]))] = index
+                index += 1
         return checkpoints_dict

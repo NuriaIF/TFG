@@ -13,7 +13,7 @@ class NeuralNetwork:
         self.layer_sizes = layer_sizes
         self.layers: list[Layer] = []
         # Relu activation function for hidden layers and softmax for output layer
-        print(layer_sizes)
+        # print(layer_sizes)
         for i in range(len(layer_sizes) - 2):
             self.layers.append(Layer(layer_sizes[i], layer_sizes[i + 1], self.relu))
         self.layers.append(Layer(layer_sizes[-2], layer_sizes[-1], self.softmax))

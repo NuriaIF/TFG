@@ -29,6 +29,7 @@ class Car:
 
         self.field_of_view = FOV()
         self.last_nearest_tile = None
+        self.checkpoint_number = -1
 
     def update_input(self, input_manager: InputManager):
         self._is_accelerating = False
@@ -81,3 +82,7 @@ class Car:
 
     def is_accelerating(self):
         return self._is_accelerating
+
+    def reach_checkpoint(self, checkpoint: int):
+        if self.checkpoint_number - 1 == checkpoint or self.checkpoint_number == checkpoint - 1:
+            self.checkpoint_number = checkpoint

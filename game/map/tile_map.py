@@ -4,7 +4,6 @@ from pygame import Vector2
 
 from engine.engine import Engine
 from engine.managers.render_manager.render_layers import RenderLayer
-from game.map.checkpoints.checkpoint import Checkpoint
 from game.map.checkpoints.checkpoints_loader import CheckpointsLoader
 from game.map.map_loader import MapLoader
 from game.map.map_types import MapType
@@ -16,14 +15,11 @@ MAP_WALL_DEPTH = 100
 
 class TileMap:
     def __init__(self, engine: Engine):
-        # Map position -> tile
-        # self.tiles: dict[tuple[int, int], Entity] = {}
-        # self.tiles: set[Tile] = set()
         self.tiles: list[Tile] = []
         self.type_map_list = MapLoader.load_map("road01-uni")
 
-        self.checkpoints: list[Checkpoint] = []
         self.checkpoints_dict = CheckpointsLoader.read_checkpoints("road01-uni")
+        self.checkpoints: list[Tile] = []
 
         self.generate_tiles(engine)
         self.height = self.type_map_list.get_height() * TILE_SIZE
@@ -44,7 +40,8 @@ class TileMap:
                 tile_entity = engine.create_entity("tiles/track", background_batched=True, is_static=True)
                 tile = Tile(tile_entity, MapType.TRACK)
                 if self.checkpoints_dict.get((index_x_pos, index_y_pos)) is not None:
-                    self.checkpoints.append(Checkpoint(tile))
+                    tile.set_as_checkpoint(self.checkpoints_dict.get((index_x_pos, index_y_pos)))
+                    # self.checkpoints.append(Checkpoint(tile))
             elif self.type_map_list[i] == MapType.GRASS:
                 tile_entity = engine.create_entity("tiles/grass", background_batched=True, is_static=True)
                 tile = Tile(tile_entity, MapType.GRASS)
@@ -162,3 +159,13 @@ class TileMap:
         left_wall.get_transform().rotate(180)
         left_wall.set_layer(RenderLayer.TILES)
         left_wall.debug_config_show_collider()
+
+    def get_checkpoint_in(self, area: list[Tile]) -> int:
+        """
+        Check if the area contains a checkpoint and return the checkpoint number
+        :param area: 
+        :return: 
+        """
+        for tile in area:
+            if tile.is_checkpoint():
+                return tile.checkpoint_number

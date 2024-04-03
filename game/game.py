@@ -53,15 +53,20 @@ class Game(Engine):
             car.reach_checkpoint(checkpoint)
 
         super().update(delta_time)
-        if self.game_mode is GameMode.MANUAL:
-            self.cars[0].update_input(self.input_manager)
-        for car in self.cars:
-            car.update(delta_time)
+
         self.move_camera()
 
         # self.game_state.update(self.car.car_entity)
         if self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
             self.ai_manager.update(self.cars)  # ([car.car_entity for car in self.cars])
+
+        for car in self.cars:
+            if self.game_mode is GameMode.MANUAL:
+                car.update_input(self.input_manager)
+            elif self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
+                ai_input_manager = self.ai_manager.get_ai_input_manager_of(car)
+                car.update_input(ai_input_manager)
+            car.update(delta_time)
 
 
     def game_render(self):

@@ -16,7 +16,7 @@ class NeuralNetwork:
         # print(layer_sizes)
         for i in range(len(layer_sizes) - 2):
             self.layers.append(Layer(layer_sizes[i], layer_sizes[i + 1], self.relu))
-        self.layers.append(Layer(layer_sizes[-2], layer_sizes[-1], self.softmax))
+        self.layers.append(Layer(layer_sizes[-2], layer_sizes[-1], self.leaky_relu))
 
         self.learning_rate = 0.01
 
@@ -38,6 +38,14 @@ class NeuralNetwork:
         """
         exp_x = np.exp(x - np.max(x))
         return exp_x / exp_x.sum(axis=0)
+
+    def leaky_relu(self, z):
+        """
+        Apply the Leaky ReLU activation function.
+        :param z: 
+        :return: 
+        """
+        return np.maximum(0.01 * z, z)
 
     def forward(self, input_data):
         """

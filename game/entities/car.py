@@ -75,6 +75,8 @@ class Car:
         self.car_entity.get_transform().rotate(-self.current_rotation_speed)
 
     def break_car(self):
+        if self.car_entity.get_physics().get_velocity() == 0:
+            return
         direction_of_velocity = self.car_entity.get_physics().get_velocity() / abs(
             self.car_entity.get_physics().get_velocity())
 
@@ -84,5 +86,7 @@ class Car:
         return self._is_accelerating
 
     def reach_checkpoint(self, checkpoint: int):
+        if checkpoint is None:
+            return
         if self.checkpoint_number - 1 == checkpoint or self.checkpoint_number == checkpoint - 1:
             self.checkpoint_number = checkpoint

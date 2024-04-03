@@ -1,6 +1,7 @@
 from pygame import Vector2
 
 from game.ai.ai_agent import AIAgent
+from game.ai.ai_input_manager import AIInputManager
 from game.ai.neural_network.neural_network import NeuralNetwork
 from game.entities.car import Car
 from game.game_state.game_state import GameState
@@ -16,6 +17,8 @@ class AIManager:
         self.current_agent_index = 0
         self.population_size = 10
         self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm(initialization_callback)
+        
+        
 
         # self.num_generations = 10
         # self.current_generation = 0
@@ -51,10 +54,12 @@ class AIManager:
             inputs = self.prepare_input(agent.controlled_entity)
             outputs = agent.neural_network.forward(inputs)
             # TODO: Convert outputs to commands
+            agent.ai_input_manager.convert_outputs_to_commands(outputs)
+
         # Evolve best agent
         # TODO: check if generation is over
-        if True:
-            self.genetic_algorithm.evolve_agents()
+        # if True:  # if generation is over
+        #     self.genetic_algorithm.evolve_agents()
         # 0. Si es el primer agente, guardar game_state
         # if self.current_agent_index == 0:
         #     self.save_game
@@ -133,3 +138,7 @@ class AIManager:
     #     print(len(map_info))
     # 
     #     return map_info
+    def get_ai_input_manager_of(self, car: Car) -> AIInputManager:
+        for agent in self.genetic_algorithm.get_agents():
+            if agent.controlled_entity == car:
+                return agent.ai_input_manager

@@ -55,6 +55,8 @@ class ColliderManager:
         for other_collider in self.colliders:
             if other_collider is collider:
                 continue
+            if other_collider.is_in_training and collider.is_in_training:
+                continue
 
             intersection = collider.intersects(other_collider)
             if intersection.get_intersects():

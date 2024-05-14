@@ -9,16 +9,19 @@ from game.ai.genetic_algorithm.genetic_algorithm import GeneticAlgorithm
 
 
 class AIManager:
-    def __init__(self, initialization_callback):
+    def __init__(self, initialization_callback, training=True):
         self.generation_duration: int = 100
         self.initial_state_for_this_generation: GameState = GameState()
         # self.neural_networks: list[NeuralNetwork] = []
         # self.ai_agents: list[AIAgent] = []
         self.current_agent_index = 0
         self.population_size = 10
-        self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm(initialization_callback)
-        
-        
+        self.training = training
+        if training:
+            self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm()
+            self.initialization_entities_callback = initialization_callback
+        self._agents: list[AIAgent] = []
+        self.state = "simulation"
 
         # self.num_generations = 10
         # self.current_generation = 0
@@ -32,49 +35,63 @@ class AIManager:
     def get_population_size(self):
         return self.population_size
 
+    def get_agents(self):
+        return self._agents
+
     def update(self, cars: list[Car]):
         # self.prepare_input(game_state)
-        if not self.genetic_algorithm.get_agents():
+        # if not self.genetic_algorithm.get_agents():
+        if not self.get_agents():
             self.create_population(cars)
-        self.simulate()
-
+        if self.state == "simulation":
+            self.simulate()
+        elif self.state == "selection":
+            self.select_agents()
+        elif self.state == "evolving":
+            self.evolve_agents()
     # def next_agent(self):
     #     if self.current_agent_index < len(self.neural_networks) - 1:
     #         self.current_agent_index += 1
     #     else:
     #         self.current_agent_index = -1
-    # 
+    #
     # def save_game_state(self, game_state):
     #     self.initial_state_for_this_generation = game_state
 
     def simulate(self):
         # for agent in self.ai_agents:
         #     self.prepare_input(agent, game, tilemap)
-        for agent in self.genetic_algorithm.get_agents():
-            inputs = self.prepare_input(agent.controlled_entity)
-            outputs = agent.neural_network.forward(inputs)
-            # TODO: Convert outputs to commands
-            agent.ai_input_manager.convert_outputs_to_commands(outputs)
+        if self.state == "simulation":
+            for agent in self.get_agents():
+                inputs = self.prepare_input(agent.controlled_entity)
+                outputs = agent.neural_network.forward(inputs)
+                # TODO: Convert outputs to commands
+                agent.ai_input_manager.convert_outputs_to_commands(outputs)
+
+            if not self.training:
+                return
 
         # Evolve best agent
         # TODO: check if generation is over
-        # if True:  # if generation is over
-        #     self.genetic_algorithm.evolve_agents()
-        # 0. Si es el primer agente, guardar game_state
-        # if self.current_agent_index == 0:
-        #     self.save_game
-        # 1. Coger el game state y el fov y sacar los inputs
-        # 2. Pasar los inputs por la red neuronal y sacar outputs
-        # 3. Convertir outputs a comandos a través del ai_input_manager
-        # 4. Si el agente no se puede mover, pasar al siguiente agente, y avisar a game de cambiar su game_state por el que tenemos aqui guardado
-        # condition = True
-        # if condition:
-            # self.next_agent()
-        # 5. Al terminar todos los agentes, ver cual tuvo mejor desempeño
-        # if self.current_agent_index == -1:
-        #     self.evaluate()
-        # 6. Start new gen
+        # check if generation is over
+        self.genetic_algorithm.generation_timer += 1
+        if self.genetic_algorithm.generation_timer >= self.genetic_algorithm.generation_duration:
+            self.state = "selection"
+            for agent in self.get_agents():
+                agent.ai_input_manager.stop_keys()
 
+    def select_agents(self):
+        self.genetic_algorithm.select_agents()
+        if self.genetic_algorithm.end_of_selection:
+            self.state = "evolving"
+            self.genetic_algorithm.end_of_selection = False
+
+    def evolve_agents(self):
+        self.genetic_algorithm.evolve_agents()
+        self.state = "simulation"
+        self._agents = self.genetic_algorithm.get_agents()
+        self.genetic_algorithm.generation_timer = 0
+        self.initialization_entities_callback()
 
     def prepare_input(self, car: Car):
         """
@@ -108,37 +125,16 @@ class AIManager:
         Initialize population
         :return:
         """
+        if len(cars) == 1:
+            self.get_agents().append(AIAgent(cars[0], NeuralNetwork(layer_sizes=[292, 150, 60, 6])))
+            self.get_agents()[0].neural_network.load_parameters()
+            return
         for i in range(self.population_size):
-            self.genetic_algorithm.get_agents().append(AIAgent(cars[i], NeuralNetwork(layer_sizes=[292, 150, 60, 6])))  # FOV 12x12, radius=6
+            self.get_agents().append(
+                AIAgent(cars[i], NeuralNetwork(layer_sizes=[292, 150, 60, 6])))  # FOV 12x12, radius=6
+            self.genetic_algorithm.load_agents(self.get_agents())
 
-    # def calculate_field_of_vision(self, tiles_within_square, npcs_within_square) -> list[float]:
-    #     # tiles = tile_map.get_tiles_within_square((self.agent_position.x, self.agent_position.y), vision_range)
-    #     # npcs = game.get_npcs_within_square(tiles)
-    #     tiles = tiles_within_square
-    #     npcs = npcs_within_square
-    # 
-    #     map_info = []
-    # 
-    #     for tile, npc in zip(tiles, npcs):
-    #         if tile is None:
-    #             map_info.append(-1)
-    #         elif tile.tile_type == MapType.GRASS:
-    #             map_info.append(-0.75)
-    #         elif tile.tile_type == MapType.SIDEWALK:
-    #             map_info.append(-0.5)
-    #         elif tile.tile_type == MapType.TRACK:
-    #             map_info.append(1)
-    # 
-    #         if npc is None:
-    #             map_info.append(0)
-    #         else:
-    #             map_info.append(1)
-    #     
-    #     print(map_info)
-    #     print(len(map_info))
-    # 
-    #     return map_info
     def get_ai_input_manager_of(self, car: Car) -> AIInputManager:
-        for agent in self.genetic_algorithm.get_agents():
+        for agent in self.get_agents():
             if agent.controlled_entity == car:
                 return agent.ai_input_manager

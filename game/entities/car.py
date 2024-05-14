@@ -30,6 +30,11 @@ class Car:
         self.field_of_view = FOV()
         self.last_nearest_tile = None
         self.checkpoint_number = -1
+        self.current_tile_type = None
+        self.distance_to_next_checkpoint = 10*16
+        self.selected_as_provisional_parent = False
+        self.selected_as_parent = False
+        self.traveled_distance = 0
 
     def update_input(self, input_manager: InputManager):
         self._is_accelerating = False
@@ -90,3 +95,12 @@ class Car:
             return
         if self.checkpoint_number - 1 == checkpoint or self.checkpoint_number == checkpoint - 1:
             self.checkpoint_number = checkpoint
+
+    def set_current_tile_type(self, type_tile):
+        self.current_tile_type = type_tile
+
+    def set_distance_to_next_checkpoint(self, distance):
+        self.distance_to_next_checkpoint = distance
+
+    def get_traveled_distance(self):
+        return self.traveled_distance

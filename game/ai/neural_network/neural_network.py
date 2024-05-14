@@ -10,7 +10,7 @@ class NeuralNetwork:
 
         :param layers: A list containing the number of nodes in each layer (including input and output)
         """
-        self.layer_sizes = layer_sizes
+        self.layer_sizes: list[int] = layer_sizes
         self.layers: list[Layer] = []
         # Relu activation function for hidden layers and softmax for output layer
         # print(layer_sizes)
@@ -18,7 +18,7 @@ class NeuralNetwork:
             self.layers.append(Layer(layer_sizes[i], layer_sizes[i + 1], self.relu))
         self.layers.append(Layer(layer_sizes[-2], layer_sizes[-1], self.leaky_relu))
 
-        self.learning_rate = 0.01
+        self.learning_rate: float = 0.01
 
     def relu(self, z):
         """
@@ -36,8 +36,11 @@ class NeuralNetwork:
         :param x:
         :return:
         """
-        exp_x = np.exp(x - np.max(x))
-        return exp_x / exp_x.sum(axis=0)
+        # exp_x = np.exp(x - np.max(x))
+        # return exp_x / exp_x.sum(axis=0)
+        scale = np.max(x) / 2  # Escala basada en el valor máximo para reducir la gama de valores
+        exp_x = np.exp((x - np.max(x)) / scale)
+        return exp_x / np.sum(exp_x, axis=0, keepdims=True)
 
     def leaky_relu(self, z):
         """
@@ -95,6 +98,13 @@ class NeuralNetwork:
         :param parameters: The genome of the agent
         """
         # This method is used to set the genome of the agent
+
+        expected_length = sum(layer.weights.size + layer.biases.size for layer in self.layers)
+
+        if len(parameters) != expected_length:
+            raise ValueError(
+                f"Length of parameters {len(parameters)} does not match expected length {expected_length}.")
+
         start = 0
         for layer in self.layers:
             end = start + layer.weights.size
@@ -115,3 +125,26 @@ class NeuralNetwork:
         for layer in self.layers:
             parameters.extend([layer.weights.flatten(), layer.biases.flatten()])
         return np.concatenate(parameters)
+
+    def save_parameters(self):
+        """
+        Save the parameters of the neural network to a file.
+        :return: 
+        """
+        # Save the parameters of the neural network to a file
+        np.save("parameters.npy", self.get_parameters())
+
+    def load_parameters(self):
+        """
+        Load the parameters of the neural network from a file.
+        :return: 
+        """
+        # Load the parameters of the neural network from a file
+        self.set_parameters(np.load("parameters.npy"))
+
+    def get_total_params(self):
+        """
+        Get the total number of parameters in the network.
+        :return: The total number of parameters in the network
+        """
+        return sum(layer.weights.size + layer.biases.size for layer in self.layers)

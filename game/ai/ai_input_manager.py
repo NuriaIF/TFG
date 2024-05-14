@@ -31,6 +31,8 @@ class AIInputManager(InputManager):
         for i in range(len(outputs)):
             if outputs[i] > 0.1:
                 self.key_states[self.keys[i]] = True
+            else:
+                self.key_states[self.keys[i]] = False
 
     # herencia de InputManager
     def is_key_down(self, key) -> bool:
@@ -38,3 +40,7 @@ class AIInputManager(InputManager):
 
     def _get_pressed(self):
         return self.key_states
+
+    def stop_keys(self):
+        for key in self.key_states:
+            self.key_states[key] = False

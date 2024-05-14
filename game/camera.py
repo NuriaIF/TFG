@@ -21,7 +21,12 @@ class Camera:
         self._position = position
 
     def reset_position(self):
-        self._position = Vector2(self._window_size / 2)
+        self._delta_time: float = 0
+
+        self._position: Vector2 = Vector2(self._window_size / 2)
+        self._previous_position: Vector2 = self._position
+        self._displacement: Vector2 = Vector2(0, 0)
+        self._moving: bool = False
 
     def update(self, delta_time: float, entities: list[Entity]) -> None:
         self._delta_time = delta_time
@@ -34,7 +39,6 @@ class Camera:
                 # Displace all entities, with negative value, because when the camera moves to the right, the entities
                 # should move to the left, and vice versa, and same with up and down
                 entity.get_transform().displace(-self._displacement)
-
 
             self._previous_position = self._position
 

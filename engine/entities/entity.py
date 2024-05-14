@@ -11,7 +11,7 @@ from engine.managers.resource_manager.sprite_loader import SpriteLoader
 
 class Entity:
     def __init__(self, sprite_path: str, use_engine_physics: bool = True, has_collider: bool = False,
-                 batched: bool = False, is_static: bool = True):
+                 batched: bool = False, is_static: bool = True, is_training: bool = False):
         if len(sprite_path) == 0:
             raise ValueError("Sprite path cannot be empty")
         self._transform: Transform = Transform()
@@ -27,7 +27,7 @@ class Entity:
 
         self._is_batched: bool = batched
         self._sprite: Surface | Sprite = SpriteLoader.load(sprite_path) if batched else Sprite(sprite_path)
-        self._collider: Collider | None = Collider(self.get_sprite_rect()) if has_collider else None
+        self._collider: Collider | None = Collider(self.get_sprite_rect(), is_training) if has_collider else None
 
         # If the entity is batched contains just a surface, otherwise it contains a sprite
         self._is_already_batched: bool = False

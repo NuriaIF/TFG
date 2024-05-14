@@ -53,6 +53,7 @@ class Engine:
             self.renderer.draw_surface(
                 EngineFonts.get_fonts().debug_UI_font.render(f"FPS: {round(FPSManager.get_average_fps(), 2)}",
                                                              True, EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 0))
+            self.game_render()
             self.window.swap_buffers()
             return
         self.renderer.draw_surface(
@@ -64,18 +65,19 @@ class Engine:
         for entity in self.entities:
             self.renderer.render_debug_information(entity)
 
-        self.game_render()
+        self.game_render_debug()
 
         self.window.swap_buffers()
 
-    def game_render(self):
+    def game_render_debug(self):
         pass
 
     def create_entity(self, sprite_path: str, has_collider: bool = False, background_batched: bool = False,
-                      is_static: bool = True) -> Entity:
+                      is_static: bool = True, is_training: bool = False) -> Entity:
         if not isinstance(sprite_path, str):
             raise ValueError("Sprite path must be a string")
-        entity = Entity(sprite_path, has_collider=has_collider, batched=background_batched, is_static=is_static)
+        entity = Entity(sprite_path, has_collider=has_collider, batched=background_batched, is_static=is_static,
+                        is_training=is_training)
         self.entities.append(entity)
         return entity
 

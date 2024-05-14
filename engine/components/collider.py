@@ -12,12 +12,13 @@ class Intersection:
         return self.intersection_area
 
 class Collider:
-    def __init__(self, rect: pygame.Rect):
+    def __init__(self, rect: pygame.Rect, is_training: bool):
         if rect is None:
             raise ValueError("Rect cannot be None")
         if not isinstance(rect, pygame.Rect):
             raise ValueError("Rect must be an instance of pygame.Rect")
         self.rect = rect
+        self.is_in_training = is_training
 
     def get_rect(self) -> pygame.Rect:
         return self.rect

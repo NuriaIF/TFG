@@ -41,7 +41,7 @@ class TileMap:
                 tile = Tile(tile_entity, MapType.TRACK)
                 if self.checkpoints_dict.get((index_x_pos, index_y_pos)) is not None:
                     tile.set_as_checkpoint(self.checkpoints_dict.get((index_x_pos, index_y_pos)))
-                    # self.checkpoints.append(Checkpoint(tile))
+                    self.checkpoints.append(tile)
             elif self.type_map_list[i] == MapType.GRASS:
                 tile_entity = engine.create_entity("tiles/grass", background_batched=True, is_static=True)
                 tile = Tile(tile_entity, MapType.GRASS)
@@ -169,3 +169,12 @@ class TileMap:
         for tile in area:
             if tile.is_checkpoint():
                 return tile.checkpoint_number
+
+    def get_distance_to_next_checkpoint(self, checkpoint: int, position: tuple[float, float]) -> float:
+        for tile in self.checkpoints:
+            if checkpoint is None:
+                return 10*16
+            if tile.checkpoint_number == checkpoint + 1:
+                distance = math.sqrt((tile.tile_entity.get_transform().get_position().x - position[0]) ** 2 +
+                                     (tile.tile_entity.get_transform().get_position().y - position[1]) ** 2)
+                return distance

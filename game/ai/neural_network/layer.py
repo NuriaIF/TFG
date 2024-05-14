@@ -3,8 +3,10 @@ import numpy as np
 
 class Layer:
     def __init__(self, num_inputs, num_outputs, activation_function):
-        self.weights = np.random.rand(num_outputs, num_inputs) - 0.5
-        self.biases = np.random.rand(num_outputs, 1) - 0.5
+        # Inicialización de He para pesos
+        self.weights = np.random.randn(num_outputs, num_inputs) * np.sqrt(2 / num_inputs)
+        # Inicializar biases a cero
+        self.biases = np.zeros((num_outputs, 1))
         self.activation_function = activation_function
         self.outputs = None
 

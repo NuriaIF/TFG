@@ -1,5 +1,4 @@
-import sys
-import time
+import random
 
 import numpy as np
 import pygame
@@ -12,15 +11,12 @@ class GeneticAlgorithm:
         self.current_agent_index: int = 0
         self._agents: list[AIAgent] = []
         self.mutation_rate: float = 0.05
-        # self.initialization_entities_callback = initialization_callback
-
         self.generation_duration: int = 500
         self.generation_timer: int = 0
-        # self.selection_callback = selection_callback
-        # self.generation_state = "simulation"  # "simulation", "selection", "evolving"
         self.parents_selected_list: list[AIAgent] = []
         self.end_of_selection: bool = False
         self.current_generation = 0
+        self.elite_fraction = 0.1  # 10% of the best agents are preserved as elite
 
     def load_agents(self, agents: list[AIAgent]):
         """
@@ -41,15 +37,22 @@ class GeneticAlgorithm:
         num_agents = len(self._agents)
         next_generation = []
         parent1, parent2 = self.parents_selected_list
+
+        # Elitism: Preserve the top agents
+        num_elite = int(self.elite_fraction * num_agents)
+        elite_agents = self._agents[:num_elite]
+        next_generation.extend(elite_agents)
+
         while len(next_generation) < num_agents:
-            # parent1 = top_agents[0]  # El mejor agente
-            # parent2 = np.random.choice(top_agents[1:], 1)[0]  # Selecciona el segundo padre al azar de los siguientes mejores agentes
-            # parent2 = top_agents[1]  # El segundo mejor agente
+            # child_genome = self._crossover(parent1.get_genome(), parent2.get_genome())
+            # child_genome = self._mutate(child_genome)
+            # index = len(next_generation)
+            # neural_network = neural_networks[index]
+            # neural_network.set_parameters(child_genome)
+            # next_generation.append(AIAgent(self._agents[index].controlled_entity, neural_network))
+            parent1, parent2 = self.tournament_selection(), self.tournament_selection()
             child_genome = self._crossover(parent1.get_genome(), parent2.get_genome())
             child_genome = self._mutate(child_genome)
-            # new_car = Car(self.create_entity("entities/car", has_collider=True, is_static=False))
-            # new_car.set_position(Vector2(11 * 16, 42 * 16))
-            # next_generation.append(AIAgent(new_car, child_genome))
             index = len(next_generation)
             neural_network = neural_networks[index]
             neural_network.set_parameters(child_genome)
@@ -65,11 +68,15 @@ class GeneticAlgorithm:
         if len(genome1) != len(genome2):
             raise ValueError("Genomes must have the same length")
 
-        child_genome = np.empty(len(genome1))
-        crossover_point = np.random.randint(1, len(genome1))  # Crossover de un punto
-        child_genome[:crossover_point] = genome1[:crossover_point]
-        child_genome[crossover_point:] = genome2[crossover_point:]
+        # One-point crossover
+        # crossover_point = np.random.randint(1, len(genome1))
+        # child_genome = np.concatenate((genome1[:crossover_point], genome2[crossover_point:]))
+        # return child_genome
 
+        # Uniform crossover
+        child_genome = np.empty(len(genome1))
+        for i in range(len(genome1)):
+            child_genome[i] = genome1[i] if np.random.rand() > 0.5 else genome2[i]
         return child_genome
 
     def _mutate(self, genome, mutation_strength=0.1):
@@ -78,10 +85,14 @@ class GeneticAlgorithm:
                 genome[i] += np.random.normal(0, mutation_strength)
         return genome
 
+    def tournament_selection(self, k=5):
+        tournament = random.sample(self._agents, k)
+        tournament.sort(key=lambda agent: agent.fitness_score, reverse=True)
+        return tournament[0]
+
     def select_agents(self):
         for agent in self._agents:
             agent.evaluate_fitness()
-            print(agent.fitness_score)
 
         num_agents = len(self._agents)
         self._agents.sort(key=lambda x: x.fitness_score, reverse=True)

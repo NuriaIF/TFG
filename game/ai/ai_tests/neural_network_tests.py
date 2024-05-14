@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
 
-from game.ai.neural_network.layer import Layer
 from game.ai.neural_network.neural_network import NeuralNetwork
 
 

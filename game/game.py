@@ -148,8 +148,11 @@ class Game(Engine):
 
     def center_camera_on_car(self):
         # TODO: The camera should follow the first car (best fitness)
-
-        car_position = self.cars[0].car_entity.get_transform().get_position()
+        car = self.cars[0]
+        for c in self.cars:
+            if c.checkpoint_number > car.checkpoint_number:
+                car = c
+        car_position = car.car_entity.get_transform().get_position()
         camera_position = -self.camera.get_position() + Vector2(self.window.get_width(), self.window.get_height())
         difference = camera_position - car_position
         if difference.length() > 1:

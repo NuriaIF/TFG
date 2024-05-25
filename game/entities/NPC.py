@@ -12,7 +12,6 @@ class NPC:
         self.accelerate_max_speed = 500
         self.mass = 1000  # newtons
         self.engine_force = 10000
-        self.speed = 0
         self.drag = 0.005
         self.base_rotation_speed = 100
         self.current_rotation_speed = 0

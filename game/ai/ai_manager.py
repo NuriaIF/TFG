@@ -36,7 +36,7 @@ class AIManager:
         return self.population_size
 
     def get_agents(self):
-        return self._agents
+        return self.genetic_algorithm.get_agents()
 
     def update(self, cars: list[Car]):
         # self.prepare_input(game_state)
@@ -63,6 +63,7 @@ class AIManager:
         #     self.prepare_input(agent, game, tilemap)
         if self.state == "simulation":
             for agent in self.get_agents():
+                agent.evaluate_fitness()
                 inputs = self.prepare_input(agent.controlled_entity)
                 outputs = agent.neural_network.forward(inputs)
                 # TODO: Convert outputs to commands
@@ -89,14 +90,14 @@ class AIManager:
     def evolve_agents(self):
         self.genetic_algorithm.evolve_agents()
         self.state = "simulation"
-        self._agents = self.genetic_algorithm.get_agents()
+        # self._agents = self.genetic_algorithm.get_agents()
         self.genetic_algorithm.generation_timer = 0
         self.initialization_entities_callback()
 
     def prepare_input(self, car: Car):
         """
         Prepare the input for the neural network
-        :param game_state:
+        :param car: Car
         :return:
         """
         entity = car.car_entity

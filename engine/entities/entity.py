@@ -32,6 +32,8 @@ class Entity:
         # If the entity is batched contains just a surface, otherwise it contains a sprite
         self._is_already_batched: bool = False
 
+        self.fitness = None
+
     def is_static(self) -> bool:
         return self._is_static
 
@@ -106,3 +108,9 @@ class Entity:
 
     def set_layer(self, render_layer: RenderLayer):
         self._sprite.layer = render_layer.value
+
+    def get_fitness(self) -> float:
+        return self.fitness
+
+    def set_fitness(self, fitness: float) -> None:
+        self.fitness = fitness

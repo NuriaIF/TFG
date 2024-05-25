@@ -15,7 +15,7 @@ class GeneticAlgorithm:
         self.generation_timer: int = 0
         self.parents_selected_list: list[AIAgent] = []
         self.end_of_selection: bool = False
-        self.current_generation = 0
+        self.current_generation = 1
         self.elite_fraction = 0.1  # 10% of the best agents are preserved as elite
 
     def load_agents(self, agents: list[AIAgent]):

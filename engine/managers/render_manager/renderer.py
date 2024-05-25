@@ -100,10 +100,12 @@ class Renderer:
         rotation_text = f"Rotation: {transform.get_rotation():.2f}"
         scale = transform.get_scale()
         scale_text = f"Scale: ({scale[0]:.2f}, {scale[1]:.2f})"
+        fitness_text = f"Fitness: {entity.get_fitness()}"
 
         self.draw_text(position_text, position)
         self.draw_text(rotation_text, Vector2(position[0], position[1] + 15))
         self.draw_text(scale_text, Vector2(position[0], position[1] + 30))
+        self.draw_text(fitness_text, Vector2(position[0], position[1] + 45))
 
     def _draw_entity_forward_vector(self, entity: Entity) -> None:
         if entity is None:

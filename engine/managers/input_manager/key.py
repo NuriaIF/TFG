@@ -25,6 +25,9 @@ class Key(Enum):
     # Escape
     K_ESCAPE = pygame.K_ESCAPE
 
+    # For AI
+    K_N = pygame.K_n
+
 
 class Mouse(Enum):
     # Mouse buttons

@@ -11,7 +11,7 @@ if __name__ == '__main__':
     # Initialize Pygame
     pygame.init()
 
-    FPSManager()
+    FPSManager(time_increment=1)
     game = Game()
 
     # Clock for controlling frame rate and calculating delta time

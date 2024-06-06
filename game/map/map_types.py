@@ -9,3 +9,4 @@ class MapType(Enum):
     SIDEWALK = 3
     GRASS = 4
     FOREST = 5
+    SEA = 6

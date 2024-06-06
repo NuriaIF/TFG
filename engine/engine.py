@@ -40,7 +40,7 @@ class Engine:
                 self.physics_manager.update(entity, delta_time)
 
             if entity.has_collider():
-                self.collider_manager.update(entity, delta_time)
+                self.collider_manager.update(entity)
 
             self.renderer.update(entity)
 
@@ -68,6 +68,9 @@ class Engine:
         self.game_render_debug()
 
         self.window.swap_buffers()
+
+    def game_render(self):
+        pass
 
     def game_render_debug(self):
         pass

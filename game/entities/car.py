@@ -5,6 +5,7 @@ from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.input_manager.key import Key
 from engine.managers.render_manager.render_layers import RenderLayer
 from game.game_state.field_of_view import FOV
+from game.map.map_types import MapType
 
 
 class Car:
@@ -35,6 +36,10 @@ class Car:
         self.selected_as_provisional_parent = False
         self.selected_as_parent = False
         self.traveled_distance = 0
+        self.is_on_sidewalk = []
+        self.is_on_grass = []
+        self.is_on_track = []
+        self.speeds = []
 
     def update_input(self, input_manager: InputManager):
         self._is_accelerating = False
@@ -56,6 +61,7 @@ class Car:
 
     def update(self, delta_time: float):
         self.current_rotation_speed = self.base_rotation_speed * delta_time
+        self.speeds.append(self.car_entity.get_physics().get_velocity())
 
     def set_position(self, pos: Vector2):
         self.car_entity.get_transform().set_position(pos)
@@ -96,8 +102,14 @@ class Car:
         if self.checkpoint_number + 1 == checkpoint:  # or self.checkpoint_number == checkpoint - 1:
             self.checkpoint_number = checkpoint
 
-    def set_current_tile_type(self, type_tile):
+    def set_current_tile_type(self, type_tile: MapType):
         self.current_tile_type = type_tile
+        if type_tile == MapType.SIDEWALK:
+            self.is_on_sidewalk.append(True)
+        elif type_tile == MapType.GRASS:
+            self.is_on_grass.append(True)
+        elif type_tile == MapType.TRACK:
+            self.is_on_track.append(True)
 
     def set_distance_to_next_checkpoint(self, distance):
         self.distance_to_next_checkpoint = distance
@@ -118,3 +130,7 @@ class Car:
         self.current_tile_type = None
         self.distance_to_next_checkpoint = 10*16
         self.traveled_distance = 0
+        self.angle_to_next_checkpoint = 0
+        self.is_on_sidewalk = []
+        self.is_on_grass = []
+        self.speeds = []

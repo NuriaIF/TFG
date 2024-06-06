@@ -18,6 +18,8 @@ class MapLoader:
             return MapType.SIDEWALK
         elif char == 'i':
             return MapType.CROSSWALK
+        elif char == 'T':
+            return MapType.SEA
 
     @staticmethod
     def load_map(map_name: str) -> MapTypeList:

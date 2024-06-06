@@ -1,5 +1,7 @@
 from pygame import Vector2
 
+from engine.managers.input_manager.input_manager import InputManager
+from engine.managers.input_manager.key import Key
 from game.ai.ai_agent import AIAgent
 from game.ai.ai_input_manager import AIInputManager
 from game.ai.neural_network.neural_network import NeuralNetwork
@@ -10,18 +12,18 @@ from game.ai.genetic_algorithm.genetic_algorithm import GeneticAlgorithm
 
 class AIManager:
     def __init__(self, initialization_callback, training=True):
-        self.generation_duration: int = 100
         self.initial_state_for_this_generation: GameState = GameState()
         # self.neural_networks: list[NeuralNetwork] = []
         # self.ai_agents: list[AIAgent] = []
         self.current_agent_index = 0
-        self.population_size = 10
+        self.population_size = 50
         self.training = training
         if training:
             self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm()
             self.initialization_entities_callback = initialization_callback
         self._agents: list[AIAgent] = []
         self.state = "simulation"
+        # self.change_generation = "auto"  # "auto" or "manual"
 
         # self.num_generations = 10
         # self.current_generation = 0
@@ -36,19 +38,23 @@ class AIManager:
         return self.population_size
 
     def get_agents(self):
-        return self.genetic_algorithm.get_agents()
+        if self.training:
+            return self.genetic_algorithm.get_agents()
+        else:
+            return self._agents
 
-    def update(self, cars: list[Car]):
+    def update(self, cars: list[Car], input_manager: InputManager = None):
         # self.prepare_input(game_state)
         # if not self.genetic_algorithm.get_agents():
         if not self.get_agents():
             self.create_population(cars)
         if self.state == "simulation":
-            self.simulate()
+            self.simulate(input_manager)
         elif self.state == "selection":
             self.select_agents()
         elif self.state == "evolving":
             self.evolve_agents()
+
     # def next_agent(self):
     #     if self.current_agent_index < len(self.neural_networks) - 1:
     #         self.current_agent_index += 1
@@ -58,7 +64,7 @@ class AIManager:
     # def save_game_state(self, game_state):
     #     self.initial_state_for_this_generation = game_state
 
-    def simulate(self):
+    def simulate(self, input_manager: InputManager):
         # for agent in self.ai_agents:
         #     self.prepare_input(agent, game, tilemap)
         if self.state == "simulation":
@@ -76,10 +82,15 @@ class AIManager:
         # TODO: check if generation is over
         # check if generation is over
         self.genetic_algorithm.generation_timer += 1
-        if self.genetic_algorithm.generation_timer >= self.genetic_algorithm.generation_duration:
+        # detect keys pressed, 'N' for next generation
+        # key_pressed = False
+        # if self.genetic_algorithm.generation_timer >= self.genetic_algorithm.generation_duration:
+        if input_manager.is_key_down(Key.K_N):
             self.state = "selection"
             for agent in self.get_agents():
                 agent.ai_input_manager.stop_keys()
+                # elif input_manager.is_key_down(Key.K_C):
+                #     key_pressed = True
 
     def select_agents(self):
         self.genetic_algorithm.select_agents()

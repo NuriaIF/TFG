@@ -149,7 +149,7 @@ class NeuralNetwork:
         :return: 
         """
         # Load the parameters of the neural network from a file
-        self.set_parameters(np.load("parameters.npy"))
+        self.set_parameters(np.load("best.npy"))
 
     def get_total_params(self):
         """

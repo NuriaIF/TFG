@@ -6,7 +6,7 @@ class ColliderManager:
     def __init__(self):
         self.colliders: list[Collider] = []
 
-    def update(self, entity: Entity, delta_time: float) -> None:
+    def update(self, entity: Entity) -> None:
         if not isinstance(entity, Entity):
             raise ValueError("entity must be an instance of Entity")
         collider = entity.get_collider()

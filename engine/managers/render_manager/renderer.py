@@ -102,10 +102,10 @@ class Renderer:
         scale_text = f"Scale: ({scale[0]:.2f}, {scale[1]:.2f})"
         fitness_text = f"Fitness: {entity.get_fitness()}"
 
-        self.draw_text(position_text, position)
+        # self.draw_text(position_text, position)
         self.draw_text(rotation_text, Vector2(position[0], position[1] + 15))
-        self.draw_text(scale_text, Vector2(position[0], position[1] + 30))
-        self.draw_text(fitness_text, Vector2(position[0], position[1] + 45))
+        # self.draw_text(scale_text, Vector2(position[0], position[1] + 30))
+        # self.draw_text(fitness_text, Vector2(position[0], position[1] + 45))
 
     def _draw_entity_forward_vector(self, entity: Entity) -> None:
         if entity is None:
@@ -137,11 +137,24 @@ class Renderer:
         text_surface = EngineFonts.get_fonts().debug_entity_font.render(text, True, color)
         self.window.get_window().blit(text_surface, position)
 
+    def draw_provisional_text(self, text: str, position: Vector2,
+                              color: tuple[int, int, int] = EngineAttributes.DEBUG_FONT_COLOR,
+                              size: int = EngineAttributes.DEBUG_ENTITY_FONT_SIZE):
+        current_font = pygame.font.SysFont(EngineAttributes.DEBUG_FONT,
+                                           size, bold=False)
+        text_surface = current_font.render(text, True, color)
+        self.window.get_window().blit(text_surface, position)
+
     def draw_rect(self, rect: pygame.Rect, color: tuple[int, int, int] = (255, 0, 0),
                   thickness: int = 1) -> None:
         if not isinstance(rect, pygame.Rect):
             raise ValueError("Rect must be a pygame.Rect")
         pygame.draw.rect(self.window.get_window(), color, rect, thickness)
+
+    def draw_polygon(self, points: list[Vector2], color: tuple[int, int, int], thickness: int = 1) -> None:
+        if not all(isinstance(point, Vector2) for point in points):
+            raise ValueError("All points must be pygame.Vector2")
+        pygame.draw.polygon(self.window.get_window(), color, points, width=thickness)
 
     def draw_line(self, start_pos: Vector2, end_pos: tuple[int, int], color: tuple[int, int, int],
                   thickness: int = 1) -> None:

@@ -1,5 +1,6 @@
 import pygame as pygame
 
+
 class Intersection:
     def __init__(self, intersects: bool, intersection_area: float):
         self.intersects = intersects
@@ -11,8 +12,9 @@ class Intersection:
     def get_intersection_area(self) -> float:
         return self.intersection_area
 
+
 class Collider:
-    def __init__(self, rect: pygame.Rect, is_training: bool):
+    def __init__(self, rect: pygame.Rect, is_training: bool = False):
         if rect is None:
             raise ValueError("Rect cannot be None")
         if not isinstance(rect, pygame.Rect):

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pygame
 from pygame import Surface
 
@@ -48,6 +50,14 @@ class Entity:
                                     self._sprite.get_width(), self._sprite.get_height())
         return self._sprite.rect
 
+    def get_rect_with_transform(self, transform: Transform) -> pygame.Rect:
+        if self.is_batched():
+            return pygame.rect.Rect(transform.get_position().x, transform.get_position().y,
+                                    self._sprite.get_width(), self._sprite.get_height())
+        else:
+            return pygame.rect.Rect(transform.get_position().x, transform.get_position().y,
+                                    self._sprite.rect.width, self._sprite.rect.height)
+
     def set_is_already_batched(self, is_already_batched: bool) -> None:
         self._is_already_batched = is_already_batched
 
@@ -73,8 +83,14 @@ class Entity:
     def get_transform(self) -> Transform:
         return self._transform
 
+    def set_transform(self, transform: Transform) -> None:
+        self._transform = transform
+
     def get_physics(self) -> Physics | None:
         return self._physics
+
+    def set_physics(self, physics: Physics) -> None:
+        self._physics = physics
 
     def has_collider(self) -> bool:
         return self._has_collider

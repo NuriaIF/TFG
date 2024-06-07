@@ -16,7 +16,7 @@ class AIManager:
         # self.neural_networks: list[NeuralNetwork] = []
         # self.ai_agents: list[AIAgent] = []
         self.current_agent_index = 0
-        self.population_size = 50
+        self.population_size = 10
         self.training = training
         if training:
             self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm()
@@ -117,9 +117,8 @@ class AIManager:
         agent_acceleration: float = entity.get_physics().get_acceleration()
         agent_field_of_view: list[float] = car.field_of_view.get_encoded_version()
 
-        inputs = [agent_forward.x, agent_forward.y, agent_velocity, agent_acceleration]
+        inputs = [agent_velocity, agent_acceleration]
         inputs.extend(agent_field_of_view)
-
         return inputs
 
         # print(len(inputs))
@@ -138,12 +137,12 @@ class AIManager:
         :return:
         """
         if len(cars) == 1:
-            self.get_agents().append(AIAgent(cars[0], NeuralNetwork(layer_sizes=[292, 150, 60, 6])))
+            self.get_agents().append(AIAgent(cars[0], NeuralNetwork(layer_sizes=[290, 150, 60, 6])))
             self.get_agents()[0].neural_network.load_parameters()
             return
         for i in range(self.population_size):
             self.get_agents().append(
-                AIAgent(cars[i], NeuralNetwork(layer_sizes=[292, 150, 60, 6])))  # FOV 12x12, radius=6
+                AIAgent(cars[i], NeuralNetwork(layer_sizes=[290, 150, 60, 6])))  # FOV 12x12, radius=6
             self.genetic_algorithm.load_agents(self.get_agents())
 
     def get_ai_input_manager_of(self, car: Car) -> AIInputManager:

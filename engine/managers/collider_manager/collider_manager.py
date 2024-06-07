@@ -6,7 +6,7 @@ class ColliderManager:
     def __init__(self):
         self.colliders: list[Collider] = []
 
-    def update(self, entity: Entity) -> None:
+    def update(self, entity: Entity, next_frame_collider: Collider) -> None:
         if not isinstance(entity, Entity):
             raise ValueError("entity must be an instance of Entity")
         collider = entity.get_collider()
@@ -18,36 +18,9 @@ class ColliderManager:
 
         if entity.is_static():
             return  # Static entities don't move, so they don't need to check for collision
-        self.check_collision_continuous(entity)
+        self.check_collision_continuous(entity, next_frame_collider)
 
-    def check_collision(self, entity: Entity) -> None:
-        if not isinstance(entity, Entity):
-            raise ValueError("entity must be an instance of Entity")
-
-        collider = entity.get_collider()
-        physics = entity.get_physics()
-        transform = entity.get_transform()
-
-        for other_collider in self.colliders:
-            if other_collider is collider:
-                continue
-
-            intersection = collider.intersects(other_collider)
-            if intersection.get_intersects():
-                # Reverse the direction of velocity as a simple response to collision
-                # This assumes the entity should bounce back with the same speed it hit the collider
-                # Modify this logic based on your game's needs, for example, by reducing speed on collision
-                physics.set_velocity(-physics.get_velocity())
-
-                physics.set_velocity(physics.get_velocity() * (1 - min(intersection.get_intersection_area() / 100, 1)))
-
-                direction_of_movement = -1 if physics.get_velocity() < 0 else 1
-                transform.displace(
-                    transform.get_forward() * direction_of_movement * 5)  # Adjust the displacement as needed
-
-                break
-
-    def check_collision_continuous(self, entity: Entity) -> None:
+    def check_collision_continuous(self, entity: Entity, next_frame_collider: Collider) -> None:
         collider = entity.get_collider()
         physics = entity.get_physics()
         transform = entity.get_transform()
@@ -61,7 +34,7 @@ class ColliderManager:
             intersection = collider.intersects(other_collider)
             if intersection.get_intersects():
                 # Reverse the velocity as a simple response to collision
-                physics.set_velocity(-physics.get_velocity())
+                physics.set_velocity(-physics.get_velocity() * 0.05)
 
                 # Adjust the entity's position slightly in the opposite direction of its current velocity
                 # This is to ensure it doesn't remain stuck within the collider

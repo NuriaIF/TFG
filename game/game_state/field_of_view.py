@@ -68,6 +68,9 @@ class FOV:
         return tiles_and_entities_within_square
 
     def get_encoded_version(self) -> list[float]:
+        if len(self.field_of_view) == 0:
+            return [0] * 288
+        to_add = 144 - len(self.field_of_view)
         encoded_fov = []
         for tile, has_entity in self.field_of_view:
             if tile.tile_type == MapType.GRASS:
@@ -82,4 +85,7 @@ class FOV:
                 encoded_fov.append(1)
             else:
                 encoded_fov.append(0)
+        for _ in range(to_add):
+            encoded_fov.append(-1)
+            encoded_fov.append(0)
         return encoded_fov

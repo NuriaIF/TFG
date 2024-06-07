@@ -52,3 +52,12 @@ class Physics:
 
     def set_force(self, force_vector: float) -> None:
         self.force = force_vector
+    
+    def copy(self) -> 'Physics':
+        physics = Physics()
+        physics.mass = self.mass
+        physics.velocity = self.velocity
+        physics.acceleration = self.acceleration
+        physics.force = self.force
+        physics.drag = self.drag
+        return physics

@@ -1,5 +1,6 @@
-import math
 import copy
+import math
+
 from pygame import Vector2
 
 
@@ -78,3 +79,6 @@ class Transform:
         forward_y = math.cos(radians + math.pi)  # Add pi to rotate 180 degrees, forward starts looking up
 
         return Vector2(forward_x, forward_y).normalize()
+
+    def copy(self) -> 'Transform':
+        return copy.deepcopy(self)

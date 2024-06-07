@@ -1,5 +1,7 @@
 from pygame import Vector2
 
+from engine.components.collider import Collider
+from engine.components.transform import Transform
 from engine.engine_attributes import EngineAttributes
 from engine.engine_fonts import EngineFonts
 from engine.entities.entity import Entity
@@ -36,11 +38,15 @@ class Engine:
         self.renderer.update_background_batch(self.camera.get_displacement())
 
         for entity in self.entities:
+            # Getting the next frame collider before updating the physics
+            # This way a collider never enters another, blocking the entity
+            next_frame_transform: Transform = self.physics_manager.get_next_transform_and_physics(entity, delta_time)[0]
+            next_frame_collider: Collider = Collider(entity.get_rect_with_transform(next_frame_transform))
+            if entity.has_collider():
+                self.collider_manager.update(entity, next_frame_collider)
+
             if not entity.is_static():
                 self.physics_manager.update(entity, delta_time)
-
-            if entity.has_collider():
-                self.collider_manager.update(entity)
 
             self.renderer.update(entity)
 

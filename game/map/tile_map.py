@@ -288,6 +288,15 @@ class TileMap:
                                      (tile.tile_entity.get_transform().get_position().y - position[1]) ** 2)
                 return distance
         return float('inf')
+    
+    def get_next_checkpoint_position(self, checkpoint: int) -> tuple[float, float]:
+        if checkpoint is None:
+            return float('inf'), float('inf')
+        next_checkpoint_number = checkpoint + 1
+        for tile in self.checkpoints:
+            if tile.checkpoint_number == next_checkpoint_number:
+                return tile.tile_entity.get_transform().get_position().x, tile.tile_entity.get_transform().get_position().y
+        return float('inf'), float('inf')
 
     def get_angle_to_next_checkpoint(self, checkpoint: int, position: tuple[float, float]) -> float:
         if checkpoint is None:

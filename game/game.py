@@ -21,7 +21,7 @@ from game.map.tile_map import TileMap
 class Game(Engine):
     def __init__(self):
         super().__init__()
-        self.game_mode: GameMode = GameMode.MANUAL
+        self.game_mode: GameMode = GameMode.AI_TRAINING
         self.play_music("GameMusic")
 
         self.cars: list[Car] = []
@@ -70,6 +70,8 @@ class Game(Engine):
             distance_to_next_checkpoint = self.tile_map.get_distance_to_next_checkpoint(
                 car.checkpoint_number,
                 (car.car_entity.get_transform().get_position()[0], car.car_entity.get_transform().get_position()[1]))
+            next_checkpoint_position = self.tile_map.get_next_checkpoint_position(car.checkpoint_number)
+            car.set_next_checkpoint_position(next_checkpoint_position)
             angle_to_next_checkpoint = self.tile_map.get_angle_to_next_checkpoint(
                 car.checkpoint_number,
                 (car.car_entity.get_transform().get_position()[0], car.car_entity.get_transform().get_position()[1]))

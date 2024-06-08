@@ -1,3 +1,4 @@
+import numpy as np
 from pygame import Vector2
 
 from engine.managers.input_manager.input_manager import InputManager
@@ -115,9 +116,28 @@ class AIManager:
         agent_forward: Vector2 = entity.get_transform().get_forward()
         agent_velocity: float = entity.get_physics().get_velocity()
         agent_acceleration: float = entity.get_physics().get_acceleration()
-        agent_field_of_view: list[float] = car.field_of_view.get_encoded_version()
 
-        inputs = [agent_velocity, agent_acceleration]
+        next_checkpoint_position = car.get_next_checkpoint_position()
+        car_in_tile_position = car.get_field_of_view().get_nearest_tile().tile_entity.get_transform().get_position()
+        relative_position = (
+            next_checkpoint_position[0] - car_in_tile_position[0],
+            next_checkpoint_position[1] - car_in_tile_position[1]
+        )
+        max_velocity = car.accelerate_max_speed
+        min_velocity = -car.base_max_speed
+        max_acceleration = car.engine_force / car.mass
+        min_acceleration = -car.engine_force / car.mass
+        normalized_velocity = (agent_velocity - min_velocity) / (max_velocity - min_velocity)
+        normalized_acceleration = (agent_acceleration - min_acceleration) / (max_acceleration - min_acceleration)
+        distance = np.linalg.norm(relative_position)
+        # Normalize relative vector
+        if distance != 0:
+            normalized_relative_position = relative_position / distance
+        else:
+            normalized_relative_position = np.zeros_like(relative_position)
+
+        agent_field_of_view: list[float] = car.field_of_view.get_encoded_version()
+        inputs = [normalized_velocity, normalized_acceleration] + list(normalized_relative_position)
         inputs.extend(agent_field_of_view)
         return inputs
 
@@ -137,12 +157,12 @@ class AIManager:
         :return:
         """
         if len(cars) == 1:
-            self.get_agents().append(AIAgent(cars[0], NeuralNetwork(layer_sizes=[290, 150, 60, 6])))
+            self.get_agents().append(AIAgent(cars[0], NeuralNetwork(layer_sizes=[292, 150, 60, 6])))
             self.get_agents()[0].neural_network.load_parameters()
             return
         for i in range(self.population_size):
             self.get_agents().append(
-                AIAgent(cars[i], NeuralNetwork(layer_sizes=[290, 150, 60, 6])))  # FOV 12x12, radius=6
+                AIAgent(cars[i], NeuralNetwork(layer_sizes=[292, 150, 60, 6])))  # FOV 12x12, radius=6
             self.genetic_algorithm.load_agents(self.get_agents())
 
     def get_ai_input_manager_of(self, car: Car) -> AIInputManager:

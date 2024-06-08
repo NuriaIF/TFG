@@ -32,6 +32,8 @@ class Car:
         self.checkpoint_number = -1
         self.current_tile_type = None
         self.distance_to_next_checkpoint = 10*16
+        self.position_of_next_checkpoint = None
+        # self.relative_position_of_next_checkpoint = None
         self.angle_to_next_checkpoint = 0
         self.selected_as_provisional_parent = False
         self.selected_as_parent = False
@@ -119,6 +121,15 @@ class Car:
 
     def get_traveled_distance(self):
         return self.traveled_distance
+
+    def set_next_checkpoint_position(self, position):
+        self.position_of_next_checkpoint = position
+
+    def get_next_checkpoint_position(self):
+        return self.position_of_next_checkpoint
+
+    def get_field_of_view(self):
+        return self.field_of_view
 
     def reset(self):
         self.car_entity.get_transform().set_position(Vector2(0, 0))

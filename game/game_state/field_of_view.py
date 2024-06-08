@@ -78,14 +78,14 @@ class FOV:
             elif tile.tile_type == MapType.SIDEWALK:
                 encoded_fov.append(-0.5)
             elif tile.tile_type == MapType.TRACK:
-                encoded_fov.append(1)
+                encoded_fov.append(1.0)
             else:
-                encoded_fov.append(-1)
+                encoded_fov.append(-1.0)
             if has_entity:
-                encoded_fov.append(1)
+                encoded_fov.append(1.0)
             else:
-                encoded_fov.append(0)
+                encoded_fov.append(0.0)
         for _ in range(to_add):
-            encoded_fov.append(-1)
-            encoded_fov.append(0)
+            encoded_fov.append(-1.0)
+            encoded_fov.append(0.0)
         return encoded_fov

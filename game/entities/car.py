@@ -4,11 +4,13 @@ from engine.entities.entity import Entity
 from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.input_manager.key import Key
 from engine.managers.render_manager.render_layers import RenderLayer
-from game.game_state.field_of_view import FOV
-from game.map.map_types import MapType
+from game.game_state.car_knowledge import CarKnowledge
 
 
 class Car:
+    """
+    Car class that represents a car entity in the game.
+    """
     def __init__(self, entity: Entity):
         self.car_entity = entity
         self.car_entity.set_layer(RenderLayer.ENTITIES)
@@ -27,23 +29,15 @@ class Car:
         self.car_entity.debug_config_show_transform()
         self.car_entity.debug_config_show_forward()
 
-        self.field_of_view = FOV()
-        self.last_nearest_tile = None
-        self.checkpoint_number = -1
-        self.current_tile_type = None
-        self.distance_to_next_checkpoint = 10*16
-        self.position_of_next_checkpoint = None
-        # self.relative_position_of_next_checkpoint = None
-        self.angle_to_next_checkpoint = 0
-        self.selected_as_provisional_parent = False
         self.selected_as_parent = False
-        self.traveled_distance = 0
-        self.is_on_sidewalk = []
-        self.is_on_grass = []
-        self.is_on_track = []
-        self.speeds = []
 
-    def update_input(self, input_manager: InputManager):
+        self.car_knowledge = CarKnowledge()
+
+    def update_input(self, input_manager: InputManager) -> None:
+        """
+        Update the input of the car entity
+        :param input_manager: input manager
+        """
         self._is_accelerating = False
         if input_manager.is_key_down(Key.K_W):
             self.move_forward()
@@ -61,33 +55,58 @@ class Car:
         if input_manager.is_key_down(Key.K_SPACE):
             self.break_car()
 
-    def update(self, delta_time: float):
+    def update(self, delta_time: float) -> None:
+        """
+        Update the car
+        :param delta_time: time between frames
+        """
         self.current_rotation_speed = self.base_rotation_speed * delta_time
-        self.speeds.append(self.car_entity.get_physics().get_velocity())
 
-    def set_position(self, pos: Vector2):
+    def set_position(self, pos: Vector2) -> None:
+        """
+        Set the position of the car
+        :param pos: position to be set
+        """
         self.car_entity.get_transform().set_position(pos)
 
-    def accelerate(self):
+    def accelerate(self) -> None:
+        """
+        Accelerate the car
+        """
         if self.car_entity.get_physics().get_velocity() < self.accelerate_max_speed:
             self._is_accelerating = True
             self.car_entity.get_physics().set_force(self.engine_force)
 
-    def move_forward(self):
+    def move_forward(self) -> None:
+        """
+        Move the car forward
+        """
         if self.car_entity.get_physics().get_velocity() < self.base_max_speed:
             self.car_entity.get_physics().set_force(self.engine_force)
 
-    def move_backward(self):
+    def move_backward(self) -> None:
+        """
+        Move the car backward
+        """
         if self.car_entity.get_physics().get_velocity() > -self.base_max_speed:
             self.car_entity.get_physics().set_force(-self.engine_force)
 
-    def rotate_right(self):
+    def rotate_right(self) -> None:
+        """
+        Rotate the car to the right
+        """
         self.car_entity.get_transform().rotate(self.current_rotation_speed)
 
-    def rotate_left(self):
+    def rotate_left(self) -> None:
+        """
+        Rotate the car to the left
+        """
         self.car_entity.get_transform().rotate(-self.current_rotation_speed)
 
-    def break_car(self):
+    def break_car(self) -> None:
+        """
+        Break the car
+        """
         if self.car_entity.get_physics().get_velocity() == 0:
             return
         direction_of_velocity = self.car_entity.get_physics().get_velocity() / abs(
@@ -95,53 +114,21 @@ class Car:
 
         self.car_entity.get_physics().set_force(self.engine_force * -direction_of_velocity)
 
-    def is_accelerating(self):
+    def is_accelerating(self) -> bool:
+        """
+        Check if the car is accelerating
+        :return: a boolean value indicating if the car is accelerating
+        """
         return self._is_accelerating
 
-    def reach_checkpoint(self, checkpoint: int):
-        if checkpoint is None:
-            return
-        if self.checkpoint_number + 1 == checkpoint:  # or self.checkpoint_number == checkpoint - 1:
-            self.checkpoint_number = checkpoint
-
-    def set_current_tile_type(self, type_tile: MapType):
-        self.current_tile_type = type_tile
-        if type_tile == MapType.SIDEWALK:
-            self.is_on_sidewalk.append(True)
-        elif type_tile == MapType.GRASS:
-            self.is_on_grass.append(True)
-        elif type_tile == MapType.TRACK:
-            self.is_on_track.append(True)
-
-    def set_distance_to_next_checkpoint(self, distance):
-        self.distance_to_next_checkpoint = distance
-
-    def set_angle_to_next_checkpoint(self, angle):
-        self.angle_to_next_checkpoint = angle
-
-    def get_traveled_distance(self):
-        return self.traveled_distance
-
-    def set_next_checkpoint_position(self, position):
-        self.position_of_next_checkpoint = position
-
-    def get_next_checkpoint_position(self):
-        return self.position_of_next_checkpoint
-
-    def get_field_of_view(self):
-        return self.field_of_view
-
-    def reset(self):
+    def reset(self) -> None:
+        """
+        Reset the car attributes
+        """
         self.car_entity.get_transform().set_position(Vector2(0, 0))
         self.car_entity.get_transform().set_rotation(0)
         self.car_entity.get_physics().set_velocity(0)
         self.car_entity.get_physics().set_acceleration(0)
         self.car_entity.get_physics().set_force(0)
-        self.checkpoint_number = -1
-        self.current_tile_type = None
-        self.distance_to_next_checkpoint = 10*16
-        self.traveled_distance = 0
-        self.angle_to_next_checkpoint = 0
-        self.is_on_sidewalk = []
-        self.is_on_grass = []
-        self.speeds = []
+        self.car_knowledge = CarKnowledge()
+        self.selected_as_parent = False

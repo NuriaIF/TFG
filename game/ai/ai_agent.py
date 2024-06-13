@@ -19,20 +19,20 @@ class AIAgent():
 
     def evaluate_fitness(self):
         # TODO: get the checkpoint number of the car
-        checkpoint_reached = self.controlled_entity.checkpoint_number
+        checkpoint_reached = self.controlled_entity.car_knowledge.checkpoint_number
         # self.fitness_score = self.controlled_entity.checkpoint_number * 1000
-        # TODO: reward the agent for staying on track
-        tile_type_score = self.controlled_entity.current_tile_type.value
+        # # TODO: reward the agent for staying on track
+        # tile_type_score = self.controlled_entity.car_knowledge.current_tile_type.value
         # self.fitness_score -= self.controlled_entity.current_tile_type.value
         # print(self.controlled_entity.current_tile_type)
         # TODO: get traveled distance
-        traveled_distance = self.controlled_entity.traveled_distance
+        # traveled_distance = self.controlled_entity.car_knowledge.traveled_distance
         # self.fitness_score += self.controlled_entity.traveled_distance
         # print(traveled_distance)
         # TODO: reward the agent for going forward
 
         # TODO: get the distance to the next checkpoint
-        distance_to_next_checkpoint = self.controlled_entity.distance_to_next_checkpoint
+        distance_to_next_checkpoint = self.controlled_entity.car_knowledge.distance_to_next_checkpoint
         # print(self.controlled_entity.distance_to_next_checkpoint)
         # TODO: reward the agent for going fast
         # TODO: penalize the agent for going off track
@@ -44,20 +44,15 @@ class AIAgent():
         angle_difference = self.calculate_angle_difference()
 
         # TODO: penalize time spent on sidewalk
-        time_spent_on_sidewalk = self.controlled_entity.is_on_sidewalk.count(True) / len(
-            self.controlled_entity.is_on_sidewalk) if len(
-            self.controlled_entity.is_on_sidewalk) > 0 else 0  # 0-1
+        time_spent_on_sidewalk = self.controlled_entity.car_knowledge.chronometer_sidewalk.get_elapsed_time()
         # TODO: penalize time spent on grass
-        time_spent_on_grass = self.controlled_entity.is_on_grass.count(True) / len(
-            self.controlled_entity.is_on_grass) if len(
-            self.controlled_entity.is_on_grass) > 0 else 0  # 0-1
+        time_spent_on_grass = self.controlled_entity.car_knowledge.chronometer_grass.get_elapsed_time()
         # TODO: reward time spent on track
-        time_spent_on_track = self.controlled_entity.is_on_track.count(True) / len(
-            self.controlled_entity.is_on_track) if len(
-            self.controlled_entity.is_on_track) > 0 else 0
+        time_spent_on_track = self.controlled_entity.car_knowledge.chronometer_track.get_elapsed_time()
         # TODO: calculate average speed
-        average_speed = sum(self.controlled_entity.speeds) / len(self.controlled_entity.speeds) if len(
-            self.controlled_entity.speeds) > 0 else 0
+        average_speed = self.controlled_entity.car_knowledge.accumulator_speed / self.controlled_entity.car_knowledge.counter_frames
+        # TODO: penalize time spent still
+        time_staying_still = self.controlled_entity.car_knowledge.chronometer_still.get_elapsed_time()
         # velocidad media que ha tenido el coche, velocidad maxima
         # por debajo de velocidad maxima, mas reduces fitness sobre velocidad
         # penalizas por reducir velocidad maxima
@@ -67,76 +62,60 @@ class AIAgent():
 
         # self.fitness_score = checkpoint_reached * 16 * 10 + 16 * 10 - distance_to_next_checkpoint - (
         #         angle_difference * angle_penalty) - time_spent_on_sidewalk * 25 - time_spent_on_grass * 50
-        checkpoint_reward = 16 * 10
-        distance_penalty = 1
-        angle_penalty = 0.25 if angle_difference > 30 else 0
-        sidewalk_penalty = 20
-        grass_penalty = 40
-        track_reward = 20
-        speed_reward = 1
+        checkpoint_reward = (16 * 10) * checkpoint_reached
+        distance_penalty = - 1 * distance_to_next_checkpoint
+        angle_penalty = - (0.25 if angle_difference > 30 else 0) * angle_difference
+        sidewalk_penalty = - 20 * time_spent_on_sidewalk
+        still_penalty = - 30 * time_staying_still
+        grass_penalty = - 100 * time_spent_on_grass
+        track_reward = 60 * time_spent_on_track
+        speed_reward = 2 * average_speed
         regularization = 0.01 * np.random.normal()
 
         self.fitness_score = (
-                checkpoint_reached * checkpoint_reward +
-                checkpoint_reward -
-                distance_to_next_checkpoint * distance_penalty -
-                angle_difference * angle_penalty -
-                time_spent_on_sidewalk * sidewalk_penalty -
-                time_spent_on_grass * grass_penalty +
-                time_spent_on_track * track_reward +
-                average_speed * speed_reward +
+                checkpoint_reward +
+                distance_penalty + angle_penalty +
+                sidewalk_penalty +
+                grass_penalty +
+                track_reward +
+                speed_reward +
+                still_penalty -
                 regularization
         )
 
-        # save to file each partial fitness for debugging
-        # with open("fitness.txt", "a") as f:
-        #     f.write(f"Checkpoint: {checkpoint_reached * checkpoint_reward}\n")
-        #     f.write(f"Distance to next checkpoint: {checkpoint_reward - distance_penalty}\n")
-        #     f.write(f"Angle difference: {angle_difference * angle_penalty}\n")
-        #     f.write(f"Time spent on sidewalk: {time_spent_on_sidewalk * sidewalk_penalty}\n")
-        #     f.write(f"Time spent on grass: {time_spent_on_grass * grass_penalty}\n")
-        #     f.write(f"Total fitness: {self.fitness_score}\n")
-
         self.controlled_entity.car_entity.set_fitness(self.fitness_score)
-        # print(self.fitness_score)
 
     def calculate_angle_difference(self):
         angle_threshold = 30  # Umbral de ángulo para considerar un giro correcto
         forward = self.controlled_entity.car_entity.get_transform().get_forward()
         entity_direction = math.degrees(math.atan2(forward.y, forward.x))
 
-        angle_to_checkpoint = self.controlled_entity.angle_to_next_checkpoint
+        angle_to_checkpoint = self.controlled_entity.car_knowledge.angle_to_next_checkpoint
         angle_difference = abs(angle_to_checkpoint - entity_direction)
         # if angle_difference < angle_threshold:
         #     return angle_difference
         return angle_difference
 
-    # def is_turn_taken_correctly(self):
-    #     angle_threshold = 30  # Umbral de ángulo para considerar un giro correcto
-    #     forward = self.controlled_entity.car_entity.get_transform().get_forward()
-    #     entity_direction = math.degrees(math.atan2(forward.y, forward.x))
-    # 
-    #     angle_to_checkpoint = self.controlled_entity.angle_to_next_checkpoint
-    #     if abs(angle_to_checkpoint - entity_direction) < angle_threshold:
-    #         return True
-    #     return False
-
-    def select(self):
-        self.controlled_entity.selected_as_provisional_parent = True
-
-    def deselect(self):
-        self.controlled_entity.selected_as_provisional_parent = False
-
     def select_as_parent(self):
+        """
+        Select the agent as parent
+        """
         self.controlled_entity.selected_as_parent = True
 
     def deselect_as_parent(self):
+        """
+        Deselect the agent as parent
+        """
         self.controlled_entity.selected_as_parent = False
 
-    def reset(self):
+    def reset(self, car: Car):
+        """
+        Reset the agent attributes
+        :param car: new car to control
+        """
+        self.controlled_entity = car
         self.fitness_score = 0
         self.controlled_entity.selected_as_parent = False
-        self.controlled_entity.selected_as_provisional_parent = False
         self.controlled_entity.traveled_distance = 0
         self.controlled_entity.checkpoint_number = -1
         self.controlled_entity.current_tile_type = None

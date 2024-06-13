@@ -105,7 +105,7 @@ class Renderer:
         # self.draw_text(position_text, position)
         self.draw_text(rotation_text, Vector2(position[0], position[1] + 15))
         # self.draw_text(scale_text, Vector2(position[0], position[1] + 30))
-        # self.draw_text(fitness_text, Vector2(position[0], position[1] + 45))
+        self.draw_text(fitness_text, Vector2(position[0], position[1] + 45))
 
     def _draw_entity_forward_vector(self, entity: Entity) -> None:
         if entity is None:

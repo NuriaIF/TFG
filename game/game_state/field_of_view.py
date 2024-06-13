@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import numpy as np
+from pygame import Vector2, Rect
+
 from engine.entities.entity import Entity
 from game.entities.tile import Tile
 from game.map.map_types import MapType
-from game.map.tile_map import TileMap
+from game.map.tile_map import TileMap, TILE_SIZE
 
 
 class FOV:
@@ -11,16 +14,13 @@ class FOV:
         self.field_of_view: list[tuple[Tile, bool]] = []
         self.nearest_tile = None
         self.activation_area: list[Tile] = []
+        self.vision_box: list[Vector2] = []
 
     def get(self) -> list[tuple[Tile, bool]] | None:
         return self.field_of_view
 
-    # def get_positions_in_FOV(self) -> list[(int, int)]:  # (x, y)
-    #     return [(tile.get_transform().get_position().x, tile.get_transform().get_position().y) for tile, _ in
-    #             self.field_of_view if tile is not None]
-
-    def get_tiles_in_FOV(self) -> list[Tile]:
-        return [tile for tile, _ in self.field_of_view if tile is not None]
+    def get_vision_box(self) -> list[Vector2]:
+        return self.vision_box
 
     def get_checkpoint_activation_area(self) -> list[Tile]:
         return self.activation_area
@@ -29,26 +29,32 @@ class FOV:
         return self.nearest_tile
 
     def update(self, entity: Entity, tile_map: TileMap, entities: list[Entity]) -> None:
-        self.field_of_view = self._get_field_of_view(entity, tile_map, entities)
-        self.activation_area = self._get_checkpoint_activation_area(entity, tile_map)
+        angle: [] = np.degrees(np.arctan2(entity.get_transform().get_forward().y,
+                                          entity.get_transform().get_forward().x))
+        self.vision_box = self._get_vision_box(entity, radius=6, angle=angle)
+        self.field_of_view = self._get_field_of_view(entity, tile_map, entities, angle=angle)
+        self.activation_area = self._get_checkpoint_activation_area(entity, tile_map, angle=angle)
 
-    def _get_field_of_view(self, entity: Entity, tile_map: TileMap, entities: list[Entity]) -> list[tuple[Tile, bool]]:
+    def _get_field_of_view(self, entity: Entity, tile_map: TileMap, entities: list[Entity], angle: []) -> list[
+        tuple[Tile, bool]]:
         tiles_within_square_and_center = tile_map.get_tiles_within_square((entity.get_transform().get_position().x,
                                                                            entity.get_transform().get_position().y),
                                                                           self.nearest_tile,
                                                                           radius=6,
-                                                                          forward=entity.get_transform().get_forward())
+                                                                          vision_box=self.vision_box,
+                                                                          angle=angle)
         tiles_within_square = tiles_within_square_and_center[0]
         self.nearest_tile = tiles_within_square_and_center[1]
         tiles_and_entities_within_square = self._get_tiles_with_entity(tiles_within_square, entities)
         return tiles_and_entities_within_square
 
-    def _get_checkpoint_activation_area(self, entity: Entity, tile_map: TileMap) -> list[Tile]:
+    def _get_checkpoint_activation_area(self, entity: Entity, tile_map: TileMap, angle: []) -> list[Tile]:
         tiles_within_square_and_center = tile_map.get_tiles_within_square((entity.get_transform().get_position().x,
                                                                            entity.get_transform().get_position().y),
                                                                           self.nearest_tile,
                                                                           radius=3,
-                                                                          forward=entity.get_transform().get_forward())
+                                                                          vision_box=self.vision_box,
+                                                                          angle=angle)
         tiles_within_square = tiles_within_square_and_center[0]
         return [tile for tile in tiles_within_square if tile is not None and tile.tile_type == MapType.TRACK]
 
@@ -66,6 +72,37 @@ class FOV:
                     tiles_and_entities_within_square.append((tile, False))
 
         return tiles_and_entities_within_square
+
+    def _get_vision_box(self, entity, angle: [], radius=6):
+        # Calculamos el centro del Rect
+        vision = entity.get_transform().get_position()
+        radius_pixels = radius * TILE_SIZE
+        vision_rect = Rect(vision.x - radius_pixels, vision.y - radius_pixels, 2 * radius_pixels, 2 * radius_pixels)
+        center = Vector2([vision_rect.centerx, vision_rect.centery])
+
+        # Calculamos las esquinas del Rect
+        points = [
+            Vector2([vision_rect.topright[0], vision_rect.topright[1]]),
+            Vector2([vision_rect.bottomright[0], vision_rect.bottomright[1]]),
+            Vector2([vision_rect.bottomleft[0], vision_rect.bottomleft[1]]),
+            Vector2([vision_rect.topleft[0], vision_rect.topleft[1]]),
+        ]
+        # Rotamos cada punto alrededor del centro
+        rotated_points: list[Vector2] = [self._rotate_point(point, center, angle) for point in points]
+        # Dibujamos el Rect rotado
+        return rotated_points
+
+    def _rotate_point(self, point, center, angle) -> Vector2:
+        angle_rad = np.deg2rad(angle)
+        cos_angle = np.cos(angle_rad)
+        sin_angle = np.sin(angle_rad)
+        translated_point = point - center
+        rotated_point = np.dot(np.array([
+            [cos_angle, -sin_angle],
+            [sin_angle, cos_angle]
+        ]), translated_point)
+        rotated_point = Vector2([rotated_point[0], rotated_point[1]])
+        return rotated_point + center
 
     def get_encoded_version(self) -> list[float]:
         if len(self.field_of_view) == 0:

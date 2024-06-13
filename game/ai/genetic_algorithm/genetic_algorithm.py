@@ -83,22 +83,21 @@ class GeneticAlgorithm:
         parent = max(tournament, key=lambda x: x.fitness_score)
         return parent
 
-    def select_agents(self):
+    def select_agents(self, best_individuals: list[AIAgent] = None):
         for agent in self._agents:
             agent.evaluate_fitness()
 
-        num_agents = len(self._agents)
-        self._agents.sort(key=lambda x: x.fitness_score, reverse=True)
-        top_agents = self._agents[:num_agents // 2]
-        # self.initialization_entities_callback()
-        parent1 = top_agents[0]  # El mejor agente
-        parent2 = top_agents[1]  # El segundo mejor agente
+        # num_agents = len(self._agents)
+        # self._agents.sort(key=lambda x: x.fitness_score, reverse=True)
+        # top_agents = self._agents[:num_agents // 2]
+        # 
+        # parent1 = top_agents[0]  # El mejor agente
+        # parent2 = top_agents[1]  # El segundo mejor agente
+        parent1 = best_individuals[0]
+        parent2 = best_individuals[1]
         parent1.neural_network.save_parameters()
-        # parent1.select()
-        # parent2.select()
+
         self.parents_selected_list: list[AIAgent] = [parent1, parent2]
-        parent1.select()
-        parent2.select()
         parent1.select_as_parent()
         parent2.select_as_parent()
         self.end_of_selection = True

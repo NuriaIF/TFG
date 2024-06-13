@@ -1,9 +1,8 @@
 import math
 import time
 
-import numpy as np
 import pygame
-from pygame import Vector2, Rect
+from pygame import Vector2
 
 from engine.engine import Engine
 from engine.engine_attributes import EngineAttributes
@@ -32,6 +31,8 @@ class Game(Engine):
 
         self._initialize()
 
+        self.better_fitness_index = []
+
         # self._initialize_cars()
         # self._initialize_npcs()
 
@@ -57,29 +58,20 @@ class Game(Engine):
             car.reset()
             car.set_position(Vector2(start_tile[0], start_tile[1]))
         if self.game_mode == GameMode.AI_TRAINING:
-            for agent in self.ai_manager.get_agents():
-                agent.reset()
-        # print(self.cars[0].car_entity.get_transform().get_position())
-        # print(self.camera.get_position())
+            self.ai_manager.reset(self.cars)
 
     def update(self, delta_time):
         for car in self.cars:
-            car.field_of_view.update(car.car_entity, self.tile_map, [npc.NPC_entity for npc in self.NPCs])
-            checkpoint: int = self.tile_map.get_checkpoint_in(car.field_of_view.get_checkpoint_activation_area())
-            car.reach_checkpoint(checkpoint)
-            distance_to_next_checkpoint = self.tile_map.get_distance_to_next_checkpoint(
-                car.checkpoint_number,
-                (car.car_entity.get_transform().get_position()[0], car.car_entity.get_transform().get_position()[1]))
-            next_checkpoint_position = self.tile_map.get_next_checkpoint_position(car.checkpoint_number)
-            car.set_next_checkpoint_position(next_checkpoint_position)
-            angle_to_next_checkpoint = self.tile_map.get_angle_to_next_checkpoint(
-                car.checkpoint_number,
-                (car.car_entity.get_transform().get_position()[0], car.car_entity.get_transform().get_position()[1]))
-            if distance_to_next_checkpoint is not None:
-                car.set_distance_to_next_checkpoint(distance_to_next_checkpoint)
-                car.set_angle_to_next_checkpoint(angle_to_next_checkpoint)
-            type_tile = car.field_of_view.get_nearest_tile().tile_type
-            car.set_current_tile_type(type_tile)
+            fov = car.car_knowledge.field_of_view
+            fov.update(car.car_entity, self.tile_map, [npc.NPC_entity for npc in self.NPCs])
+            checkpoint: int = self.tile_map.get_checkpoint_in(fov.get_checkpoint_activation_area())
+            car_in_tile = fov.get_nearest_tile()
+            car.car_knowledge.reach_checkpoint(checkpoint)
+            next_checkpoint_position = self.tile_map.get_next_checkpoint_position(car.car_knowledge.checkpoint_number)
+            car.car_knowledge.update(car_in_tile.tile_type, next_checkpoint_position,
+                                     car.car_entity.get_transform().get_forward(),
+                                     car.car_entity.get_physics().get_velocity())
+
             if checkpoint is not None:
                 car.traveled_distance = checkpoint * 10
 
@@ -99,42 +91,15 @@ class Game(Engine):
             i += 1
 
         self.move_camera()
-
-    def rotate_point(self, point, center, angle) -> Vector2:
-        angle_rad = np.deg2rad(angle)
-        cos_angle = np.cos(angle_rad)
-        sin_angle = np.sin(angle_rad)
-        translated_point = point - center
-        rotated_point = np.dot(np.array([
-            [cos_angle, -sin_angle],
-            [sin_angle, cos_angle]
-        ]), translated_point)
-        rotated_point = Vector2([rotated_point[0], rotated_point[1]])
-        return rotated_point + center
+        if self.game_mode is GameMode.AI_TRAINING:
+            self.better_fitness_index = []
+            cars_aux = self.cars.copy()
+            cars_aux.sort(key=lambda x: x.car_entity.get_fitness(), reverse=True)
+            self.better_fitness_index = [self.cars.index(car) for car in cars_aux]
 
     def game_render_debug(self):
         for car in self.cars:
             if self.game_mode == GameMode.AI_PLAYING or self.game_mode == GameMode.MANUAL:
-                vision = car.car_entity.get_transform().get_position()
-                vision_rect = Rect(vision.x - 96, vision.y - 96, 192, 192)
-                # self.renderer.draw_rect(vision_rect, (255, 0, 0), 3)
-                # Calculamos el centro del Rect
-                center = Vector2([vision_rect.centerx, vision_rect.centery])
-
-                # Calculamos las esquinas del Rect
-                points = [
-                    Vector2([vision_rect.topright[0], vision_rect.topright[1]]),
-                    Vector2([vision_rect.bottomright[0], vision_rect.bottomright[1]]),
-                    Vector2([vision_rect.bottomleft[0], vision_rect.bottomleft[1]]),
-                    Vector2([vision_rect.topleft[0], vision_rect.topleft[1]]),
-                ]
-                # Angulo de rotación en grados (suponiendo que obtienes este ángulo de la dirección del coche)
-                angle = np.degrees(np.arctan2(car.car_entity.get_transform().get_forward().y,
-                                              car.car_entity.get_transform().get_forward().x))
-                # Rotamos cada punto alrededor del centro
-                rotated_points: list[Vector2] = [self.rotate_point(point, center, angle) for point in points]
-                # Dibujamos el Rect rotado
-                self.renderer.draw_polygon(rotated_points, (255, 0, 0), 3)
                 self._render_field_of_view(car)
 
                 colors = [
@@ -170,7 +135,8 @@ class Game(Engine):
             position = car.car_entity.get_transform().get_position()
             forward = car.car_entity.get_transform().get_forward()
             entity_direction = f"Direction: {math.degrees(math.atan2(forward.y, forward.x))}"
-            difference_between_forward_and_angle = abs(car.angle_to_next_checkpoint - math.degrees(math.atan2(forward.y, forward.x)))
+            difference_between_forward_and_angle = abs(
+                car.angle_to_next_checkpoint - math.degrees(math.atan2(forward.y, forward.x)))
             # self.renderer.draw_text(checkpoint_text, Vector2(position[0], position[1] + 60))
             # self.renderer.draw_text(distance_to_next_text, Vector2(position[0], position[1] + 75))
             # self.renderer.draw_text(angle_to_next_text, Vector2(position[0], position[1] + 90))
@@ -184,22 +150,32 @@ class Game(Engine):
 
         if self.game_mode == GameMode.AI_TRAINING:
             self.renderer.draw_surface(
-                    EngineFonts.get_fonts().debug_UI_font.render
-                    (f"Generation number: {self.ai_manager.genetic_algorithm.get_generation_number()}",
-                     True, EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 50))
+                EngineFonts.get_fonts().debug_UI_font.render
+                (f"Generation number: {self.ai_manager.genetic_algorithm.get_generation_number()}",
+                 True, EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 50))
         selected = False
+
         for car in self.cars:
-            if car.selected_as_provisional_parent:
+            if car.selected_as_parent:
                 self.renderer.draw_rect(car.car_entity.get_sprite_rect(), (0, 0, 255), 3)
                 selected = True
-                car.selected_as_provisional_parent = False
-            elif car.selected_as_parent:
                 car.selected_as_parent = False
 
         if selected:
             pygame.display.flip()
             # Wait 2 seconds
             time.sleep(2)
+        else:
+            i = 1
+            for index in self.better_fitness_index:
+                color = (255, 0, 0) if i > 2 else (0, 255, 0)
+                self.renderer.draw_rect(self.cars[index].car_entity.get_sprite_rect(), color, 3)
+                self.renderer.draw_provisional_text(f"Fitness: {self.cars[index].car_entity.get_fitness()}",
+                                                    self.cars[index].car_entity.get_transform().get_position(), color,
+                                                    size=10)
+                self.renderer.draw_provisional_text(f"Index: {i}", self.cars[index].car_entity.get_transform()
+                                                    .get_position() + Vector2(0, 15), color, size=10)
+                i += 1
 
     def move_camera(self):
         if self.input_manager.is_key_down(Key.K_UP):
@@ -223,28 +199,12 @@ class Game(Engine):
         if len(self.cars) == 1:
             self.camera.set_position(car.car_entity.get_transform().get_position())
         else:
-            for c in self.cars:
-                if c.car_entity.get_fitness() > car.car_entity.get_fitness():
-                    car = c
+            car = self.ai_manager.best_individuals[0].controlled_entity
         car_position = car.car_entity.get_transform().get_position()
         camera_position = -self.camera.get_position() + Vector2(self.window.get_width(), self.window.get_height())
         difference = camera_position - car_position
         if difference.length() > 1:
             self.camera.move(difference)
-
-    def follow_player(self):
-        # Define the "box" dimensions within which the camera doesn't need to move
-        camera_box_width = self.window.get_width() / 5
-        camera_box_height = self.window.get_height() / 5
-
-        # Calculate the distance from the car to the camera
-        # TODO: The camera should follow the first car (best fitness)
-        distance_to_box = self.cars[0].car_entity.get_transform().get_position() - self.camera.get_position()
-
-        # Check if the car is outside the "box" area
-        if abs(distance_to_box.x) > camera_box_width or abs(distance_to_box.y) > camera_box_height:
-            # Move the camera by the distance needed to re-center the car
-            self.camera.move(-distance_to_box)
 
     def _initialize_npcs(self):
         self.NPCs: list[NPC] = []
@@ -257,11 +217,10 @@ class Game(Engine):
         #     self.NPCs.append(NPC(self.create_entity("entities/bicycle", has_collider=True, is_static=False)))
         #     self.NPCs[j].set_position(Vector2(random.randint(0, 100) * 16 - 8, random.randint(0, 60) * 16))
 
-    def restore_previous_state(self, game_state: GameState):
-        self.game_state = game_state
-
     def _render_field_of_view(self, car: Car):
-        field_of_view = car.field_of_view.get()
+        vision_box: pygame.Rect = car.car_knowledge.field_of_view.get_vision_box()
+        self.renderer.draw_polygon(vision_box, (255, 0, 0), 3)
+        field_of_view = car.car_knowledge.field_of_view.get()
         num = 0
         for tile, npc in field_of_view:
             if tile is not None:
@@ -288,6 +247,3 @@ class Game(Engine):
                 checkpoint_text_position = tile_position
             self.renderer.draw_text(str(tile.checkpoint_number), checkpoint_text_position, (255, 255, 0))
 
-    def _change_input_manager_to_AI(self):
-        if self.game_mode is GameMode.AI_TRAINING:
-            self.input_manager = self.ai_manager.ai_input_manager

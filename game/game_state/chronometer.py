@@ -20,6 +20,8 @@ class Chronometer:
             self.elapsed_seconds += self.stop_time - self.start_time
 
     def get_elapsed_time(self):
+        if self.is_running:
+            return self.elapsed_seconds + time.time() - self.start_time
         return self.elapsed_seconds
 
     def reset(self):

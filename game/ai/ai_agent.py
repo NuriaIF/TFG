@@ -3,15 +3,19 @@ import math
 import numpy as np
 
 from game.ai.ai_input_manager import AIInputManager
+from game.ai.neural_network.neural_network import NeuralNetwork
 from game.entities.car import Car
 
 
 class AIAgent():
     def __init__(self, controlled_entity, neural_network):
-        self.neural_network = neural_network
-        self.fitness_score = 0
+        self.neural_network: NeuralNetwork = neural_network
+        self.fitness_score = float('-inf')
+        self.best_fitness = float('-inf')
         self.controlled_entity: Car = controlled_entity
         self.ai_input_manager = AIInputManager()
+
+        self.fitness_score_log = ""
 
     def get_genome(self):  # Genome is neural network weights and biases
         # return np.concatenate([param.data.numpy().flatten() for param in self.neural_network.get_parameters()])
@@ -51,6 +55,7 @@ class AIAgent():
         time_spent_on_track = self.controlled_entity.car_knowledge.chronometer_track.get_elapsed_time()
         # TODO: calculate average speed
         average_speed = self.controlled_entity.car_knowledge.accumulator_speed / self.controlled_entity.car_knowledge.counter_frames
+        average_speed = (average_speed - (-200)) / (500 - (-200))
         # TODO: penalize time spent still
         time_staying_still = self.controlled_entity.car_knowledge.chronometer_still.get_elapsed_time()
         # velocidad media que ha tenido el coche, velocidad maxima
@@ -58,32 +63,59 @@ class AIAgent():
         # penalizas por reducir velocidad maxima
         # quita mas entrar en cesped que reducir velocidad
         # penalizacion por atropellar peaton mayor que anteriores
-        # quita mas puntos estar en la acera que en el cesped
+        # quita mas punts estar en la acera que en el cesped
 
         # self.fitness_score = checkpoint_reached * 16 * 10 + 16 * 10 - distance_to_next_checkpoint - (
         #         angle_difference * angle_penalty) - time_spent_on_sidewalk * 25 - time_spent_on_grass * 50
-        checkpoint_reward = (16 * 10) * checkpoint_reached
-        distance_penalty = - 1 * distance_to_next_checkpoint
-        angle_penalty = - (0.25 if angle_difference > 30 else 0) * angle_difference
+        checkpoint_reward = (20 * 10) * checkpoint_reached
+        distance_penalty = - 0.05 * distance_to_next_checkpoint
+        angle_penalty = - (0.1 if angle_difference > 30 else 0) * angle_difference
         sidewalk_penalty = - 20 * time_spent_on_sidewalk
         still_penalty = - 30 * time_staying_still
         grass_penalty = - 100 * time_spent_on_grass
-        track_reward = 60 * time_spent_on_track
-        speed_reward = 2 * average_speed
+        track_reward = 0  # 30 * time_spent_on_track
+        speed_reward = 100 * average_speed
         regularization = 0.01 * np.random.normal()
 
         self.fitness_score = (
-                checkpoint_reward +
-                distance_penalty + angle_penalty +
-                sidewalk_penalty +
-                grass_penalty +
-                track_reward +
-                speed_reward +
-                still_penalty -
-                regularization
+                checkpoint_reward
+                + distance_penalty + angle_penalty +
+                + sidewalk_penalty
+                + grass_penalty
+                + track_reward
+                + speed_reward
+                + still_penalty
+                - regularization
         )
+        self.fitness_score_log = "" \
+                                 "checkpoint_reward: {}\n" \
+                                 "distance_penalty: {}\n" \
+                                 "angle_penalty: {}\n" \
+                                 "sidewalk_penalty: {}\n" \
+                                 "still_penalty: {}\n" \
+                                 "grass_penalty: {}\n" \
+                                 "track_reward: {}\n" \
+                                 "speed_reward: {}\n" \
+                                 "regularization: {}\n" \
+                                 "fitness_score: {}\n".format(checkpoint_reward, distance_penalty, angle_penalty,
+                                                              sidewalk_penalty, still_penalty, grass_penalty,
+                                                              track_reward, speed_reward, regularization,
+                                                              self.fitness_score)
+        # with open('fitness_score_log.txt', 'w') as f:
+        #     f.write(f'checkpoint_reward: {checkpoint_reward}\n')
+        #     f.write(f'distance_penalty: {distance_penalty}\n')
+        #     f.write(f'angle_penalty: {angle_penalty}\n')
+        #     f.write(f'sidewalk_penalty: {sidewalk_penalty}\n')
+        #     f.write(f'still_penalty: {still_penalty}\n')
+        #     f.write(f'grass_penalty: {grass_penalty}\n')
+        #     f.write(f'track_reward: {track_reward}\n')
+        #     f.write(f'speed_reward: {speed_reward}\n')
+        #     f.write(f'regularization: {regularization}\n')
+        #     f.write(f'fitness_score: {self.fitness_score}\n')
 
         self.controlled_entity.car_entity.set_fitness(self.fitness_score)
+        if self.fitness_score > self.best_fitness:
+            self.best_fitness = self.fitness_score
 
     def calculate_angle_difference(self):
         angle_threshold = 30  # Umbral de ángulo para considerar un giro correcto
@@ -120,3 +152,7 @@ class AIAgent():
         self.controlled_entity.checkpoint_number = -1
         self.controlled_entity.current_tile_type = None
         self.controlled_entity.distance_to_next_checkpoint = 10 * 16
+
+    def save_fitness_score_log(self):
+        with open('fitness_score_log.txt', 'w') as f:
+            f.write(self.fitness_score_log)

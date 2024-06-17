@@ -4,7 +4,7 @@ from game.ai.neural_network.layer import Layer
 
 
 class NeuralNetwork:
-    def __init__(self, layer_sizes: list[int]):
+    def __init__(self, layer_sizes: list[int], parameters=None):
         """
         Initialize the neural network with a list of layers.
 
@@ -16,6 +16,8 @@ class NeuralNetwork:
             activation_func = self.relu if i < len(layer_sizes) - 2 else self.leaky_relu
             self.layers.append(Layer(layer_sizes[i], layer_sizes[i + 1], activation_func))
         self.learning_rate: float = 0.01
+        if parameters is not None:
+            self.set_parameters(parameters)
 
     def relu(self, z):
         """
@@ -139,7 +141,7 @@ class NeuralNetwork:
         :return: 
         """
         # Load the parameters of the neural network from a file
-        self.set_parameters(np.load("best.npy"))
+        self.set_parameters(np.load("parameters.npy"))
 
     def get_total_params(self):
         """

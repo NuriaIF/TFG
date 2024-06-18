@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import math
-
 import numpy as np
-from pygame import Vector2, Rect
+from pygame import Vector2
 
 from engine.engine import Engine
 from engine.managers.render_manager.render_layers import RenderLayer
@@ -141,7 +139,7 @@ class TileMap:
                 within_square = within_square[:144]
         return within_square, tile
 
-    def _order_tiles(self, tiles, angle, position):
+    def _order_tiles(self, tiles, angle, position) -> list[Tile]:
         theta = np.radians(angle)
         theta = theta - np.pi / 2
 

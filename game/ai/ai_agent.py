@@ -67,7 +67,7 @@ class AIAgent():
 
         # self.fitness_score = checkpoint_reached * 16 * 10 + 16 * 10 - distance_to_next_checkpoint - (
         #         angle_difference * angle_penalty) - time_spent_on_sidewalk * 25 - time_spent_on_grass * 50
-        checkpoint_reward = (20 * 10) * checkpoint_reached
+        checkpoint_reward = (16 * 10) * checkpoint_reached
         distance_penalty = - 0.05 * distance_to_next_checkpoint
         angle_penalty = - (0.1 if angle_difference > 30 else 0) * angle_difference
         sidewalk_penalty = - 20 * time_spent_on_sidewalk

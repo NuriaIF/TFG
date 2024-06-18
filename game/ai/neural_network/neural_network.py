@@ -66,31 +66,20 @@ class NeuralNetwork:
         output = input_data
         return output.flatten()
 
+    def get_activations(self, input_data):
+        """
+        Perform a forward pass and return the activations of all layers.
 
-    # def _forward_propagation(self, input_data):
-    #     """
-    #     Perform forward propagation through the network, applying ReLU to hidden layers
-    #     and Softmax to the output layer.
-    # 
-    #     :param input_data: The input data for the network
-    #     :return: A tuple containing the list of activations and the list of z vectors for each layer
-    #     """
-    #     activation = input_data
-    #     activations = [input_data]  # List to store all the activations, layer by layer
-    #     zs = []  # List to store all the z vectors, layer by layer (input values of the activation function)
-    # 
-    #     for w, b in zip(self.weights[:-1], self.biases[:-1]):
-    #         z = np.dot(w, activation) + b
-    #         zs.append(z)
-    #         activation = self.relu(z)
-    #         activations.append(activation)
-    # 
-    #     z = np.dot(self.weights[-1], activation) + self.biases[-1]
-    #     zs.append(z)
-    #     activation = self.softmax(z)
-    #     activations.append(activation)
-    # 
-    #     return activations, zs
+        :param input_data: The input data for the network
+        :return: A list of activations for each layer
+        """
+        activations = [np.array(input_data, ndmin=2).T]  # Start with the input data as the first activation
+        current_data = activations[0]
+        for layer in self.layers:
+            layer.forward(current_data)
+            current_data = layer.outputs
+            activations.append(current_data)
+        return [a.flatten() for a in activations]
 
     def set_parameters(self, parameters):
         """

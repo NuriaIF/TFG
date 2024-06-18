@@ -14,14 +14,15 @@ from game.entities.NPC import NPC
 from game.entities.car import Car
 from game.map.map_types import MapType
 from game.map.tile_map import TileMap
+from interpretability_and_explainability.explainability_and_interpretability import ExplainabilityAndInterpretability
 
 
 class Game(Engine):
     def __init__(self):
         super().__init__()
-        self.game_mode: GameMode = GameMode.AI_TRAINING
+        self.game_mode: GameMode = GameMode.MANUAL
 
-        self.play_music("GameMusic")
+        # self.play_music("GameMusic")
 
         self.cars: list[Car] = []
         self.tile_map: TileMap = TileMap(self)
@@ -32,6 +33,8 @@ class Game(Engine):
         self._initialize()
 
         self.better_fitness_index = []
+
+        self.explainability_and_interpretability = None
 
     def _initialize(self):
         self._initialize_cars()
@@ -74,6 +77,11 @@ class Game(Engine):
 
         if self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
             self.ai_manager.update(self.cars, self.input_manager)  # ([car.car_entity for car in self.cars])
+        if self.game_mode is GameMode.AI_PLAYING:
+            if self.explainability_and_interpretability is None:
+                neural_network = self.ai_manager.get_agents()[0].neural_network
+                self.explainability_and_interpretability = ExplainabilityAndInterpretability(neural_network)
+            self.explainability_and_interpretability.update(self.renderer, self.ai_manager.inputs)
 
         i = 0
         for car in self.cars:

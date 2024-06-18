@@ -33,8 +33,10 @@ class AIManager:
 
         self.no_improvement_counter = 0
         self.no_improvement_limit = 200
-        
+
         self.fitness_scores = {}
+
+        self.inputs = []
 
 
     def get_population_size(self) -> int:
@@ -88,8 +90,8 @@ class AIManager:
                 #         self.best_individuals[1] = self.best_individuals[0]
                 #         self.best_individuals[0] = agent
                 self.best_individuals = agents_copy[:2]
-                inputs = self.prepare_input(agent.controlled_entity)
-                outputs = agent.neural_network.forward(inputs)
+                self.inputs = self.prepare_input(agent.controlled_entity)
+                outputs = agent.neural_network.forward(self.inputs)
                 # TODO: Convert outputs to commands
                 agent.ai_input_manager.convert_outputs_to_commands(outputs)
 

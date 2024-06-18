@@ -4,6 +4,7 @@ from pygame import Vector2
 from engine.engine_attributes import EngineAttributes
 from engine.engine_fonts import EngineFonts
 from engine.entities.entity import Entity
+from engine.managers.render_manager.background_batch import BackgroundBatch
 from engine.managers.window_manager.window_manager import Window
 
 
@@ -17,6 +18,7 @@ class Renderer:
         self.surface_batch_position: Vector2 = Vector2(0, 0)
         self.surface_batch_dirty: bool = False
         self.debug_mode = False
+        self.background_batch = None
 
     def render(self) -> None:
         self.sprite_group.update()  # Ensure all sprites are updated
@@ -58,7 +60,7 @@ class Renderer:
             raise ValueError("Transform cannot be None")
 
         if entity.is_batched():
-            self.add_to_background_batch(entity)
+            # self.add_to_background_batch(entity)
             return
 
         # Update the sprite's transform
@@ -70,12 +72,23 @@ class Renderer:
             # Mark the sprite as added to the renderer, so we don't add it again
             sprite.set_added_to_renderer()
 
+    def update_background(self, entities: list[Entity]) -> None:
+        entity_width = entities[0].get_sprite().get_width()
+        entity_height = entities[0].get_sprite().get_height()
+        start_position = entities[0].get_transform().get_position()
+        if self.background_batch is None:
+            self.background_batch = BackgroundBatch(entity_width, entity_height, entities)
+            for entity in entities:
+                self.add_to_background_batch(entity)
+        self.background_batch.draw(self.surface_batch, start_position)
+
     def add_to_background_batch(self, entity: Entity) -> None:
         if entity is None:
             raise ValueError("Entity cannot be None")
         sprite = entity.get_sprite()
         transform = entity.get_transform()
-        self.surface_batch.blit(sprite, transform.get_position())
+        self.background_batch.add_entity(sprite, transform.get_position())
+        # self.surface_batch.blit(sprite, transform.get_position())
 
     def _draw_entity_collider(self, entity: Entity) -> None:
         if entity is None:

@@ -37,6 +37,7 @@ class Engine:
         self.camera.update(delta_time, self.entities)
         self.renderer.update_background_batch(self.camera.get_displacement())
 
+        batch_entities = [entity for entity in self.entities if entity.is_batched()]
         for entity in self.entities:
             # Getting the next frame collider before updating the physics
             # This way a collider never enters another, blocking the entity
@@ -49,6 +50,7 @@ class Engine:
                 self.physics_manager.update(entity, delta_time)
 
             self.renderer.update(entity)
+        self.renderer.update_background(batch_entities)
 
     def render(self):
         self.window.clear()

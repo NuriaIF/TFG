@@ -2,15 +2,15 @@ import pygame
 
 
 class BackgroundBatch:
-    def __init__(self, entity_width, entity_height, entities):
+    def __init__(self, entity_width, entity_height, sprites, transforms):
         self.entity_width = entity_width
         self.entity_height = entity_height
 
         # Calculate the number of rows and columns
-        min_x = min(entity.get_transform().get_position().x for entity in entities)
-        max_x = max(entity.get_transform().get_position().x for entity in entities)
-        min_y = min(entity.get_transform().get_position().y for entity in entities)
-        max_y = max(entity.get_transform().get_position().y for entity in entities)
+        min_x = min(transform.get_position().x for transform in transforms)
+        max_x = max(transform.get_position().x for transform in transforms)
+        min_y = min(transform.get_position().y for transform in transforms)
+        max_y = max(transform.get_position().y for transform in transforms)
 
         self.cols = int((max_x - min_x) / entity_width) + 1
         self.rows = int((max_y - min_y) / entity_height) + 1
@@ -23,8 +23,8 @@ class BackgroundBatch:
         self.offset_y = min_y
 
         # Add all tiles to the batch surface
-        for entity in entities:
-            self.add_entity(entity.get_sprite(), entity.get_transform().get_position())
+        for sprite, transform in zip(sprites, transforms):
+            self.add_entity(sprite, transform.get_position())
 
     def add_entity(self, sprite, position):
         x = int((position.x - self.offset_x))

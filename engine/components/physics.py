@@ -2,12 +2,13 @@ from pygame import Vector2
 
 
 class Physics:
-    def __init__(self):
+    def __init__(self, is_static):
         self.mass: float = 1
         self.velocity: float = 0
         self.acceleration: float = 0
         self.force: float = 0
         self.drag: float = 0.1
+        self._is_static: bool = is_static
 
     def add_acceleration(self, acceleration: float) -> None:
         self.acceleration += acceleration
@@ -52,9 +53,12 @@ class Physics:
 
     def set_force(self, force_vector: float) -> None:
         self.force = force_vector
-    
+
+    def is_static(self) -> bool:
+        return self._is_static
+
     def copy(self) -> 'Physics':
-        physics = Physics()
+        physics = Physics(self.is_static())
         physics.mass = self.mass
         physics.velocity = self.velocity
         physics.acceleration = self.acceleration

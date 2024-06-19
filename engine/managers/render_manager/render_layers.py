@@ -11,3 +11,4 @@ class RenderLayer(Enum):
     SMOKE = 21
     ENTITIES_DEBUG = 21
     UI = 100
+    DEFAULT = 1000

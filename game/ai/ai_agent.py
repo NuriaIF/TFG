@@ -45,7 +45,7 @@ class AIAgent():
         # TODO: reward the agent for not running over pedestrians
         # TODO: penalize the agent for not taking turns correctly
         # angle_difference = self.controlled_entity.angle_to_next_checkpoint - self.controlled_entity.car_entity.get_transform().get_rotation()
-        angle_difference = self.calculate_angle_difference()
+        angle_difference = self.controlled_entity.car_knowledge.angle_difference
 
         # TODO: penalize time spent on sidewalk
         time_spent_on_sidewalk = self.controlled_entity.car_knowledge.chronometer_sidewalk.get_elapsed_time()
@@ -113,20 +113,20 @@ class AIAgent():
         #     f.write(f'regularization: {regularization}\n')
         #     f.write(f'fitness_score: {self.fitness_score}\n')
 
-        self.controlled_entity.car_entity.set_fitness(self.fitness_score)
+        self.controlled_entity.set_fitness(self.fitness_score)
         if self.fitness_score > self.best_fitness:
             self.best_fitness = self.fitness_score
 
-    def calculate_angle_difference(self):
-        angle_threshold = 30  # Umbral de ángulo para considerar un giro correcto
-        forward = self.controlled_entity.car_entity.get_transform().get_forward()
-        entity_direction = math.degrees(math.atan2(forward.y, forward.x))
-
-        angle_to_checkpoint = self.controlled_entity.car_knowledge.angle_to_next_checkpoint
-        angle_difference = abs(angle_to_checkpoint - entity_direction)
-        # if angle_difference < angle_threshold:
-        #     return angle_difference
-        return angle_difference
+    # def calculate_angle_difference(self):
+    #     angle_threshold = 30  # Umbral de ángulo para considerar un giro correcto
+    #     forward = self.controlled_entity.entity_ID.get_transform().get_forward()
+    #     entity_direction = math.degrees(math.atan2(forward.y, forward.x))
+    # 
+    #     angle_to_checkpoint = self.controlled_entity.car_knowledge.angle_to_next_checkpoint
+    #     angle_difference = abs(angle_to_checkpoint - entity_direction)
+    #     # if angle_difference < angle_threshold:
+    #     #     return angle_difference
+    #     return angle_difference
 
     def select_as_parent(self):
         """

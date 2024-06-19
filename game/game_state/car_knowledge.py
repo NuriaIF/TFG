@@ -2,6 +2,8 @@ import math
 
 from pygame import Vector2
 
+from engine.components.transform import Transform
+from engine.managers.entity_manager.entity_manager import EntityManager
 from game.game_state.chronometer import Chronometer
 from game.game_state.field_of_view import FOV
 from game.map.map_types import MapType
@@ -31,22 +33,26 @@ class CarKnowledge():
 
         self.traveled_distance = 0  # not used
 
-    def update(self, on_tile: MapType, next_checkpoint_position: tuple[float, float], forward: Vector2, speed: float
-               ) -> None:
+        self.angle_difference = 0
+
+    def update(self, on_tile: MapType, next_checkpoint_position: tuple[float, float], forward: Vector2, speed: float,
+               entity_manager: EntityManager, transform: Transform) -> None:
         """
         Update the car knowledge
         :param on_tile: type of the tile the car is on
         :param next_checkpoint_position: position of the next checkpoint
         :param forward: vector forward of the car
         :param speed: speed of the car
+        :param entity_manager: entity manager of the game
         """
         self.position_of_next_checkpoint = next_checkpoint_position
         self.counter_frames += 1
         self._update_tile_chronometers(on_tile)
         self._update_still_chronometer(speed)
         self._update_speed_accumulator(speed)
-        self._update_distance_and_angle_to_next_checkpoint(next_checkpoint_position, forward)
+        self._update_distance_and_angle_to_next_checkpoint(next_checkpoint_position, forward, entity_manager)
         self._update_tile_type(on_tile)
+        self._calculate_angle_difference(transform)
 
     def get_field_of_view(self) -> FOV:
         """
@@ -98,13 +104,14 @@ class CarKnowledge():
         self.accumulator_speed += speed
 
     def _update_distance_and_angle_to_next_checkpoint(self, next_checkpoint_position: tuple[float, float],
-                                                      forward: Vector2) -> None:
+                                                      forward: Vector2, entity_manager: EntityManager) -> None:
         """
         Update the distance and angle to the next checkpoint
         :param next_checkpoint_position: position of the next checkpoint
         :param forward: vector forward of the car
         """
-        car_in_tile_position = self.field_of_view.get_nearest_tile().tile_entity.get_transform().get_position()
+        nearest_tile = self.field_of_view.get_nearest_tile()
+        car_in_tile_position = entity_manager.get_transform(nearest_tile.entity_ID).get_position()
 
         self.distance_to_next_checkpoint = math.sqrt((next_checkpoint_position[0] - car_in_tile_position[0]) ** 2 +
                                                      (next_checkpoint_position[1] - car_in_tile_position[1]) ** 2)
@@ -131,3 +138,12 @@ class CarKnowledge():
             self.chronometer_still.start()
         else:
             self.chronometer_still.stop()
+
+    def _calculate_angle_difference(self, transform: Transform) -> None:
+        forward = transform.get_forward()
+        entity_direction = math.degrees(math.atan2(forward.y, forward.x))
+
+        angle_to_checkpoint = self.angle_to_next_checkpoint
+        angle_difference = abs(angle_to_checkpoint - entity_direction)
+
+        self.angle_difference = angle_difference

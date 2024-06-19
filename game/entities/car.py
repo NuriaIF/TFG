@@ -1,6 +1,6 @@
 from pygame import Vector2
 
-from engine.entities.entity import Entity
+from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.input_manager.key import Key
 from engine.managers.render_manager.render_layers import RenderLayer
@@ -11,9 +11,8 @@ class Car:
     """
     Car class that represents a car entity in the game.
     """
-    def __init__(self, entity: Entity):
-        self.car_entity = entity
-        self.car_entity.set_layer(RenderLayer.ENTITIES)
+    def __init__(self, entity: int, entity_manager: EntityManager):
+        self.entity_ID = entity
         self.base_max_speed = 200
         self.accelerate_max_speed = 500
         self.mass = 1000  # newtons
@@ -22,16 +21,19 @@ class Car:
         self.base_rotation_speed = 100
         self.current_rotation_speed = 0
         self._is_accelerating = False
-        self.car_entity.get_physics().set_mass(self.mass)
-        self.car_entity.get_physics().set_drag(self.drag)
-        self.car_entity.give_collider()
-        self.car_entity.debug_config_show_collider()
-        self.car_entity.debug_config_show_transform()
-        self.car_entity.debug_config_show_forward()
+        self.entity_manager = entity_manager
+        self.entity_manager.set_layer(entity, RenderLayer.ENTITIES)
+        self.entity_manager.get_physics(entity).set_mass(self.mass)
+        self.entity_manager.get_physics(entity).set_drag(self.drag)
+        # self.car_entity.give_collider()
+        self.entity_manager.get_collider(entity).debug_config_show_collider()
+        self.entity_manager.get_transform(entity).debug_config_show_transform()
+        self.entity_manager.get_transform(entity).debug_config_show_forward()
 
         self.selected_as_parent = False
 
         self.car_knowledge = CarKnowledge()
+        self.fitness_score = 0
 
     def update_input(self, input_manager: InputManager) -> None:
         """
@@ -67,52 +69,52 @@ class Car:
         Set the position of the car
         :param pos: position to be set
         """
-        self.car_entity.get_transform().set_position(pos)
+        self.entity_manager.get_transform(self.entity_ID).set_position(pos)
 
     def accelerate(self) -> None:
         """
         Accelerate the car
         """
-        if self.car_entity.get_physics().get_velocity() < self.accelerate_max_speed:
+        if self.entity_manager.get_physics(self.entity_ID).get_velocity() < self.accelerate_max_speed:
             self._is_accelerating = True
-            self.car_entity.get_physics().set_force(self.engine_force)
+            self.entity_manager.get_physics(self.entity_ID).set_force(self.engine_force)
 
     def move_forward(self) -> None:
         """
         Move the car forward
         """
-        if self.car_entity.get_physics().get_velocity() < self.base_max_speed:
-            self.car_entity.get_physics().set_force(self.engine_force)
+        if self.entity_manager.get_physics(self.entity_ID).get_velocity() < self.base_max_speed:
+            self.entity_manager.get_physics(self.entity_ID).set_force(self.engine_force)
 
     def move_backward(self) -> None:
         """
         Move the car backward
         """
-        if self.car_entity.get_physics().get_velocity() > -self.base_max_speed:
-            self.car_entity.get_physics().set_force(-self.engine_force)
+        if self.entity_manager.get_physics(self.entity_ID).get_velocity() > -self.base_max_speed:
+            self.entity_manager.get_physics(self.entity_ID).set_force(-self.engine_force)
 
     def rotate_right(self) -> None:
         """
         Rotate the car to the right
         """
-        self.car_entity.get_transform().rotate(self.current_rotation_speed)
+        self.entity_manager.get_transform(self.entity_ID).rotate(self.current_rotation_speed)
 
     def rotate_left(self) -> None:
         """
         Rotate the car to the left
         """
-        self.car_entity.get_transform().rotate(-self.current_rotation_speed)
+        self.entity_manager.get_transform(self.entity_ID).rotate(-self.current_rotation_speed)
 
     def break_car(self) -> None:
         """
         Break the car
         """
-        if self.car_entity.get_physics().get_velocity() == 0:
+        if self.entity_manager.get_physics(self.entity_ID).get_velocity() == 0:
             return
-        direction_of_velocity = self.car_entity.get_physics().get_velocity() / abs(
-            self.car_entity.get_physics().get_velocity())
+        direction_of_velocity = self.entity_manager.get_physics(self.entity_ID).get_velocity() / abs(
+            self.entity_manager.get_physics(self.entity_ID).get_velocity())
 
-        self.car_entity.get_physics().set_force(self.engine_force * -direction_of_velocity)
+        self.entity_manager.get_physics(self.entity_ID).set_force(self.engine_force * -direction_of_velocity)
 
     def is_accelerating(self) -> bool:
         """
@@ -125,10 +127,12 @@ class Car:
         """
         Reset the car attributes
         """
-        self.car_entity.get_transform().set_position(Vector2(0, 0))
-        self.car_entity.get_transform().set_rotation(0)
-        self.car_entity.get_physics().set_velocity(0)
-        self.car_entity.get_physics().set_acceleration(0)
-        self.car_entity.get_physics().set_force(0)
         self.car_knowledge = CarKnowledge()
         self.selected_as_parent = False
+
+    def set_fitness(self, fitness_score):
+        """
+        Set the fitness score of the car
+        :param fitness_score: fitness score to be set
+        """
+        self.fitness_score = fitness_score

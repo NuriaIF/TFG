@@ -1,6 +1,6 @@
 from pygame import Vector2
 
-from engine.entities.entity import Entity
+from engine.components.transform import Transform
 
 
 class Camera:
@@ -28,17 +28,17 @@ class Camera:
         self._displacement: Vector2 = Vector2(0, 0)
         self._moving: bool = False
 
-    def update(self, delta_time: float, entities: list[Entity]) -> None:
+    def update(self, delta_time: float, transforms: list[Transform]) -> None:
         self._delta_time = delta_time
 
         # Calculate displacement based on the change in position
         self._displacement = self._previous_position - self._position
         if self._displacement.length() > 0.01:  # Check if there's any displacement
 
-            for entity in entities:
+            for transform in transforms:
                 # Displace all entities, with negative value, because when the camera moves to the right, the entities
                 # should move to the left, and vice versa, and same with up and down
-                entity.get_transform().displace(-self._displacement)
+                transform.displace(-self._displacement)
 
             self._previous_position = self._position
 

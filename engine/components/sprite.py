@@ -46,3 +46,6 @@ class Sprite(pygame.sprite.Sprite):
 
     def set_added_to_renderer(self) -> None:
         self._is_added_to_renderer = True
+
+    def get_rect(self) -> pygame.Rect:
+        return self.rect

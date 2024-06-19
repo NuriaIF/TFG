@@ -20,15 +20,16 @@ from interpretability_and_explainability.explainability_and_interpretability imp
 class Game(Engine):
     def __init__(self):
         super().__init__()
-        self.game_mode: GameMode = GameMode.MANUAL
+        self.game_mode: GameMode = GameMode.AI_TRAINING
 
         # self.play_music("GameMusic")
 
         self.cars: list[Car] = []
-        self.tile_map: TileMap = TileMap(self)
+        self.tile_map: TileMap = TileMap(self, self.entity_manager)
         self.NPCs: list[NPC] = []
 
-        self.ai_manager: AIManager = AIManager(self._initialize_cars, self.game_mode == GameMode.AI_TRAINING)
+        self.ai_manager: AIManager = AIManager(self._initialize_cars, self.entity_manager,
+                                               self.game_mode == GameMode.AI_TRAINING)
 
         self._initialize()
 
@@ -43,32 +44,39 @@ class Game(Engine):
     def _initialize_cars(self):
         if len(self.cars) == 0:
             if self.game_mode == GameMode.MANUAL or self.game_mode == GameMode.AI_PLAYING:
-                self.cars.append(Car(self.create_entity("entities/car", has_collider=True, is_static=False)))
+                self.cars.append(Car(self.create_entity("entities/car", has_collider=True, is_static=False),
+                                     self.entity_manager))
             elif self.game_mode == GameMode.AI_TRAINING:
                 for i in range(self.ai_manager.get_population_size()):
                     self.cars.append(Car(self.create_entity("entities/car", has_collider=True, is_static=False,
-                                                            is_training=True)))
+                                                            is_training=True), self.entity_manager))
 
         map_width = self.tile_map.width // 16
-        start_tile = (self.tile_map.tiles[(11 + 8) + (42 + 8) * map_width].tile_entity.get_transform().get_position())
+        tile_id = self.tile_map.tiles[(11 + 8) + (42 + 8) * map_width].entity_ID
+        start_tile = self.entity_manager.get_transform(tile_id).get_position()
 
         for car in self.cars:
+            # self.entity_manager.reset_entities()
             car.reset()
-            car.set_position(Vector2(start_tile[0], start_tile[1]))
+            self.entity_manager.get_transform(car.entity_ID).set_position(Vector2(start_tile[0], start_tile[1]))
+            # car.set_position(Vector2(start_tile[0], start_tile[1]))
         if self.game_mode == GameMode.AI_TRAINING:
             self.ai_manager.reset(self.cars)
 
     def update(self, delta_time):
         for car in self.cars:
             fov = car.car_knowledge.field_of_view
-            fov.update(car.car_entity, self.tile_map, [npc.NPC_entity for npc in self.NPCs])
+            car_transform = self.entity_manager.get_transform(car.entity_ID)
+            npc_sprite_rects = [self.entity_manager.get_sprite_rect(npc.entity_ID) for npc in self.NPCs]
+            fov.update(car_transform, self.tile_map, npc_sprite_rects, self.entity_manager)
             checkpoint: int = self.tile_map.get_checkpoint_in(fov.get_checkpoint_activation_area())
             car_in_tile = fov.get_nearest_tile()
             car.car_knowledge.reach_checkpoint(checkpoint)
             next_checkpoint_position = self.tile_map.get_next_checkpoint_position(car.car_knowledge.checkpoint_number)
             car.car_knowledge.update(car_in_tile.tile_type, next_checkpoint_position,
-                                     car.car_entity.get_transform().get_forward(),
-                                     car.car_entity.get_physics().get_velocity())
+                                     self.entity_manager.get_transform(car.entity_ID).get_forward(),
+                                     self.entity_manager.get_physics(car.entity_ID).get_velocity(),
+                                     self.entity_manager, car_transform)
 
             if checkpoint is not None:
                 car.traveled_distance = checkpoint * 10
@@ -94,11 +102,11 @@ class Game(Engine):
             i += 1
 
         self.move_camera()
-        if self.game_mode is GameMode.AI_TRAINING:
-            self.better_fitness_index = []
-            cars_aux = self.cars.copy()
-            cars_aux.sort(key=lambda x: x.car_entity.get_fitness(), reverse=True)
-            self.better_fitness_index = [self.cars.index(car) for car in cars_aux]
+        # if self.game_mode is GameMode.AI_TRAINING:
+        #     self.better_fitness_index = []
+        #     cars_aux = self.cars.copy()
+        #     cars_aux.sort(key=lambda x: x.entity_ID.get_fitness(), reverse=True)
+        #     self.better_fitness_index = [self.cars.index(car) for car in cars_aux]
 
     def game_render_debug(self):
         for car in self.cars:
@@ -160,7 +168,8 @@ class Game(Engine):
 
         for car in self.cars:
             if car.selected_as_parent:
-                self.renderer.draw_rect(car.car_entity.get_sprite_rect(), (0, 0, 255), 3)
+                sprite_rect = self.entity_manager.get_sprite_rect(car.entity_ID)
+                self.renderer.draw_rect(sprite_rect, (0, 0, 255), 3)
                 selected = True
                 car.selected_as_parent = False
 
@@ -181,7 +190,8 @@ class Game(Engine):
                 i += 1
             if self.game_mode == GameMode.AI_TRAINING:
                 for agent in self.ai_manager.genetic_algorithm.elitism_list:
-                    self.renderer.draw_rect(agent.controlled_entity.car_entity.get_sprite_rect(), (0, 0, 255), 3)
+                    sprite_rect = self.entity_manager.get_sprite_rect(agent.controlled_entity.entity_ID)
+                    self.renderer.draw_rect(sprite_rect, (0, 0, 255), 3)
 
     def move_camera(self):
         if self.input_manager.is_key_down(Key.K_UP):
@@ -201,13 +211,12 @@ class Game(Engine):
 
     def center_camera_on_car(self):
         # TODO: The camera should follow the first car (best fitness)
-        car = self.cars[0]
         if len(self.cars) == 1:
-            self.camera.set_position(car.car_entity.get_transform().get_position())
+            car = self.cars[0]
         else:
             agents = sorted(self.ai_manager.get_agents(), key=lambda x: x.best_fitness, reverse=True)
             car = agents[0].controlled_entity
-        car_position = car.car_entity.get_transform().get_position()
+        car_position = self.entity_manager.get_transform(car.entity_ID).get_position()
         camera_position = -self.camera.get_position() + Vector2(self.window.get_width(), self.window.get_height())
         difference = camera_position - car_position
         if difference.length() > 1:
@@ -231,23 +240,27 @@ class Game(Engine):
         num = 0
         for tile, npc in field_of_view:
             if tile is not None:
+                sprite_rect = self.entity_manager.get_sprite_rect(tile.entity_ID)
+                transform = self.entity_manager.get_transform(tile.entity_ID)
                 if npc == 0:
-                    self.renderer.draw_rect(tile.tile_entity.get_sprite_rect(), (255, 0, 0), 1)
-                    self.renderer.draw_circle(tile.tile_entity.get_transform().get_position(), 2, (255, 255, 0), 1)
+                    self.renderer.draw_rect(sprite_rect, (255, 0, 0), 1)
+                    self.renderer.draw_circle(transform.get_position(), 2, (255, 255, 0), 1)
                 elif npc == 1:
-                    self.renderer.draw_rect(tile.tile_entity.get_sprite_rect(), (0, 0, 255), 1)
+                    self.renderer.draw_rect(sprite_rect, (0, 0, 255), 1)
                 if num < 10:
-                    text_position = tile.tile_entity.get_transform().get_position()
+                    text_position = transform.get_position()
                     text_position = text_position[0] + 4, text_position[1]
                 else:
-                    text_position = tile.tile_entity.get_transform().get_position()
+                    text_position = transform.get_position()
                 self.renderer.draw_provisional_text(str(num), text_position, (0, 0, 255), size=10)
             num += 1
 
     def _render_checkpoints(self):
         for tile in self.tile_map.checkpoints:
-            self.renderer.draw_rect(tile.tile_entity.get_sprite_rect(), (255, 255, 0), 1)
-            tile_position = tile.tile_entity.get_transform().get_position()
+            sprite_rect = self.entity_manager.get_sprite_rect(tile.entity_ID)
+            transform = self.entity_manager.get_transform(tile.entity_ID)
+            self.renderer.draw_rect(sprite_rect, (255, 255, 0), 1)
+            tile_position = transform.get_position()
             if tile.checkpoint_number < 10:
                 checkpoint_text_position = tile_position[0] + 4, tile_position[1]
             else:

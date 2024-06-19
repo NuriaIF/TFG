@@ -1,10 +1,13 @@
 import pygame
 from pygame import Vector2
 
+from engine.components.collider import Collider
+from engine.components.sprite import Sprite
+from engine.components.transform import Transform
 from engine.engine_attributes import EngineAttributes
 from engine.engine_fonts import EngineFonts
-from engine.entities.entity import Entity
 from engine.managers.render_manager.background_batch import BackgroundBatch
+from engine.managers.render_manager.render_layers import RenderLayer
 from engine.managers.window_manager.window_manager import Window
 
 
@@ -34,10 +37,10 @@ class Renderer:
         # Scale the surface with the scale
         self.window.get_window().blit(self.surface_batch, (0, 0))
 
-    def render_debug_information(self, entity: Entity) -> None:
-        self._draw_entity_collider(entity)
-        self._draw_entity_transform_text(entity)
-        self._draw_entity_forward_vector(entity)
+    def render_debug_information(self, collider: Collider, transform: Transform) -> None:
+        self._draw_entity_collider(collider)
+        self._draw_entity_transform_text(transform)
+        self._draw_entity_forward_vector(transform)
 
     def get_background_batch(self):
         return self.surface_batch
@@ -48,18 +51,13 @@ class Renderer:
     def disable_debug_mode(self) -> None:
         self.debug_mode = False
 
-    def update(self, entity: Entity) -> None:
-        if entity is None:
-            raise ValueError("Entity cannot be None")
-        sprite = entity.get_sprite()
-        transform = entity.get_transform()
-
+    def update(self, sprite: Sprite, transform: Transform, is_batched: bool, layer: RenderLayer) -> None:
         if sprite is None:
             raise ValueError("Sprite cannot be None")
         if transform is None:
             raise ValueError("Transform cannot be None")
 
-        if entity.is_batched():
+        if is_batched:
             # self.add_to_background_batch(entity)
             return
 
@@ -67,66 +65,64 @@ class Renderer:
         sprite.update_transform(transform)
 
         # Add the sprite to the renderer if it hasn't been added yet
-        if not sprite.is_added_to_renderer() and not entity.is_batched():
-            self.sprite_group.add(sprite, layer=sprite.layer)
+        if not sprite.is_added_to_renderer() and not is_batched:
+            self.sprite_group.add(sprite, layer=layer.value)
             # Mark the sprite as added to the renderer, so we don't add it again
             sprite.set_added_to_renderer()
 
-    def update_background(self, entities: list[Entity]) -> None:
-        entity_width = entities[0].get_sprite().get_width()
-        entity_height = entities[0].get_sprite().get_height()
-        start_position = entities[0].get_transform().get_position()
+    def update_background(self, sprites: list[pygame.Surface], transforms: list[Transform]) -> None:
+        entity_width = sprites[0].get_width()
+        entity_height = sprites[0].get_height()
+        start_position = transforms[0].get_position()
         if self.background_batch is None:
-            self.background_batch = BackgroundBatch(entity_width, entity_height, entities)
-            for entity in entities:
-                self.add_to_background_batch(entity)
+            self.background_batch = BackgroundBatch(entity_width, entity_height, sprites, transforms)
+            for sprite, transform in zip(sprites, transforms):
+                self.add_to_background_batch(sprite, transform)
         self.background_batch.draw(self.surface_batch, start_position)
 
-    def add_to_background_batch(self, entity: Entity) -> None:
-        if entity is None:
-            raise ValueError("Entity cannot be None")
-        sprite = entity.get_sprite()
-        transform = entity.get_transform()
+    def add_to_background_batch(self, sprite: pygame.Surface, transform: Transform) -> None:
+        if sprite is None:
+            raise ValueError("Sprite cannot be None")
+        if transform is None:
+            raise ValueError("Transform cannot be None")
         self.background_batch.add_entity(sprite, transform.get_position())
         # self.surface_batch.blit(sprite, transform.get_position())
 
-    def _draw_entity_collider(self, entity: Entity) -> None:
-        if entity is None:
-            raise ValueError("Entity cannot be None")
-        if not entity.has_collider() or not entity.shows_debug_collider():
+    def _draw_entity_collider(self, collider: Collider) -> None:
+        if collider is None:
+            raise ValueError("Collider cannot be None")
+        if not collider.is_active() or not collider.shows_debug_collider():
             return
 
         # Draw the collider rect as a rectangular outline
-        collider_rect: pygame.Rect = entity.get_collider().get_rect()
+        collider_rect: pygame.Rect = collider.get_rect()
         self.draw_rect(collider_rect, EngineAttributes.COLLIDER_COLOR_RECT, thickness=2)
 
-    def _draw_entity_transform_text(self, entity: Entity) -> None:
-        if entity is None:
-            raise ValueError("Entity cannot be None")
-        if not entity.shows_debug_transform():
+    def _draw_entity_transform_text(self, transform: Transform) -> None:
+        if transform is None:
+            raise ValueError("Transform cannot be None")
+        if not transform.shows_debug_transform():
             return
-        transform = entity.get_transform()
+
         position = transform.get_position()
+        rotation = transform.get_rotation()
+        scale = transform.get_scale()
 
         # Format position, rotation, and scale with two decimal places
         position_text = f"({position[0]:.2f}, {position[1]:.2f})"
-        rotation_text = f"Rotation: {transform.get_rotation():.2f}"
-        scale = transform.get_scale()
+        rotation_text = f"Rotation: {rotation:.2f}"
         scale_text = f"Scale: ({scale[0]:.2f}, {scale[1]:.2f})"
-        fitness_text = f"Fitness: {entity.get_fitness()}"
 
         # self.draw_text(position_text, position)
         self.draw_text(rotation_text, Vector2(position[0], position[1] + 15))
         # self.draw_text(scale_text, Vector2(position[0], position[1] + 30))
-        self.draw_text(fitness_text, Vector2(position[0], position[1] + 45))
 
-    def _draw_entity_forward_vector(self, entity: Entity) -> None:
-        if entity is None:
-            raise ValueError("Entity cannot be None")
-        if not entity.shows_debug_forward():
+    def _draw_entity_forward_vector(self, transform: Transform) -> None:
+        if transform is None:
+            raise ValueError("Transform cannot be None")
+        if not transform.shows_debug_forward():
             return
 
-        transform = entity.get_transform()
         forward_vector = transform.get_forward()
         position = transform.get_position()
 
@@ -169,7 +165,7 @@ class Renderer:
             raise ValueError("All points must be pygame.Vector2")
         pygame.draw.polygon(self.window.get_window(), color, points, width=thickness)
 
-    def draw_line(self, start_pos: Vector2, end_pos: tuple[int, int], color: tuple[int, int, int],
+    def draw_line(self, start_pos: Vector2, end_pos: Vector2, color: tuple[int, int, int],
                   thickness: int = 1) -> None:
         pygame.draw.line(self.window.get_window(), color, start_pos, end_pos, thickness)
 

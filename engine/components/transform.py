@@ -9,6 +9,8 @@ class Transform:
         self._position = Vector2(0, 0)
         self._rotation = 0
         self._scale = Vector2(1, 1)
+        self._transform_debug_show: bool = False
+        self._forward_debug_show: bool = False
 
     def __eq__(self, other: 'Transform') -> bool:
         if self is other:
@@ -80,5 +82,23 @@ class Transform:
 
         return Vector2(forward_x, forward_y).normalize()
 
+    def shows_debug_transform(self) -> bool:
+        return self._transform_debug_show
+
+    def shows_debug_forward(self) -> bool:
+        return self._forward_debug_show
+
     def copy(self) -> 'Transform':
         return copy.deepcopy(self)
+
+    def debug_config_show_transform(self) -> None:
+        self._transform_debug_show = True
+
+    def debug_config_show_forward(self) -> None:
+        self._forward_debug_show = True
+
+    def debug_config_hide_transform(self) -> None:
+        self._transform_debug_show = False
+
+    def debug_config_hide_forward(self) -> None:
+        self._forward_debug_show = False

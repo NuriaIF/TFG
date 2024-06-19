@@ -1,10 +1,9 @@
-from engine.entities.entity import Entity
 from game.map.map_types import MapType
 
 
 class Tile:
-    def __init__(self, entity: Entity, map_type: MapType):
-        self.tile_entity = entity
+    def __init__(self, entity: int, map_type: MapType):
+        self.entity_ID = entity
         self.tile_type = map_type
 
         self.checkpoint_number = -1

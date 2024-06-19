@@ -5,6 +5,7 @@ import json
 import numpy as np
 from pygame import Vector2
 
+from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.input_manager.key import Key
 from game.ai.ai_agent import AIAgent
@@ -19,7 +20,8 @@ class AIManager:
     AI Manager class that manages the AI agents
     """
 
-    def __init__(self, initialization_callback, training=True) -> None:
+    def __init__(self, initialization_callback, entity_manager: EntityManager, training=True) -> None:
+        self.entity_manager: EntityManager = entity_manager
         self.current_agent_index: int = 0
         self.population_size: int = 20
         self.training: bool = training
@@ -37,7 +39,6 @@ class AIManager:
         self.fitness_scores = {}
 
         self.inputs = []
-
 
     def get_population_size(self) -> int:
         """
@@ -161,13 +162,16 @@ class AIManager:
         :param car: car to get the inputs from
         :return: list of inputs for the neural network of the car
         """
-        entity = car.car_entity
-        agent_forward: Vector2 = entity.get_transform().get_forward()
-        agent_velocity: float = entity.get_physics().get_velocity()
-        agent_acceleration: float = entity.get_physics().get_acceleration()
+        transform = self.entity_manager.get_transform(car.entity_ID)
+        physics = self.entity_manager.get_physics(car.entity_ID)
+
+        agent_forward: Vector2 = transform.get_forward()
+        agent_velocity: float = physics.get_velocity()
+        agent_acceleration: float = physics.get_acceleration()
 
         next_checkpoint_position = car.car_knowledge.get_next_checkpoint_position()
-        car_in_tile_position = car.car_knowledge.get_field_of_view().get_nearest_tile().tile_entity.get_transform().get_position()
+        car_in_tile = car.car_knowledge.get_field_of_view().get_nearest_tile().entity_ID
+        car_in_tile_position = self.entity_manager.get_transform(car_in_tile).get_position()
         relative_position = (
             next_checkpoint_position[0] - car_in_tile_position[0],
             next_checkpoint_position[1] - car_in_tile_position[1]

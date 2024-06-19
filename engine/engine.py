@@ -4,16 +4,20 @@ from engine.components.collider import Collider
 from engine.components.transform import Transform
 from engine.engine_attributes import EngineAttributes
 from engine.engine_fonts import EngineFonts
-from engine.entities.entity import Entity
 from engine.fps_manager import FPSManager
 from engine.managers.collider_manager.collider_manager import ColliderManager
+from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.input_manager.key import Key
 from engine.managers.physics_manager.physics_manager import PhysicsManager
+from engine.managers.render_manager.render_layers import RenderLayer
 from engine.managers.render_manager.renderer import Renderer
 from engine.managers.sound_manager.sound_manager import SoundManager
 from engine.managers.window_manager.window_manager import Window
 from game.camera import Camera
+
+import multiprocessing
+from multiprocessing import Pool
 
 
 class Engine:
@@ -26,7 +30,8 @@ class Engine:
         self.engine_fonts = EngineFonts()
         self.collider_manager = ColliderManager()
         self.camera = Camera(Vector2(self.window.get_width(), self.window.get_height()))
-        self.entities: list[Entity] = []
+        self.entity_manager = EntityManager()
+        # self.entities: list[Entity] = []
 
     def update(self, delta_time: float):
         self.input_manager.update()
@@ -34,23 +39,53 @@ class Engine:
             self.renderer.enable_debug_mode()
         if self.input_manager.is_key_down(Key.K_P):
             self.renderer.disable_debug_mode()
-        self.camera.update(delta_time, self.entities)
+        self.camera.update(delta_time, self.entity_manager.transforms)
         self.renderer.update_background_batch(self.camera.get_displacement())
 
-        batch_entities = [entity for entity in self.entities if entity.is_batched()]
-        for entity in self.entities:
+        batch_entities = [entity for entity in self.entity_manager.entities
+                          if self.entity_manager.is_batched(entity)]
+        batch_sprites = [self.entity_manager.get_sprite(entity) for entity in batch_entities]
+        batch_transforms = [self.entity_manager.get_transform(entity) for entity in batch_entities]
+
+        # with Pool(multiprocessing.cpu_count()) as pool:
+        #     updated_entities = pool.map(self._update_entity_physics_and_collision, [(entity, delta_time) for entity in self.entities])
+        # for entity in updated_entities:
+        #     self.renderer.update(entity)
+        for entity in self.entity_manager.entities:
             # Getting the next frame collider before updating the physics
             # This way a collider never enters another, blocking the entity
-            next_frame_transform: Transform = self.physics_manager.get_next_transform_and_physics(entity, delta_time)[0]
-            next_frame_collider: Collider = Collider(entity.get_rect_with_transform(next_frame_transform))
-            if entity.has_collider():
-                self.collider_manager.update(entity, next_frame_collider)
+            transform = self.entity_manager.get_transform(entity)
+            physics = self.entity_manager.get_physics(entity)
+            collider = self.entity_manager.get_collider(entity)
+            sprite_rect = self.entity_manager.get_sprite_rect(entity)
+            sprite = self.entity_manager.get_sprite(entity)
+            next_frame_transform: Transform = self.physics_manager.get_next_transform_and_physics(transform, physics,
+                                                                                                  delta_time)[0]
+            next_frame_collider: Collider = Collider(self.entity_manager.get_rect_with_transform(entity,
+                                                                                                 next_frame_transform))
+            if collider.is_active():
+                self.collider_manager.update(collider, sprite_rect, physics, transform, next_frame_collider)
 
-            if not entity.is_static():
-                self.physics_manager.update(entity, delta_time)
+            if not physics.is_static():
+                self.physics_manager.update(entity, physics, transform, self.entity_manager, delta_time)
 
-            self.renderer.update(entity)
-        self.renderer.update_background(batch_entities)
+            is_batched = self.entity_manager.is_batched(entity)
+            layer = self.entity_manager.get_layer(entity)
+            self.renderer.update(sprite, transform, is_batched, layer)
+        self.renderer.update_background(batch_sprites, batch_transforms)
+
+    # def _update_entity_physics_and_collision(self, args):
+    #     entity, delta_time = args
+    #     # Getting the next frame collider before updating the physics
+    #     next_frame_transform: Transform = self.physics_manager.get_next_transform_and_physics(entity, delta_time)[0]
+    #     next_frame_collider: Collider = Collider(entity.get_rect_with_transform(next_frame_transform))
+    #     if entity.has_collider():
+    #         self.collider_manager.update(entity, next_frame_collider)
+    # 
+    #     if not entity.is_static():
+    #         self.physics_manager.update(entity, delta_time)
+    # 
+    #     return entity
 
     def render(self):
         self.window.clear()
@@ -70,8 +105,10 @@ class Engine:
         self.renderer.draw_surface(
             EngineFonts.get_fonts().debug_UI_font.render(f"Camera Position: {self.camera.get_position()}",
                                                          True, EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 20))
-        for entity in self.entities:
-            self.renderer.render_debug_information(entity)
+        for entity in self.entity_manager.entities:
+            collider = self.entity_manager.get_collider(entity)
+            transform = self.entity_manager.get_transform(entity)
+            self.renderer.render_debug_information(collider, transform)
 
         self.game_render_debug()
 
@@ -84,13 +121,15 @@ class Engine:
         pass
 
     def create_entity(self, sprite_path: str, has_collider: bool = False, background_batched: bool = False,
-                      is_static: bool = True, is_training: bool = False) -> Entity:
+                      is_static: bool = True, is_training: bool = False) -> int:
         if not isinstance(sprite_path, str):
             raise ValueError("Sprite path must be a string")
-        entity = Entity(sprite_path, has_collider=has_collider, batched=background_batched, is_static=is_static,
-                        is_training=is_training)
-        self.entities.append(entity)
-        return entity
+        # entity = Entity(sprite_path, has_collider=has_collider, batched=background_batched, is_static=is_static,
+        #                 is_training=is_training)
+        # self.entities.append(entity)
+        entity_id = self.entity_manager.add_entity(sprite_path, has_collider=has_collider, batched=background_batched,
+                                                   is_static=is_static, is_training=is_training)
+        return entity_id
 
     def play_music(self, file_name: str) -> None:
         self.sound_manager.play_music(file_name)

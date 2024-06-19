@@ -1,34 +1,36 @@
 from engine.components.collider import Collider
-from engine.entities.entity import Entity
-
+from engine.components.physics import Physics
+from engine.components.transform import Transform
+from pygame import Rect
 
 class ColliderManager:
     def __init__(self):
         self.colliders: list[Collider] = []
 
-    def update(self, entity: Entity, next_frame_collider: Collider) -> None:
-        if not isinstance(entity, Entity):
-            raise ValueError("entity must be an instance of Entity")
-        collider = entity.get_collider()
+    def update(self, collider: Collider, sprite_rect: Rect, physics: Physics, transform: Transform,
+               next_frame_collider: Collider) -> None:
+        # if not isinstance(entity, Entity):
+        #     raise ValueError("entity must be an instance of Entity")
+        if not isinstance(collider, Collider):
+            raise ValueError("collider must be an instance of Collider")
+        if not isinstance(sprite_rect, Rect):
+            raise ValueError("sprite_rect must be an instance of pygame.Rect")
 
-        collider.update_rect(entity.get_sprite_rect())
+        collider.update_rect(sprite_rect)
 
         if collider not in self.colliders:
             self.colliders.append(collider)
 
-        if entity.is_static():
+        if physics.is_static():
             return  # Static entities don't move, so they don't need to check for collision
-        self.check_collision_continuous(entity, next_frame_collider)
+        self.check_collision_continuous(collider, physics, transform, next_frame_collider)
 
-    def check_collision_continuous(self, entity: Entity, next_frame_collider: Collider) -> None:
-        collider = entity.get_collider()
-        physics = entity.get_physics()
-        transform = entity.get_transform()
-
+    def check_collision_continuous(self, collider: Collider, physics: Physics, transform: Transform,
+                                   next_frame_collider: Collider) -> None:
         for other_collider in self.colliders:
             if other_collider is collider:
                 continue
-            if other_collider.is_in_training and collider.is_in_training:
+            if other_collider.is_in_training() and collider.is_in_training():
                 continue
 
             intersection = collider.intersects(other_collider)

@@ -4,6 +4,7 @@ import numpy as np
 from pygame import Vector2
 
 from engine.engine import Engine
+from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.render_manager.render_layers import RenderLayer
 from game.entities.tile import Tile
 from game.map.checkpoints.checkpoints_loader import CheckpointsLoader
@@ -15,7 +16,9 @@ MAP_WALL_DEPTH = 100
 
 
 class TileMap:
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, entity_manager: EntityManager):
+        self.entity_manager = entity_manager
+
         self.tiles: list[Tile] = []
         self.type_map_list = MapLoader.load_map("road01-uni")
 
@@ -63,16 +66,16 @@ class TileMap:
                 tile = Tile(tile_entity, MapType.TRACK)
 
             # Set the tile's position
-            tile_entity.get_transform().set_position(Vector2(x_pos, y_pos))
+            self.entity_manager.get_transform(tile_entity).set_position(Vector2(x_pos, y_pos))
 
-            # self.tiles[(x_pos, y_pos)] = tile_entity
             self.tiles.append(tile)
 
     def _get_closest_tile(self, position: tuple[float, float], tiles: list[Tile], nearest_distance: float,
                           nearest_tile=None) -> Tile:
         for tile in tiles:
-            distance = (tile.tile_entity.get_transform().get_position().x - position[0]) ** 2 + (
-                    tile.tile_entity.get_transform().get_position().y - position[1]) ** 2
+            tile_transform = self.entity_manager.get_transform(tile.entity_ID)
+            distance = (tile_transform.get_position().x - position[0]) ** 2 + (
+                    tile_transform.get_position().y - position[1]) ** 2
             if distance < nearest_distance:
                 nearest_distance = distance
                 nearest_tile = tile
@@ -85,8 +88,9 @@ class TileMap:
         if previous_nearest_tile is None:
             return self._get_closest_tile_with_no_info(position)
         # Verify if the previous tile is still the nearest
-        prev_distance = (previous_nearest_tile.tile_entity.get_transform().get_position().x - position[0]) ** 2 + \
-                        (previous_nearest_tile.tile_entity.get_transform().get_position().y - position[1]) ** 2
+        tile_transform = self.entity_manager.get_transform(previous_nearest_tile.entity_ID)
+        prev_distance = (tile_transform.get_position().x - position[0]) ** 2 + \
+                        (tile_transform.get_position().y - position[1]) ** 2
 
         nearest_tile = previous_nearest_tile
         nearest_distance = prev_distance
@@ -127,13 +131,16 @@ class TileMap:
         for j in range(-radius * 2, radius * 2):
             for i in range(-radius * 2, radius * 2):
                 if 0 <= tile_index + i + j * map_width < len(self.tiles):
-                    position = self.tiles[tile_index + i + j * map_width].tile_entity.get_transform().get_position()
+                    tile_transform = self.entity_manager.get_transform(
+                        self.tiles[tile_index + i + j * map_width].entity_ID)
+                    position = tile_transform.get_position()
                     tile_pos = tile_index + i + j * map_width
                     if self._point_in_polygon(position, vision_box):
                         within_square.append(self.tiles[tile_pos])
 
         if radius == 6:
-            tile_position = tile.tile_entity.get_transform().get_position()
+            tile_transform = self.entity_manager.get_transform(tile.entity_ID)
+            tile_position = tile_transform.get_position()
             within_square = self._order_tiles(within_square, angle, position=tile_position)
             if len(within_square) > 144:
                 within_square = within_square[:144]
@@ -155,7 +162,8 @@ class TileMap:
 
         for tile in tiles:
             if tile is not None:
-                tile_pos: Vector2 = tile.tile_entity.get_transform().get_position()
+                transform = self.entity_manager.get_transform(tile.entity_ID)
+                tile_pos: Vector2 = transform.get_position()
                 tile_pos = position - tile_pos
                 # apply rotation matrix to tile relative position
                 tile_pos = np.dot(rotation_matrix, tile_pos)
@@ -199,27 +207,32 @@ class TileMap:
         border_width = TILE_SIZE * 8
         # Create large entities that surround the map that have colliders, so the car can't leave the map
         upper_wall = engine.create_entity("tiles/map_border_center", has_collider=True, is_static=True)
-        upper_wall.get_transform().set_position(Vector2(self.type_map_list.get_width() * TILE_SIZE / 2, -TILE_SIZE + border_width))
-        upper_wall.set_layer(RenderLayer.TILES)
-        upper_wall.debug_config_show_collider()
+        upper_wall_transform = self.entity_manager.get_transform(upper_wall)
+        upper_wall_transform.set_position(
+            Vector2(self.type_map_list.get_width() * TILE_SIZE / 2, -TILE_SIZE + border_width))
+        self.entity_manager.set_layer(upper_wall, RenderLayer.TILES)
+        self.entity_manager.get_collider(upper_wall).debug_config_show_collider()
 
         bottom_wall = engine.create_entity("tiles/map_border_center", has_collider=True, is_static=True)
-        bottom_wall.get_transform().set_position(
+        bottom_wall_transform = self.entity_manager.get_transform(bottom_wall)
+        bottom_wall_transform.set_position(
             Vector2(self.type_map_list.get_width() * TILE_SIZE / 2, self.height - border_width))
-        bottom_wall.get_transform().rotate(180)
-        bottom_wall.set_layer(RenderLayer.TILES)
-        bottom_wall.debug_config_show_collider()
+        bottom_wall_transform.rotate(180)
+        self.entity_manager.set_layer(bottom_wall, RenderLayer.TILES)
+        self.entity_manager.get_collider(bottom_wall).debug_config_show_collider()
 
         left_wall = engine.create_entity("tiles/map_border_lateral", has_collider=True, is_static=True)
-        left_wall.get_transform().set_position(Vector2(-TILE_SIZE + border_width, self.height / 2))
-        left_wall.set_layer(RenderLayer.TILES)
-        left_wall.debug_config_show_collider()
+        left_wall_transform = self.entity_manager.get_transform(left_wall)
+        left_wall_transform.set_position(Vector2(-TILE_SIZE + border_width, self.height / 2))
+        self.entity_manager.set_layer(left_wall, RenderLayer.TILES)
+        self.entity_manager.get_collider(left_wall).debug_config_show_collider()
 
         right_wall = engine.create_entity("tiles/map_border_lateral", has_collider=True, is_static=True)
-        right_wall.get_transform().set_position(Vector2(self.width - border_width, self.height / 2))
-        right_wall.get_transform().rotate(180)
-        right_wall.set_layer(RenderLayer.TILES)
-        right_wall.debug_config_show_collider()
+        right_wall_transform = self.entity_manager.get_transform(right_wall)
+        right_wall_transform.set_position(Vector2(self.width - border_width, self.height / 2))
+        right_wall_transform.rotate(180)
+        self.entity_manager.set_layer(right_wall, RenderLayer.TILES)
+        self.entity_manager.get_collider(right_wall).debug_config_show_collider()
 
     def get_checkpoint_in(self, area: list[Tile]) -> int:
         """
@@ -237,6 +250,7 @@ class TileMap:
         next_checkpoint_number = checkpoint + 1
         for tile in self.checkpoints:
             if tile.checkpoint_number == next_checkpoint_number:
-                return tile.tile_entity.get_transform().get_position().x, tile.tile_entity.get_transform().get_position().y
+                tile_transform = self.entity_manager.get_transform(tile.entity_ID)
+                return tile_transform.get_position().x, tile_transform.get_position().y
         return float('inf'), float('inf')
 

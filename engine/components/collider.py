@@ -15,10 +15,10 @@ class Intersection:
 
 class Collider:
     def __init__(self, rect: pygame.Rect, is_active: bool = True, is_training: bool = False):
-        if rect is None:
-            raise ValueError("Rect cannot be None")
-        if not isinstance(rect, pygame.Rect):
-            raise ValueError("Rect must be an instance of pygame.Rect")
+        # if rect is None:
+        #     raise ValueError("Rect cannot be None")
+        # if not isinstance(rect, pygame.Rect):
+        #     raise ValueError("Rect must be an instance of pygame.Rect")
         self.rect = rect
         self._is_in_training: bool = is_training
         self._is_active: bool = is_active
@@ -28,10 +28,10 @@ class Collider:
         return self.rect
 
     def update_rect(self, rect: pygame.Rect) -> None:
-        if rect is None:
-            raise ValueError("Rect cannot be None")
-        if not isinstance(rect, pygame.Rect):
-            raise ValueError("Rect must be an instance of pygame.Rect")
+        # if rect is None:
+        #     raise ValueError("Rect cannot be None")
+        # if not isinstance(rect, pygame.Rect):
+        #     raise ValueError("Rect must be an instance of pygame.Rect")
         self.rect = rect
 
     def intersects(self, other_collider: 'Collider') -> Intersection:
@@ -39,8 +39,8 @@ class Collider:
         Returns a tuple with a boolean value and a float value. The boolean value is True if the collider intersects.
         The float is the area of the intersection. If the boolean value is False, the float value is 0.
         """
-        if not isinstance(other_collider, Collider):
-            raise ValueError("other_collider must be an instance of Collider")
+        # if not isinstance(other_collider, Collider):
+        #     raise ValueError("other_collider must be an instance of Collider")
 
         # Check for intersection
         intersects = self.rect.colliderect(other_collider.get_rect())

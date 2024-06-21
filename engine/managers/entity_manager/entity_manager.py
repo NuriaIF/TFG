@@ -21,6 +21,9 @@ class EntityManager:
         self.sprites: list[Sprite | Surface] = []
         self.colliders: list[Collider] = []
 
+        self.sprite_rects: list[pygame.Rect] = []
+        self.next_frame_sprite_rects: list[pygame.Rect] = []
+
         self.batched: list[bool] = []
         self.layers: list[RenderLayer] = []
 
@@ -46,6 +49,14 @@ class EntityManager:
         self.colliders.append(collider)
         self.layers.append(RenderLayer.DEFAULT)
         self.batched.append(batched)
+        if batched:
+            self.sprite_rects.append(pygame.rect.Rect(transform.get_position().x, transform.get_position().y,
+                                                      sprite.get_width(), sprite.get_height()))
+            self.next_frame_sprite_rects.append(pygame.rect.Rect(transform.get_position().x, transform.get_position().y,
+                                                                 sprite.get_width(), sprite.get_height()))
+        else:
+            self.sprite_rects.append(sprite.rect)
+            self.next_frame_sprite_rects.append(sprite.rect)
 
         # Add entity to the entity list
         self.entities.append(entity_id)
@@ -74,21 +85,26 @@ class EntityManager:
         self.layers[entity_id] = layer
 
     def get_sprite_rect(self, entity_id) -> pygame.Rect:
-        sprite = self.get_sprite(entity_id)
         if self.batched[entity_id]:
-            transform = self.get_transform(entity_id)
-            return pygame.rect.Rect(transform.get_position().x, transform.get_position().y,
-                                    sprite.get_width(), sprite.get_height())
+            position = self.get_transform(entity_id).get_position()
+            rect = self.sprite_rects[entity_id]
+            rect.x = position.x
+            rect.y = position.y
+            return rect
+
+        sprite = self.get_sprite(entity_id)
         return sprite.rect
 
+    def get_next_frame_sprite_rect(self, entity_id) -> pygame.Rect:
+        return self.next_frame_sprite_rects[entity_id]
+
     def get_rect_with_transform(self, entity_id: int, transform: Transform) -> pygame.Rect:
-        sprite = self.get_sprite(entity_id)
-        if self.batched[entity_id]:
-            return pygame.rect.Rect(transform.get_position().x, transform.get_position().y,
-                                    sprite.get_width(), sprite.get_height())
-        else:
-            return pygame.rect.Rect(transform.get_position().x, transform.get_position().y,
-                                    sprite.rect.width, sprite.rect.height)
+        position = transform.get_position()
+        rect = self.get_next_frame_sprite_rect(entity_id)
+        rect.x = position.x
+        rect.y = position.y
+
+        return rect
 
     def set_transform(self, entity, updated_transform):
         self.transforms[entity] = updated_transform

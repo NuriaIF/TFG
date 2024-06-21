@@ -26,42 +26,42 @@ class Transform:
         return result
 
     def displace(self, displacement: Vector2) -> None:
-        if not isinstance(displacement, Vector2):
-            raise ValueError("Displacement must be a Vector2")
+        # if not isinstance(displacement, Vector2):
+        #     raise ValueError("Displacement must be a Vector2")
         self._position += displacement
 
     def get_position(self) -> Vector2:
         return self._position
 
     def set_position_x(self, x: float) -> None:
-        if not isinstance(x, (int, float)):
-            raise ValueError("X must be a number")
+        # if not isinstance(x, (int, float)):
+        #     raise ValueError("X must be a number")
         self._position[0] = x
 
     def set_position_y(self, y: float) -> None:
-        if not isinstance(y, (int, float)):
-            raise ValueError("Y must be a number")
+        # if not isinstance(y, (int, float)):
+        #     raise ValueError("Y must be a number")
         self._position[1] = y
 
     def set_position(self, position: Vector2) -> None:
-        if not isinstance(position, Vector2):
-            raise ValueError("Position must be a Vector2")
+        # if not isinstance(position, Vector2):
+        #     raise ValueError("Position must be a Vector2")
         self._position = position
 
     def get_rotation(self) -> float:
         return self._rotation
 
     def set_rotation(self, rotation: float) -> None:
-        if not isinstance(rotation, (int, float)):
-            raise ValueError("Rotation must be a number")
+        # if not isinstance(rotation, (int, float)):
+        #     raise ValueError("Rotation must be a number")
         self._rotation = rotation
 
     def get_scale(self) -> Vector2:
         return self._scale
 
     def set_scale(self, scale: Vector2) -> None:
-        if not isinstance(scale, Vector2):
-            raise ValueError("Scale must be a Vector2")
+        # if not isinstance(scale, Vector2):
+        #     raise ValueError("Scale must be a Vector2")
 
         if scale.x < 0:
             scale.x = max(0.0, scale.x)
@@ -88,8 +88,15 @@ class Transform:
     def shows_debug_forward(self) -> bool:
         return self._forward_debug_show
 
+    # def copy(self) -> 'Transform':
+    #     return copy.deepcopy(self)
+    # 
     def copy(self) -> 'Transform':
-        return copy.deepcopy(self)
+        new_transform = Transform()
+        new_transform._position = self._position.copy()
+        new_transform._rotation = self._rotation
+        new_transform._scale = self._scale.copy()
+        return new_transform
 
     def debug_config_show_transform(self) -> None:
         self._transform_debug_show = True

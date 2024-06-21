@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import numpy as np
 from pygame import Vector2, Rect
 
@@ -31,8 +33,8 @@ class FOV:
 
     def update(self, transform: Transform, tile_map: TileMap, sprite_rects: list[Rect], entity_manager: EntityManager
                ) -> None:
-        angle: [] = np.degrees(np.arctan2(transform.get_forward().y,
-                                          transform.get_forward().x))
+        forward = transform.get_forward()
+        angle = math.degrees(math.atan2(forward.y, forward.x))
         self.vision_box = self._get_vision_box(transform, radius=6, angle=angle)
         self.field_of_view = self._get_field_of_view(transform, tile_map, sprite_rects, angle=angle,
                                                      entity_manager=entity_manager)
@@ -40,20 +42,21 @@ class FOV:
 
     def _get_field_of_view(self, transform: Transform, tile_map: TileMap, sprite_rects: list[Rect], angle: [],
                            entity_manager: EntityManager) -> list[tuple[Tile, bool]]:
-        tiles_within_square_and_center = tile_map.get_tiles_within_square((transform.get_position().x,
-                                                                           transform.get_position().y),
+        position = transform.get_position()
+        tiles_within_square_and_center = tile_map.get_tiles_within_square((position.x, position.y),
                                                                           self.nearest_tile,
                                                                           radius=6,
                                                                           vision_box=self.vision_box,
                                                                           angle=angle)
         tiles_within_square = tiles_within_square_and_center[0]
         self.nearest_tile = tiles_within_square_and_center[1]
-        tiles_and_entities_within_square = self._get_tiles_with_entity(tiles_within_square, sprite_rects, entity_manager)
+        tiles_and_entities_within_square = self._get_tiles_with_entity(tiles_within_square, sprite_rects,
+                                                                       entity_manager)
         return tiles_and_entities_within_square
 
     def _get_checkpoint_activation_area(self, transform: Transform, tile_map: TileMap, angle: []) -> list[Tile]:
-        tiles_within_square_and_center = tile_map.get_tiles_within_square((transform.get_position().x,
-                                                                           transform.get_position().y),
+        position = transform.get_position()
+        tiles_within_square_and_center = tile_map.get_tiles_within_square((position.x, position.y),
                                                                           self.nearest_tile,
                                                                           radius=3,
                                                                           vision_box=self.vision_box,
@@ -66,14 +69,9 @@ class FOV:
         tiles_and_entities_within_square: list[tuple[Tile, bool]] = []
         for tile in tiles_within_square:
             tile_sprite_rect = entity_manager.get_sprite_rect(tile.entity_ID)
-            if tile is not None:
-                has_entity = False
-                for sprite_rect in sprite_rects:
-                    if sprite_rect.colliderect(tile_sprite_rect):
-                        tiles_and_entities_within_square.append((tile, True))
-                        has_entity = True
-                if not has_entity:
-                    tiles_and_entities_within_square.append((tile, False))
+
+            has_entity = any(sprite_rect.colliderect(tile_sprite_rect) for sprite_rect in sprite_rects)
+            tiles_and_entities_within_square.append((tile, has_entity))
 
         return tiles_and_entities_within_square
 
@@ -81,15 +79,14 @@ class FOV:
         # Calculamos el centro del Rect
         vision = transform.get_position()
         radius_pixels = radius * TILE_SIZE
-        vision_rect = Rect(vision.x - radius_pixels, vision.y - radius_pixels, 2 * radius_pixels, 2 * radius_pixels)
-        center = Vector2([vision_rect.centerx, vision_rect.centery])
+        center = Vector2(vision.x, vision.y)
 
         # Calculamos las esquinas del Rect
         points = [
-            Vector2([vision_rect.topright[0], vision_rect.topright[1]]),
-            Vector2([vision_rect.bottomright[0], vision_rect.bottomright[1]]),
-            Vector2([vision_rect.bottomleft[0], vision_rect.bottomleft[1]]),
-            Vector2([vision_rect.topleft[0], vision_rect.topleft[1]]),
+            Vector2(center.x + radius_pixels, center.y - radius_pixels),
+            Vector2(center.x + radius_pixels, center.y + radius_pixels),
+            Vector2(center.x - radius_pixels, center.y + radius_pixels),
+            Vector2(center.x - radius_pixels, center.y - radius_pixels),
         ]
         # Rotamos cada punto alrededor del centro
         rotated_points: list[Vector2] = [self._rotate_point(point, center, angle) for point in points]
@@ -97,16 +94,23 @@ class FOV:
         return rotated_points
 
     def _rotate_point(self, point, center, angle) -> Vector2:
-        angle_rad = np.deg2rad(angle)
-        cos_angle = np.cos(angle_rad)
-        sin_angle = np.sin(angle_rad)
-        translated_point = point - center
-        rotated_point = np.dot(np.array([
-            [cos_angle, -sin_angle],
-            [sin_angle, cos_angle]
-        ]), translated_point)
-        rotated_point = Vector2([rotated_point[0], rotated_point[1]])
-        return rotated_point + center
+        angle_rad = math.radians(angle)
+        cos_angle = math.cos(angle_rad)
+        sin_angle = math.sin(angle_rad)
+
+        # Translate point back to origin
+        translated_x = point.x - center.x
+        translated_y = point.y - center.y
+
+        # Rotate point
+        rotated_x = translated_x * cos_angle - translated_y * sin_angle
+        rotated_y = translated_x * sin_angle + translated_y * cos_angle
+
+        # Translate point back to its original location
+        new_x = rotated_x + center.x
+        new_y = rotated_y + center.y
+
+        return Vector2(new_x, new_y)
 
     def get_encoded_version(self) -> list[float]:
         if len(self.field_of_view) == 0:

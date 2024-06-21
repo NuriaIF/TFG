@@ -54,15 +54,16 @@ class Engine:
             # This way a collider never enters another, blocking the entity
             transform = self.entity_manager.get_transform(entity)
             physics = self.entity_manager.get_physics(entity)
-            collider = self.entity_manager.get_collider(entity)
-            sprite_rect = self.entity_manager.get_sprite_rect(entity)
             sprite = self.entity_manager.get_sprite(entity)
+            collider = self.entity_manager.get_collider(entity)
             self.camera.update_transform(transform)
-            next_frame_transform: Transform = self.physics_manager.get_next_transform_and_physics(transform, physics,
-                                                                                                  delta_time)[0]
-            next_frame_collider: Collider = Collider(self.entity_manager.get_rect_with_transform(entity,
-                                                                                                 next_frame_transform))
+
             if collider.is_active():
+                sprite_rect = self.entity_manager.get_sprite_rect(entity)
+                next_frame_transform: Transform = self.physics_manager.get_next_transform_and_physics(
+                    transform, physics, delta_time)[0]
+                next_frame_collider: Collider = Collider(self.entity_manager.get_rect_with_transform(
+                    entity, next_frame_transform))
                 self.collider_manager.update(collider, sprite_rect, physics, transform, next_frame_collider)
 
             if not physics.is_static():
@@ -129,8 +130,8 @@ class Engine:
 
     def create_entity(self, sprite_path: str, has_collider: bool = False, background_batched: bool = False,
                       is_static: bool = True, is_training: bool = False) -> int:
-        if not isinstance(sprite_path, str):
-            raise ValueError("Sprite path must be a string")
+        # if not isinstance(sprite_path, str):
+        #     raise ValueError("Sprite path must be a string")
         # entity = Entity(sprite_path, has_collider=has_collider, batched=background_batched, is_static=is_static,
         #                 is_training=is_training)
         # self.entities.append(entity)

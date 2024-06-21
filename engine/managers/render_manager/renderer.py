@@ -142,13 +142,13 @@ class Renderer:
 
     def draw_rect(self, rect: pygame.Rect, color: tuple[int, int, int] = (255, 0, 0),
                   thickness: int = 1) -> None:
-        if not isinstance(rect, pygame.Rect):
-            raise ValueError("Rect must be a pygame.Rect")
+        # if not isinstance(rect, pygame.Rect):
+        #     raise ValueError("Rect must be a pygame.Rect")
         pygame.draw.rect(self.window.get_window(), color, rect, thickness)
 
     def draw_polygon(self, points: list[Vector2], color: tuple[int, int, int], thickness: int = 1) -> None:
-        if not all(isinstance(point, Vector2) for point in points):
-            raise ValueError("All points must be pygame.Vector2")
+        # if not all(isinstance(point, Vector2) for point in points):
+        #     raise ValueError("All points must be pygame.Vector2")
         pygame.draw.polygon(self.window.get_window(), color, points, width=thickness)
 
     def draw_line(self, start_pos: Vector2, end_pos: Vector2, color: tuple[int, int, int],
@@ -157,6 +157,6 @@ class Renderer:
 
     def draw_circle(self, center: Vector2, radius: int, color: tuple[int, int, int] = (255, 0, 0),
                     thickness: int = 1) -> None:
-        if not isinstance(center, pygame.Vector2):
-            raise ValueError("Center must be a Vector2")
+        # if not isinstance(center, pygame.Vector2):
+        #     raise ValueError("Center must be a Vector2")
         pygame.draw.circle(self.window.get_window(), color, center, radius, width=thickness)

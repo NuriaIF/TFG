@@ -1,0 +1,187 @@
+         33256017 function calls in 10.018 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      158    0.024    0.000    9.764    0.062 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game.py:66(update)
+      158    4.367    0.028    9.309    0.059 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\engine.py:36(update)
+  1419706    0.719    0.000    0.944    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\entity_manager\entity_manager.py:87(get_sprite_rect)
+  1393718    0.623    0.000    0.916    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\camera.py:39(update_transform)
+  1393718    0.682    0.000    0.906    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\entity_manager\entity_manager.py:101(get_rect_with_transform)
+  1393718    0.358    0.000    0.477    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\physics_manager\physics_manager.py:38(get_next_transform_and_physics)
+      158    0.002    0.000    0.411    0.003 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\field_of_view.py:34(update)
+      316    0.096    0.000    0.370    0.001 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:126(get_tiles_within_square)
+      158    0.001    0.000    0.320    0.002 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\field_of_view.py:43(_get_field_of_view)
+      158    0.003    0.000    0.251    0.002 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\engine.py:97(render)
+  2965751    0.242    0.000    0.242    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\entity_manager\entity_manager.py:66(get_transform)
+    13393    0.240    0.000    0.240    0.000 {method 'blit' of 'pygame.Surface' objects}
+  1393718    0.235    0.000    0.235    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\collider.py:17(__init__)
+  2996815    0.230    0.000    0.230    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\transform.py:33(get_position)
+  2788384    0.219    0.000    0.219    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\physics.py:57(is_static)
+  1385213    0.203    0.000    0.203    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\transform.py:28(displace)
+  2878044    0.170    0.000    0.170    0.000 {method 'append' of 'list' objects}
+  1393718    0.168    0.000    0.168    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\renderer.py:54(update)
+      158    0.001    0.000    0.163    0.001 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\renderer.py:84(draw_background)
+   113760    0.135    0.000    0.156    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:198(_point_in_polygon)
+  1394035    0.124    0.000    0.124    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\entity_manager\entity_manager.py:69(get_physics)
+  1393718    0.123    0.000    0.123    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\entity_manager\entity_manager.py:81(is_batched)
+  1393718    0.122    0.000    0.122    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\entity_manager\entity_manager.py:98(get_next_frame_sprite_rect)
+  1394508    0.122    0.000    0.122    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\entity_manager\entity_manager.py:72(get_sprite)
+  1393718    0.120    0.000    0.120    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\entity_manager\entity_manager.py:75(get_collider)
+  1393718    0.114    0.000    0.114    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\entity_manager\entity_manager.py:78(get_layer)
+  1393718    0.102    0.000    0.102    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\collider.py:56(is_active)
+      158    0.001    0.000    0.091    0.001 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\renderer.py:26(render)
+  1394034    0.089    0.000    0.089    0.000 {method 'length' of 'pygame.math.Vector2' objects}
+      158    0.000    0.000    0.086    0.001 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\field_of_view.py:57(_get_checkpoint_activation_area)
+      158    0.000    0.000    0.062    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\window_manager\window_manager.py:37(swap_buffers)
+      158    0.061    0.000    0.061    0.000 {built-in method pygame.display.flip}
+      158    0.001    0.000    0.051    0.000 C:\Users\Nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:529(update)
+      785    0.001    0.000    0.050    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\sprite.py:26(update)
+      785    0.004    0.000    0.049    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\sprite.py:32(apply_transform)
+      158    0.000    0.000    0.048    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\renderer.py:36(render_background_batch)
+      316    0.001    0.000    0.040    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:89(_get_closest_tile_knowing_previous)
+      158    0.022    0.000    0.039    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:155(_order_tiles)
+      158    0.001    0.000    0.037    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\input_manager\input_manager.py:11(update)
+      158    0.036    0.000    0.036    0.000 {built-in method pygame.event.get}
+      631    0.035    0.000    0.035    0.000 {method 'index' of 'list' objects}
+      158    0.013    0.000    0.034    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\field_of_view.py:67(_get_tiles_with_entity)
+      317    0.033    0.000    0.033    0.000 {method 'fill' of 'pygame.Surface' objects}
+      315    0.003    0.000    0.028    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:110(_get_adjacent_tiles)
+      785    0.026    0.000    0.026    0.000 {built-in method pygame.transform.scale}
+      158    0.001    0.000    0.024    0.000 C:\Users\Nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:842(draw)
+      158    0.001    0.000    0.023    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game.py:167(game_render)
+      158    0.006    0.000    0.022    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game.py:266(_render_checkpoints)
+      785    0.018    0.000    0.018    0.000 {built-in method pygame.transform.rotate}
+      158    0.000    0.000    0.017    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\window_manager\window_manager.py:40(clear)
+   157240    0.016    0.000    0.016    0.000 {built-in method builtins.max}
+        1    0.000    0.000    0.015    0.015 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\renderer.py:79(create_background_batch)
+        1    0.005    0.005    0.015    0.015 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\background_batch.py:5(__init__)
+   231464    0.013    0.000    0.013    0.000 {built-in method builtins.len}
+     1896    0.004    0.000    0.012    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\input_manager\input_manager.py:29(is_key_down)
+      316    0.008    0.000    0.011    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:75(_get_closest_tile)
+     2080    0.006    0.000    0.009    0.000 {method 'sort' of 'list' objects}
+      158    0.001    0.000    0.009    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\entities\car.py:38(update_input)
+     8816    0.003    0.000    0.008    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\background_batch.py:38(add_entity)
+     3318    0.003    0.000    0.008    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\renderer.py:131(draw_text)
+        1    0.000    0.000    0.007    0.007 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:86(_get_closest_tile_with_no_info)
+     3476    0.007    0.000    0.007    0.000 {method 'render' of 'pygame.font.Font' objects}
+     1896    0.007    0.000    0.007    0.000 {built-in method pygame.key.get_pressed}
+      158    0.001    0.000    0.005    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game.py:204(move_camera)
+    22670    0.003    0.000    0.005    0.000 {built-in method builtins.any}
+      316    0.002    0.000    0.004    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\physics_manager\physics_manager.py:6(update_physics_and_transform)
+      790    0.002    0.000    0.004    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\transform.py:76(get_forward)
+     3318    0.002    0.000    0.003    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\renderer.py:143(draw_rect)
+      790    0.001    0.000    0.003    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\collider_manager\collider_manager.py:10(update)
+      158    0.001    0.000    0.003    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\car_knowledge.py:38(update)
+      158    0.000    0.000    0.003    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\fps_manager.py:38(start_frame)
+      158    0.002    0.000    0.002    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game.py:220(center_camera_on_car)
+      158    0.002    0.000    0.002    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\field_of_view.py:65(<listcomp>)
+      158    0.001    0.000    0.002    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\collider_manager\collider_manager.py:28(check_collision_continuous)
+    22670    0.002    0.000    0.002    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\field_of_view.py:73(<genexpr>)
+      158    0.001    0.000    0.002    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\field_of_view.py:78(_get_vision_box)
+      158    0.000    0.000    0.002    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\renderer.py:128(draw_surface)
+    22702    0.002    0.000    0.002    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:185(<lambda>)
+      158    0.000    0.000    0.002    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\physics_manager\physics_manager.py:32(update)
+    22702    0.002    0.000    0.002    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:192(<lambda>)
+     1901    0.001    0.000    0.002    0.000 C:\Users\Nuria\AppData\Local\Programs\Python\Python310\lib\types.py:176(__get__)
+     3318    0.001    0.000    0.001    0.000 {built-in method pygame.draw.rect}
+      158    0.000    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\field_of_view.py:92(<listcomp>)
+      158    0.001    0.000    0.001    0.000 {method 'tick' of 'Clock' objects}
+      632    0.001    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\collider.py:37(intersects)
+      158    0.001    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\car_knowledge.py:106(_update_distance_and_angle_to_next_checkpoint)
+      158    0.001    0.000    0.001    0.000 {built-in method builtins.round}
+      316    0.001    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\fps_manager.py:44(get_delta_time)
+      158    0.001    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\fps_manager.py:23(calculate_avg_fps)
+      632    0.001    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\field_of_view.py:96(_rotate_point)
+     3844    0.001    0.000    0.001    0.000 {method 'extend' of 'list' objects}
+      158    0.000    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\transform.py:94(copy)
+     1570    0.001    0.000    0.001    0.000 {method 'get_rect' of 'pygame.Surface' objects}
+     1922    0.001    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:193(<listcomp>)
+     7110    0.001    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\window_manager\window_manager.py:15(get_window)
+     1922    0.001    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:194(<listcomp>)
+     1580    0.001    0.000    0.001    0.000 {built-in method math.sin}
+      158    0.001    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\camera.py:31(update)
+      158    0.001    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:258(get_next_checkpoint_position)
+      158    0.001    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:188(<listcomp>)
+      158    0.000    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\car_knowledge.py:81(_update_tile_chronometers)
+      158    0.000    0.000    0.001    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\car_knowledge.py:142(_calculate_angle_difference)
+     1901    0.001    0.000    0.001    0.000 C:\Users\Nuria\AppData\Local\Programs\Python\Python310\lib\enum.py:801(value)
+       98    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\entities\car.py:96(rotate_right)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\tile_map.py:248(get_checkpoint_in)
+     3476    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\engine_fonts.py:19(get_fonts)
+     1580    0.000    0.000    0.000    0.000 {built-in method math.cos}
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\transform.py:8(__init__)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\physics.py:60(copy)
+      790    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\sprite.py:18(update_transform)
+     1412    0.000    0.000    0.000    0.000 {method 'colliderect' of 'pygame.Rect' objects}
+      632    0.000    0.000    0.000    0.000 {built-in method math.atan2}
+       79    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\entities\car.py:82(move_forward)
+      316    0.000    0.000    0.000    0.000 C:\Users\Nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:834(sprites)
+      157    0.000    0.000    0.000    0.000 {built-in method builtins.sum}
+     1580    0.000    0.000    0.000    0.000 {built-in method math.radians}
+      790    0.000    0.000    0.000    0.000 {method 'normalize' of 'pygame.math.Vector2' objects}
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\camera.py:43(move)
+      108    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\transform.py:72(rotate)
+     1570    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\transform.py:59(get_scale)
+     1514    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\physics.py:34(get_velocity)
+      790    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\collider.py:30(update_rect)
+      632    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\collider.py:5(__init__)
+      631    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\map\map_types_list.py:38(get_width)
+      174    0.000    0.000    0.000    0.000 {built-in method time.time}
+     1783    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\entities\tile.py:14(is_checkpoint)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\renderer.py:31(update_background_batch)
+      316    0.000    0.000    0.000    0.000 {method 'get_time' of 'Clock' objects}
+      785    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\transform.py:51(get_rotation)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\entities\car.py:60(update)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\physics.py:5(__init__)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\fps_manager.py:34(get_average_fps)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\car_knowledge.py:132(_update_still_chronometer)
+      790    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\sprite.py:44(is_added_to_renderer)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\window_manager\window_manager.py:18(get_width)
+       29    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\entities\car.py:74(accelerate)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\entity_manager\entity_manager.py:109(set_transform)
+      466    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\chronometer.py:16(stop)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\camera.py:46(get_position)
+       97    0.000    0.000    0.000    0.000 {method 'pop' of 'list' objects}
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\car_knowledge.py:71(reach_checkpoint)
+      166    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\chronometer.py:11(start)
+      414    0.000    0.000    0.000    0.000 {method 'union' of 'pygame.Rect' objects}
+      316    0.000    0.000    0.000    0.000 {built-in method builtins.min}
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\camera.py:19(set_position)
+      316    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\physics.py:16(add_velocity)
+      632    0.000    0.000    0.000    0.000 {built-in method math.degrees}
+      367    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\physics.py:54(set_force)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\camera.py:16(get_displacement)
+      632    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\collider.py:59(is_in_training)
+      316    0.000    0.000    0.000    0.000 {method 'copy' of 'pygame.math.Vector2' objects}
+      300    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\physics.py:48(set_velocity)
+      632    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\collider.py:9(get_intersects)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\car_knowledge.py:99(_update_speed_accumulator)
+      632    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\collider.py:27(get_rect)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\render_manager\background_batch.py:43(get_batch_surface)
+      316    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\field_of_view.py:31(get_nearest_tile)
+      316    0.000    0.000    0.000    0.000 {built-in method builtins.abs}
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\car_knowledge.py:124(_update_tile_type)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game.py:70(<listcomp>)
+       10    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\entities\car.py:102(rotate_left)
+      158    0.000    0.000    0.000    0.000 {built-in method math.sqrt}
+      300    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\physics.py:25(get_drag)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\game\game_state\field_of_view.py:28(get_checkpoint_activation_area)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\window_manager\window_manager.py:21(get_height)
+      158    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\managers\entity_manager\entity_manager.py:112(set_physics)
+        5    0.000    0.000    0.000    0.000 C:\Users\Nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:774(add)
+      316    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\physics.py:37(get_force)
+      316    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\physics.py:31(get_mass)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.print}
+        5    0.000    0.000    0.000    0.000 C:\Users\Nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:737(add_internal)
+        5    0.000    0.000    0.000    0.000 C:\Users\Nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:402(has_internal)
+        5    0.000    0.000    0.000    0.000 C:\Users\Nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:154(add_internal)
+        5    0.000    0.000    0.000    0.000 {built-in method builtins.hasattr}
+        5    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+        5    0.000    0.000    0.000    0.000 C:\Uni\2º cuatri\TFG\0.Repositorio\0.TFG\TFG\engine\components\sprite.py:47(set_added_to_renderer)
+        5    0.000    0.000    0.000    0.000 {method 'insert' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 {method 'get_width' of 'pygame.Surface' objects}
+        1    0.000    0.000    0.000    0.000 {method 'get_height' of 'pygame.Surface' objects}
+
+

@@ -11,10 +11,10 @@ class ColliderManager:
                next_frame_collider: Collider) -> None:
         # if not isinstance(entity, Entity):
         #     raise ValueError("entity must be an instance of Entity")
-        if not isinstance(collider, Collider):
-            raise ValueError("collider must be an instance of Collider")
-        if not isinstance(sprite_rect, Rect):
-            raise ValueError("sprite_rect must be an instance of pygame.Rect")
+        # if not isinstance(collider, Collider):
+        #     raise ValueError("collider must be an instance of Collider")
+        # if not isinstance(sprite_rect, Rect):
+        #     raise ValueError("sprite_rect must be an instance of pygame.Rect")
 
         collider.update_rect(sprite_rect)
 

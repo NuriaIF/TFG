@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import numpy as np
 from pygame import Vector2
 
@@ -123,20 +125,24 @@ class TileMap:
 
     def get_tiles_within_square(self, position: tuple[float, float], previous_nearest_tile, radius: int,
                                 vision_box: list[Vector2], angle: int) -> (list[Tile], Tile):
-        # get the tiles that are in the area defined by rotated_points
         within_square: list[Tile] = []
         tile = self._get_closest_tile_knowing_previous(position, previous_nearest_tile)
         tile_index = self.tiles.index(tile)
         map_width = self.type_map_list.get_width()
-        for j in range(-radius * 2, radius * 2):
-            for i in range(-radius * 2, radius * 2):
-                if 0 <= tile_index + i + j * map_width < len(self.tiles):
-                    tile_transform = self.entity_manager.get_transform(
-                        self.tiles[tile_index + i + j * map_width].entity_ID)
-                    position = tile_transform.get_position()
-                    tile_pos = tile_index + i + j * map_width
-                    if self._point_in_polygon(position, vision_box):
-                        within_square.append(self.tiles[tile_pos])
+        map_height = len(self.tiles) // map_width
+
+        r = radius + radius // 3
+        min_j = max(-r, -tile_index // map_width)
+        max_j = min(r, map_height - tile_index // map_width)
+
+        for j in range(min_j, max_j):
+            for i in range(-r, r):
+                current_index = tile_index + i + j * map_width
+                if 0 <= current_index < len(self.tiles):
+                    tile_transform = self.entity_manager.get_transform(self.tiles[current_index].entity_ID)
+                    tile_position = tile_transform.get_position()
+                    if self._point_in_polygon(tile_position, vision_box):
+                        within_square.append(self.tiles[current_index])
 
         if radius == 6:
             tile_transform = self.entity_manager.get_transform(tile.entity_ID)
@@ -144,14 +150,19 @@ class TileMap:
             within_square = self._order_tiles(within_square, angle, position=tile_position)
             if len(within_square) > 144:
                 within_square = within_square[:144]
+
         return within_square, tile
 
     def _order_tiles(self, tiles, angle, position) -> list[Tile]:
-        theta = np.radians(angle)
-        theta = theta - np.pi / 2
+        theta = math.radians(angle) - math.pi / 2
 
-        rotation_matrix = [[np.cos(theta), np.sin(theta)],
-                           [-np.sin(theta), np.cos(theta)]]
+        cos_theta = math.cos(theta)
+        sin_theta = math.sin(theta)
+
+        rotation_matrix = [
+            [cos_theta, sin_theta],
+            [-sin_theta, cos_theta]
+        ]
 
         ordered_tiles = []
         position_and_tile_list = []
@@ -164,23 +175,25 @@ class TileMap:
             if tile is not None:
                 transform = self.entity_manager.get_transform(tile.entity_ID)
                 tile_pos: Vector2 = transform.get_position()
-                tile_pos = position - tile_pos
-                # apply rotation matrix to tile relative position
-                tile_pos = np.dot(rotation_matrix, tile_pos)
-                # self.positions.append(tile_pos)
-                position_and_tile_list.append((tile_pos, tile))
+                relative_tile_pos = position - tile_pos
+                rotated_tile_pos = Vector2(
+                    relative_tile_pos.x * rotation_matrix[0][0] + relative_tile_pos.y * rotation_matrix[0][1],
+                    relative_tile_pos.x * rotation_matrix[1][0] + relative_tile_pos.y * rotation_matrix[1][1]
+                )
+                position_and_tile_list.append((rotated_tile_pos, tile))
 
         # Sort the list by y
-        position_and_tile_list.sort(key=lambda arr: arr[0][1])
+        position_and_tile_list.sort(key=lambda item: item[0].y)
 
         # Group the list in sublists of 12 elements
         grouped_arrays = [position_and_tile_list[i:i + 12] for i in range(0, len(position_and_tile_list), 12)]
 
         # Sort each sublist by x
         for sublist in grouped_arrays:
-            sublist.sort(key=lambda arr: arr[0][0])
+            sublist.sort(key=lambda item: item[0].x)
             ordered_tiles.extend([tile for _, tile in sublist])
             self.positions.extend([pos for pos, _ in sublist])
+
         return ordered_tiles
 
     def _point_in_polygon(self, point, polygon):
@@ -190,15 +203,14 @@ class TileMap:
         inside = False
 
         p1x, p1y = polygon[0]
-        for i in range(n + 1):
+        for i in range(1, n + 1):
             p2x, p2y = polygon[i % n]
-            if y > min(p1y, p2y):
-                if y <= max(p1y, p2y):
-                    if x <= max(p1x, p2x):
-                        if p1y != p2y:
-                            intersection_x = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                        if p1x == p2x or x <= intersection_x:
-                            inside = not inside
+            if p1y < y <= p2y or p2y < y <= p1y:
+                if x <= max(p1x, p2x):
+                    if p1y != p2y:
+                        intersection_x = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+                    if p1x == p2x or x <= intersection_x:
+                        inside = not inside
             p1x, p1y = p2x, p2y
 
         return inside

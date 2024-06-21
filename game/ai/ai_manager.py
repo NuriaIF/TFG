@@ -23,7 +23,7 @@ class AIManager:
     def __init__(self, initialization_callback, entity_manager: EntityManager, training=True) -> None:
         self.entity_manager: EntityManager = entity_manager
         self.current_agent_index: int = 0
-        self.population_size: int = 20
+        self.population_size: int = 15
         self.training: bool = training
         if training:
             self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm()

@@ -49,3 +49,9 @@ class Sprite(pygame.sprite.Sprite):
 
     def get_rect(self) -> pygame.Rect:
         return self.rect
+
+    def get_width(self) -> int:
+        return self.rect.width
+
+    def get_height(self) -> int:
+        return self.rect.height

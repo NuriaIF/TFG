@@ -37,11 +37,9 @@ class PhysicsManager:
 
     def get_next_transform_and_physics(self, transform: Transform, physics: Physics, delta_time: float) -> (Transform,
                                                                                                             Physics):
-        original_physics: Physics = physics
-        if original_physics.is_static():
-            return transform, original_physics
-        physics = original_physics.copy()
-        original_transform = transform
-        next_transform: Transform = original_transform.copy()
+        if physics.is_static():
+            return transform, physics
+        physics = physics.copy()
+        next_transform: Transform = transform.copy()
         updated_next_transform, updated_physics = update_physics_and_transform(physics, next_transform, delta_time)
         return updated_next_transform, updated_physics

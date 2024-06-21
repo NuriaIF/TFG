@@ -20,7 +20,7 @@ from game.map.tile_map import TileMap
 class Game(Engine):
     def __init__(self):
         super().__init__()
-        self.game_mode: GameMode = GameMode.MANUAL
+        self.game_mode: GameMode = GameMode.AI_TRAINING
 
         # self.play_music("GameMusic")
 
@@ -64,51 +64,44 @@ class Game(Engine):
             self.ai_manager.reset(self.cars)
 
     def update(self, delta_time):
-        i = 0
         for car in self.cars:
-            fov = car.car_knowledge.field_of_view
-            car_transform = self.entity_manager.get_transform(car.entity_ID)
+            car_knowledge = car.car_knowledge
+            fov = car_knowledge.field_of_view
+            car_entity_id = car.entity_ID
+
+            car_transform = self.entity_manager.get_transform(car_entity_id)
             npc_sprite_rects = [self.entity_manager.get_sprite_rect(npc.entity_ID) for npc in self.NPCs]
+
             fov.update(car_transform, self.tile_map, npc_sprite_rects, self.entity_manager)
-            checkpoint: int = self.tile_map.get_checkpoint_in(fov.get_checkpoint_activation_area())
+
+            checkpoint = self.tile_map.get_checkpoint_in(fov.get_checkpoint_activation_area())
             car_in_tile = fov.get_nearest_tile()
-            car.car_knowledge.reach_checkpoint(checkpoint)
-            next_checkpoint_position = self.tile_map.get_next_checkpoint_position(car.car_knowledge.checkpoint_number)
-            car.car_knowledge.update(car_in_tile.tile_type, next_checkpoint_position,
-                                     self.entity_manager.get_transform(car.entity_ID).get_forward(),
-                                     self.entity_manager.get_physics(car.entity_ID).get_velocity(),
-                                     self.entity_manager, car_transform)
+
+            car_knowledge.reach_checkpoint(checkpoint)
+            next_checkpoint_position = self.tile_map.get_next_checkpoint_position(car_knowledge.checkpoint_number)
+
+            car_forward = car_transform.get_forward()
+            car_velocity = self.entity_manager.get_physics(car_entity_id).get_velocity()
+
+            car_knowledge.update(car_in_tile.tile_type, next_checkpoint_position, car_forward, car_velocity,
+                                 self.entity_manager, car_transform)
 
             if checkpoint is not None:
                 car.traveled_distance = checkpoint * 10
-
-            if self.game_mode is GameMode.MANUAL:  # or i == 0:
-                car.update_input(self.input_manager)
-            elif self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
-                ai_input_manager = self.ai_manager.get_ai_input_manager_of(car)
-                car.update_input(ai_input_manager)
-            car.update(delta_time)
-            i += 1
 
         super().update(delta_time)
 
         if self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
             self.ai_manager.update(self.cars, self.input_manager)  # ([car.car_entity for car in self.cars])
-        # if self.game_mode is GameMode.AI_PLAYING:
-            # if self.explainability_and_interpretability is None:
-            #     neural_network = self.ai_manager.get_agents()[0].neural_network
-                # self.explainability_and_interpretability = ExplainabilityAndInterpretability(neural_network)
-            # self.explainability_and_interpretability.update(self.renderer, self.ai_manager.inputs)
 
-        # i = 0
-        # for car in self.cars:
-        #     if self.game_mode is GameMode.MANUAL:  # or i == 0:
-        #         car.update_input(self.input_manager)
-        #     elif self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
-        #         ai_input_manager = self.ai_manager.get_ai_input_manager_of(car)
-        #         car.update_input(ai_input_manager)
-        #     car.update(delta_time)
-        #     i += 1
+        for i, car in enumerate(self.cars):
+            if self.game_mode is GameMode.MANUAL:
+                car.update_input(self.input_manager)
+            elif self.game_mode in {GameMode.AI_TRAINING, GameMode.AI_PLAYING}:
+                ai_input_manager = self.ai_manager.get_ai_input_manager_of(car)
+                car.update_input(ai_input_manager)
+
+            car.update(delta_time)
 
         self.move_camera()
         # if self.game_mode is GameMode.AI_TRAINING:

@@ -70,33 +70,19 @@ class Renderer:
             # Mark the sprite as added to the renderer, so we don't add it again
             sprite.set_added_to_renderer()
 
-    def update_background(self, sprites: list[pygame.Surface], transforms: list[Transform]) -> None:
-        entity_width = sprites[0].get_width()
-        entity_height = sprites[0].get_height()
-        start_position = transforms[0].get_position()
-        if self.background_batch is None:
-            self.background_batch = BackgroundBatch(entity_width, entity_height, sprites, transforms)
-            for sprite, transform in zip(sprites, transforms):
-                self.add_to_background_batch(sprite, transform)
-        self.background_batch.draw(self.surface_batch, start_position)
-
-    def add_to_background_batch(self, sprite: pygame.Surface, transform: Transform) -> None:
-        if sprite is None:
-            raise ValueError("Sprite cannot be None")
-        if transform is None:
-            raise ValueError("Transform cannot be None")
-        self.background_batch.add_entity(sprite, transform.get_position())
-        # self.surface_batch.blit(sprite, transform.get_position())
-
     def _draw_entity_collider(self, collider: Collider) -> None:
         if collider is None:
             raise ValueError("Collider cannot be None")
         if not collider.is_active() or not collider.shows_debug_collider():
             return
 
-        # Draw the collider rect as a rectangular outline
-        collider_rect: pygame.Rect = collider.get_rect()
-        self.draw_rect(collider_rect, EngineAttributes.COLLIDER_COLOR_RECT, thickness=2)
+    def create_background_batch(self, batch_sprites, batch_transforms) -> None:
+        entity_width = batch_sprites[0].get_width()
+        entity_height = batch_sprites[0].get_height()
+        self.background_batch = BackgroundBatch(entity_width, entity_height, batch_sprites, batch_transforms)
+
+    def draw_background(self, position) -> None:
+        self.surface_batch.blit(self.background_batch.get_batch_surface(), position)
 
     def _draw_entity_transform_text(self, transform: Transform) -> None:
         if transform is None:

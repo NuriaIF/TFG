@@ -31,7 +31,7 @@ class Engine:
         self.collider_manager = ColliderManager()
         self.camera = Camera(Vector2(self.window.get_width(), self.window.get_height()))
         self.entity_manager = EntityManager()
-        # self.entities: list[Entity] = []
+        self.background_batch_created = False
 
     def update(self, delta_time: float):
         self.input_manager.update()
@@ -39,13 +39,11 @@ class Engine:
             self.renderer.enable_debug_mode()
         if self.input_manager.is_key_down(Key.K_P):
             self.renderer.disable_debug_mode()
-        self.camera.update(delta_time, self.entity_manager.transforms)
+        self.camera.update(delta_time)
         self.renderer.update_background_batch(self.camera.get_displacement())
 
-        batch_entities = [entity for entity in self.entity_manager.entities
-                          if self.entity_manager.is_batched(entity)]
-        batch_sprites = [self.entity_manager.get_sprite(entity) for entity in batch_entities]
-        batch_transforms = [self.entity_manager.get_transform(entity) for entity in batch_entities]
+        batch_sprites = []
+        batch_transforms = []
 
         # with Pool(multiprocessing.cpu_count()) as pool:
         #     updated_entities = pool.map(self._update_entity_physics_and_collision, [(entity, delta_time) for entity in self.entities])
@@ -59,6 +57,7 @@ class Engine:
             collider = self.entity_manager.get_collider(entity)
             sprite_rect = self.entity_manager.get_sprite_rect(entity)
             sprite = self.entity_manager.get_sprite(entity)
+            self.camera.update_transform(transform)
             next_frame_transform: Transform = self.physics_manager.get_next_transform_and_physics(transform, physics,
                                                                                                   delta_time)[0]
             next_frame_collider: Collider = Collider(self.entity_manager.get_rect_with_transform(entity,
@@ -72,7 +71,15 @@ class Engine:
             is_batched = self.entity_manager.is_batched(entity)
             layer = self.entity_manager.get_layer(entity)
             self.renderer.update(sprite, transform, is_batched, layer)
-        self.renderer.update_background(batch_sprites, batch_transforms)
+
+            if is_batched:
+                batch_transforms.append(transform)
+                batch_sprites.append(sprite)
+
+        if not self.background_batch_created:
+            self.renderer.create_background_batch(batch_sprites, batch_transforms)
+            self.background_batch_created = True
+        self.renderer.draw_background(batch_transforms[0].get_position())
 
     # def _update_entity_physics_and_collision(self, args):
     #     entity, delta_time = args

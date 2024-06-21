@@ -28,19 +28,17 @@ class Camera:
         self._displacement: Vector2 = Vector2(0, 0)
         self._moving: bool = False
 
-    def update(self, delta_time: float, transforms: list[Transform]) -> None:
+    def update(self, delta_time: float) -> None:
         self._delta_time = delta_time
 
         # Calculate displacement based on the change in position
         self._displacement = self._previous_position - self._position
         if self._displacement.length() > 0.01:  # Check if there's any displacement
-
-            for transform in transforms:
-                # Displace all entities, with negative value, because when the camera moves to the right, the entities
-                # should move to the left, and vice versa, and same with up and down
-                transform.displace(-self._displacement)
-
             self._previous_position = self._position
+
+    def update_transform(self, transform: Transform) -> None:
+        if self._displacement.length() > 0.01:
+            transform.displace(-self._displacement)
 
     def move(self, displacement: Vector2) -> None:
         self.set_position(self._position + displacement * self._delta_time)

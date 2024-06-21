@@ -14,13 +14,13 @@ from game.entities.NPC import NPC
 from game.entities.car import Car
 from game.map.map_types import MapType
 from game.map.tile_map import TileMap
-from interpretability_and_explainability.explainability_and_interpretability import ExplainabilityAndInterpretability
+# from interpretability_and_explainability.explainability_and_interpretability import ExplainabilityAndInterpretability
 
 
 class Game(Engine):
     def __init__(self):
         super().__init__()
-        self.game_mode: GameMode = GameMode.AI_TRAINING
+        self.game_mode: GameMode = GameMode.MANUAL
 
         # self.play_music("GameMusic")
 
@@ -64,6 +64,7 @@ class Game(Engine):
             self.ai_manager.reset(self.cars)
 
     def update(self, delta_time):
+        i = 0
         for car in self.cars:
             fov = car.car_knowledge.field_of_view
             car_transform = self.entity_manager.get_transform(car.entity_ID)
@@ -81,18 +82,6 @@ class Game(Engine):
             if checkpoint is not None:
                 car.traveled_distance = checkpoint * 10
 
-        super().update(delta_time)
-
-        if self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
-            self.ai_manager.update(self.cars, self.input_manager)  # ([car.car_entity for car in self.cars])
-        if self.game_mode is GameMode.AI_PLAYING:
-            if self.explainability_and_interpretability is None:
-                neural_network = self.ai_manager.get_agents()[0].neural_network
-                self.explainability_and_interpretability = ExplainabilityAndInterpretability(neural_network)
-            self.explainability_and_interpretability.update(self.renderer, self.ai_manager.inputs)
-
-        i = 0
-        for car in self.cars:
             if self.game_mode is GameMode.MANUAL:  # or i == 0:
                 car.update_input(self.input_manager)
             elif self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
@@ -100,6 +89,26 @@ class Game(Engine):
                 car.update_input(ai_input_manager)
             car.update(delta_time)
             i += 1
+
+        super().update(delta_time)
+
+        if self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
+            self.ai_manager.update(self.cars, self.input_manager)  # ([car.car_entity for car in self.cars])
+        # if self.game_mode is GameMode.AI_PLAYING:
+            # if self.explainability_and_interpretability is None:
+            #     neural_network = self.ai_manager.get_agents()[0].neural_network
+                # self.explainability_and_interpretability = ExplainabilityAndInterpretability(neural_network)
+            # self.explainability_and_interpretability.update(self.renderer, self.ai_manager.inputs)
+
+        # i = 0
+        # for car in self.cars:
+        #     if self.game_mode is GameMode.MANUAL:  # or i == 0:
+        #         car.update_input(self.input_manager)
+        #     elif self.game_mode is GameMode.AI_TRAINING or self.game_mode is GameMode.AI_PLAYING:
+        #         ai_input_manager = self.ai_manager.get_ai_input_manager_of(car)
+        #         car.update_input(ai_input_manager)
+        #     car.update(delta_time)
+        #     i += 1
 
         self.move_camera()
         # if self.game_mode is GameMode.AI_TRAINING:

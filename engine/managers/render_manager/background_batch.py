@@ -42,3 +42,9 @@ class BackgroundBatch:
 
     def get_batch_surface(self):
         return self.batch_surface
+
+    def get_width(self):
+        return self.cols * self.entity_width
+
+    def get_height(self):
+        return self.rows * self.entity_height

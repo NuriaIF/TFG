@@ -119,6 +119,9 @@ class Game(Engine):
         #     cars_aux.sort(key=lambda x: x.entity_ID.get_fitness(), reverse=True)
         #     self.better_fitness_index = [self.cars.index(car) for car in cars_aux]
 
+        for npc in self.NPCs:
+            pass
+
     def game_render_debug(self):
         for car in self.cars:
             if self.game_mode == GameMode.AI_PLAYING or self.game_mode == GameMode.MANUAL:
@@ -137,7 +140,7 @@ class Game(Engine):
                     if i % 12 == 0:
                         color = colors[i // 12]
                     self.renderer.draw_circle(center + vector, 5, color, 3)
-                    self.renderer.draw_provisional_text(f"{i}", center + vector, (255, 255, 255), 10)
+                    self.renderer.draw_text(f"{i}", center + vector, (255, 255, 255), 10)
                     i += 1
                 center = Vector2(200, 500)
                 for tile, vector in zip(car.car_knowledge.field_of_view.get(), self.tile_map.positions):
@@ -243,7 +246,7 @@ class Game(Engine):
             agents = sorted(self.ai_manager.get_agents(), key=lambda x: x.fitness_score, reverse=True)
             car = agents[0].controlled_entity
         car_position = self.entity_manager.get_transform(car.entity_ID).get_position()
-        camera_position = -self.camera.get_position() + Vector2(self.window.get_width(), self.window.get_height())
+        camera_position = -self.camera.get_position() + Vector2(self.window.get_width(), self.window.get_height()) / 2
         difference = camera_position - car_position
         if difference.length() > 1:
             self.camera.move(difference)
@@ -273,30 +276,31 @@ class Game(Engine):
                 sprite_rect = self.entity_manager.get_sprite_rect(tile.entity_ID)
                 transform = self.entity_manager.get_transform(tile.entity_ID)
                 if npc == 0:
-                    self.renderer.draw_rect(sprite_rect, (255, 0, 0), 1)
-                    self.renderer.draw_circle(transform.get_position(), 2, (255, 255, 0), 1)
+                    self.debug_renderer.draw_rect(sprite_rect, (255, 0, 0), 1)
+                    self.debug_renderer.draw_circle(transform.get_position(), 2, (255, 255, 0), 1)
                 elif npc == 1:
-                    self.renderer.draw_rect(sprite_rect, (0, 0, 255), 1)
+                    self.debug_renderer.draw_rect(sprite_rect, (0, 0, 255), 1)
                 if num < 10:
                     text_position = transform.get_position()
                     text_position = text_position[0] + 4, text_position[1]
                 else:
                     text_position = transform.get_position()
-                self.renderer.draw_provisional_text(str(num), text_position, (0, 0, 255), size=10)
+                self.renderer.draw_text(str(num), text_position, (0, 0, 255), size=10)
             num += 1
 
     def _render_checkpoints(self):
         for tile in self.tile_map.checkpoints:
             sprite_rect = self.entity_manager.get_sprite_rect(tile.entity_ID)
             transform = self.entity_manager.get_transform(tile.entity_ID)
-            self.renderer.draw_rect(sprite_rect, (255, 255, 0), 1)
+            self.debug_renderer.draw_rect(sprite_rect, (255, 255, 0), 1)
             tile_position = transform.get_position()
+            checkpoint_text_position: Vector2
             if tile.checkpoint_number < 10:
-                checkpoint_text_position = tile_position[0] + 4, tile_position[1]
+                checkpoint_text_position = Vector2(tile_position[0] + 4, tile_position[1])
             else:
                 checkpoint_text_position = tile_position
             self.renderer.draw_text(str(tile.checkpoint_number), checkpoint_text_position, (255, 255, 0))
         for tile in self.tile_map.checkpoint_lines:
             sprite_rect = self.entity_manager.get_sprite_rect(tile.entity_ID)
-            self.renderer.draw_rect(sprite_rect, (0, 255, 0), 1)
+            self.debug_renderer.draw_rect(sprite_rect, (0, 255, 0), 1)
 

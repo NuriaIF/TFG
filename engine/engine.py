@@ -10,14 +10,10 @@ from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.input_manager.key import Key
 from engine.managers.physics_manager.physics_manager import PhysicsManager
-from engine.managers.render_manager.render_layers import RenderLayer
-from engine.managers.render_manager.renderer import Renderer
+from engine.managers.render_manager.renderer import Renderer, DebugRenderer
 from engine.managers.sound_manager.sound_manager import SoundManager
 from engine.managers.window_manager.window_manager import Window
 from game.camera import Camera
-
-import multiprocessing
-from multiprocessing import Pool
 
 
 class Engine:
@@ -25,6 +21,7 @@ class Engine:
         self.window = Window("Game", 1200, 800, fullscreen=True)
         self.input_manager = InputManager()
         self.renderer = Renderer(self.window)
+        self.debug_renderer = DebugRenderer(self.window)
         self.physics_manager = PhysicsManager()
         self.sound_manager = SoundManager()
         self.engine_fonts = EngineFonts()
@@ -33,22 +30,23 @@ class Engine:
         self.entity_manager = EntityManager()
         self.background_batch_created = False
 
+    def handle_engine_inputs(self):
+        if self.input_manager.is_key_down(Key.K_O):
+            self.debug_renderer.enable_debug_mode()
+        if self.input_manager.is_key_down(Key.K_P):
+            self.debug_renderer.disable_debug_mode()
+
     def update(self, delta_time: float):
         self.input_manager.update()
-        if self.input_manager.is_key_down(Key.K_O):
-            self.renderer.enable_debug_mode()
-        if self.input_manager.is_key_down(Key.K_P):
-            self.renderer.disable_debug_mode()
+        self.handle_engine_inputs()
+
         self.camera.update(delta_time)
-        self.renderer.update_background_batch(self.camera.get_displacement())
 
         batch_sprites = []
         batch_transforms = []
 
-        # with Pool(multiprocessing.cpu_count()) as pool:
-        #     updated_entities = pool.map(self._update_entity_physics_and_collision, [(entity, delta_time) for entity in self.entities])
-        # for entity in updated_entities:
-        #     self.renderer.update(entity)
+        self.renderer.set_camera_position(self.camera.get_position())
+        self.debug_renderer.set_camera_position(self.camera.get_position())
         for entity in self.entity_manager.entities:
             # Getting the next frame collider before updating the physics
             # This way a collider never enters another, blocking the entity
@@ -56,14 +54,13 @@ class Engine:
             physics = self.entity_manager.get_physics(entity)
             sprite = self.entity_manager.get_sprite(entity)
             collider = self.entity_manager.get_collider(entity)
-            self.camera.update_transform(transform)
 
             if collider.is_active():
                 sprite_rect = self.entity_manager.get_sprite_rect(entity)
-                next_frame_transform: Transform = self.physics_manager.get_next_transform_and_physics(
-                    transform, physics, delta_time)[0]
-                next_frame_collider: Collider = Collider(self.entity_manager.get_rect_with_transform(
-                    entity, next_frame_transform))
+                next_frame_transform: Transform = \
+                    self.physics_manager.get_next_transform_and_physics(transform, physics, delta_time)[0]
+                next_frame_collider: Collider = Collider(
+                    self.entity_manager.get_rect_with_transform(entity, next_frame_transform))
                 self.collider_manager.update(collider, sprite_rect, physics, transform, next_frame_collider)
 
             if not physics.is_static():
@@ -80,46 +77,36 @@ class Engine:
         if not self.background_batch_created:
             self.renderer.create_background_batch(batch_sprites, batch_transforms)
             self.background_batch_created = True
-        self.renderer.draw_background(batch_transforms[0].get_position())
 
-    # def _update_entity_physics_and_collision(self, args):
-    #     entity, delta_time = args
-    #     # Getting the next frame collider before updating the physics
-    #     next_frame_transform: Transform = self.physics_manager.get_next_transform_and_physics(entity, delta_time)[0]
-    #     next_frame_collider: Collider = Collider(entity.get_rect_with_transform(next_frame_transform))
-    #     if entity.has_collider():
-    #         self.collider_manager.update(entity, next_frame_collider)
-    # 
-    #     if not entity.is_static():
-    #         self.physics_manager.update(entity, delta_time)
-    # 
-    #     return entity
-
-    def render(self):
-        self.window.clear()
-        self.renderer.render_background_batch()
-        self.renderer.render()
-
-        if self.renderer.debug_mode is False:
-            self.renderer.draw_surface(
-                EngineFonts.get_fonts().debug_UI_font.render(f"FPS: {round(FPSManager.get_average_fps(), 2)}",
-                                                             True, EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 0))
-            self.game_render()
-            self.window.swap_buffers()
-            return
+    def draw_fps(self):
         self.renderer.draw_surface(
-            EngineFonts.get_fonts().debug_UI_font.render(f"FPS: {round(FPSManager.get_average_fps(), 2)}",
-                                                         True, EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 0))
+            EngineFonts.get_fonts().debug_UI_font.render(f"FPS: {round(FPSManager.get_average_fps(), 2)}", True,
+                                                         EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 0))
+
+    def draw_camera_position(self):
         self.renderer.draw_surface(
-            EngineFonts.get_fonts().debug_UI_font.render(f"Camera Position: {self.camera.get_position()}",
-                                                         True, EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 20))
+            EngineFonts.get_fonts().debug_UI_font.render(f"Camera Position: {self.camera.get_position()}", True,
+                                                         EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 20))
+
+    def draw_entity_debug_information(self):
         for entity in self.entity_manager.entities:
             collider = self.entity_manager.get_collider(entity)
             transform = self.entity_manager.get_transform(entity)
-            self.renderer.render_debug_information(collider, transform)
+            self.debug_renderer.render_debug_information(collider, transform)
 
-        self.game_render_debug()
+    def render(self):
+        self.window.clear()
+        self.renderer.render()
 
+        self.draw_fps()
+
+        self.game_render()
+
+        # Fast return if debug mode is disabled, no need to render debug information
+        if self.debug_renderer.debug_mode is False:
+            self.window.swap_buffers()
+            return
+        self.draw_entity_debug_information()
         self.window.swap_buffers()
 
     def game_render(self):
@@ -130,11 +117,6 @@ class Engine:
 
     def create_entity(self, sprite_path: str, has_collider: bool = False, background_batched: bool = False,
                       is_static: bool = True, is_training: bool = False) -> int:
-        # if not isinstance(sprite_path, str):
-        #     raise ValueError("Sprite path must be a string")
-        # entity = Entity(sprite_path, has_collider=has_collider, batched=background_batched, is_static=is_static,
-        #                 is_training=is_training)
-        # self.entities.append(entity)
         entity_id = self.entity_manager.add_entity(sprite_path, has_collider=has_collider, batched=background_batched,
                                                    is_static=is_static, is_training=is_training)
         return entity_id

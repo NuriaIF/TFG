@@ -9,9 +9,11 @@ from engine.engine import Engine
 from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.render_manager.render_layers import RenderLayer
 from game.entities.tile import Tile
+from game.map.checkpoints.checkpoint_direction import CheckpointDirection
 from game.map.checkpoints.checkpoints_loader import CheckpointsLoader
 from game.map.map_loader import MapLoader
 from game.map.map_types import MapType
+from game.map.map_types import map_type_to_file
 
 TILE_SIZE = 16
 MAP_WALL_DEPTH = 100
@@ -24,8 +26,11 @@ class TileMap:
         self.tiles: list[Tile] = []
         self.type_map_list = MapLoader.load_map("road01-uni")
 
-        self.checkpoints_dict = CheckpointsLoader.read_checkpoints("road01-uni")
+        self.checkpoints_info = CheckpointsLoader.read_checkpoints("road01-uni")
+        self.checkpoints_dict = self.checkpoints_info[0]
+        self.checkpoints_directions_dict = self.checkpoints_info[1]
         self.checkpoints: list[Tile] = []
+        self.checkpoint_lines: list[Tile] = []
 
         self.generate_tiles(engine)
         self.height = self.type_map_list.get_height() * TILE_SIZE
@@ -44,33 +49,47 @@ class TileMap:
 
             index_x_pos = i % self.type_map_list.get_width()
             index_y_pos = i // self.type_map_list.get_width()
-            # print(index_x_pos, index_y_pos, self.type_map_list[i])
+
+            map_type = self.type_map_list[i]
+            map_file = map_type_to_file(map_type)
+            tile_entity = engine.create_entity("tiles/" + map_file, background_batched=True, is_static=True)
+            tile = Tile(tile_entity, map_type, i)
             if self.type_map_list[i] == MapType.TRACK:
-                tile_entity = engine.create_entity("tiles/track", background_batched=True, is_static=True)
-                tile = Tile(tile_entity, MapType.TRACK)
                 if self.checkpoints_dict.get((index_x_pos, index_y_pos)) is not None:
                     tile.set_as_checkpoint(self.checkpoints_dict.get((index_x_pos, index_y_pos)))
                     self.checkpoints.append(tile)
-            elif self.type_map_list[i] == MapType.GRASS:
-                tile_entity = engine.create_entity("tiles/grass", background_batched=True, is_static=True)
-                tile = Tile(tile_entity, MapType.GRASS)
-            elif self.type_map_list[i] == MapType.SIDEWALK:
-                tile_entity = engine.create_entity("tiles/sidewalk", background_batched=True, is_static=True)
-                tile = Tile(tile_entity, MapType.SIDEWALK)
-            elif self.type_map_list[i] == MapType.FOREST:
-                tile_entity = engine.create_entity("tiles/forest", background_batched=True, is_static=True)
-                tile = Tile(tile_entity, MapType.FOREST)
-            elif self.type_map_list[i] == MapType.SEA:
-                tile_entity = engine.create_entity("tiles/sea", background_batched=True, is_static=True)
-                tile = Tile(tile_entity, MapType.SEA)
-            else:
-                tile_entity = engine.create_entity("tiles/road_centre_line", background_batched=True, is_static=True)
-                tile = Tile(tile_entity, MapType.TRACK)
-
             # Set the tile's position
             self.entity_manager.get_transform(tile_entity).set_position(Vector2(x_pos, y_pos))
 
             self.tiles.append(tile)
+
+        self.process_checkpoints()
+
+    def set_checkpoint_line(self, start_index, offset_func, checkpoint_number):
+        for j in range(-2, 3):
+            index = offset_func(start_index, j)
+            if 0 <= index < len(self.tiles):
+                self.tiles[index].set_as_checkpoint(checkpoint_number)
+                self.checkpoint_lines.append(self.tiles[index])
+
+    def get_offset_func(self, direction):
+        width = self.type_map_list.get_width()
+        if direction == CheckpointDirection.HORIZONTAL:
+            return lambda idx, j: idx + j
+        elif direction == CheckpointDirection.VERTICAL:
+            return lambda idx, j: idx + j * width
+        elif direction == CheckpointDirection.DIAGONAL_LEFT:
+            return lambda idx, j: idx + j * width + j
+        elif direction == CheckpointDirection.DIAGONAL_RIGHT:
+            return lambda idx, j: idx + j * width - j
+        else:
+            raise ValueError(f"Unknown direction: {direction}")
+
+    def process_checkpoints(self):
+        for tile in self.checkpoints:
+            direction = self.checkpoints_directions_dict[tile.checkpoint_number]
+            offset_func = self.get_offset_func(direction)
+            self.set_checkpoint_line(tile.index_in_map, offset_func, tile.checkpoint_number)
 
     def _get_closest_tile(self, position: tuple[float, float], tiles: list[Tile], nearest_distance: float,
                           nearest_tile=None) -> Tile:
@@ -259,7 +278,8 @@ class TileMap:
     def get_next_checkpoint_position(self, checkpoint: int) -> tuple[float, float]:
         if checkpoint is None:
             return float('inf'), float('inf')
-        next_checkpoint_number = checkpoint + 1
+        last_checkpoint_index = len(self.checkpoints) - 1
+        next_checkpoint_number = 0 if checkpoint == last_checkpoint_index else checkpoint + 1
         for tile in self.checkpoints:
             if tile.checkpoint_number == next_checkpoint_number:
                 tile_transform = self.entity_manager.get_transform(tile.entity_ID)

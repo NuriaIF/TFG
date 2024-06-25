@@ -109,3 +109,10 @@ class Transform:
 
     def debug_config_hide_forward(self) -> None:
         self._forward_debug_show = False
+
+    def reset(self):
+        self._position = Vector2(0, 0)
+        self._rotation = 0
+        self._scale = Vector2(1, 1)
+        self._transform_debug_show = False
+        self._forward_debug_show = False

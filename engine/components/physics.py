@@ -65,3 +65,8 @@ class Physics:
         physics.force = self.force
         physics.drag = self.drag
         return physics
+
+    def reset(self) -> None:
+        self.velocity = 0
+        self.acceleration = 0
+        self.force = 0

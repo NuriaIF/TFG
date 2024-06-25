@@ -27,6 +27,7 @@ class ColliderManager:
 
     def check_collision_continuous(self, collider: Collider, physics: Physics, transform: Transform,
                                    next_frame_collider: Collider) -> None:
+        colliding = False
         for other_collider in self.colliders:
             if other_collider is collider:
                 continue
@@ -35,6 +36,7 @@ class ColliderManager:
 
             intersection = collider.intersects(other_collider)
             if intersection.get_intersects():
+                colliding = True
                 # Reverse the velocity as a simple response to collision
                 physics.set_velocity(-physics.get_velocity() * 0.05)
 
@@ -52,3 +54,5 @@ class ColliderManager:
                 transform.displace(slight_displacement)
 
                 break  # Exit the loop after handling the collision
+
+        collider.set_colliding(colliding)

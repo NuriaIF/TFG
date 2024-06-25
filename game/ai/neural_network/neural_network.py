@@ -84,16 +84,12 @@ class NeuralNetwork:
     def set_parameters(self, parameters):
         """
         Set the genome of the agent.
-
         :param parameters: The genome of the agent
         """
-        # This method is used to set the genome of the agent
-
         expected_length = sum(layer.weights.size + layer.biases.size for layer in self.layers)
 
         if len(parameters) != expected_length:
-            raise ValueError(
-                f"Length of parameters {len(parameters)} does not match expected length {expected_length}.")
+            raise ValueError(f"Length of parameters {len(parameters)} does not match expected length {expected_length}.")
 
         start = 0
         for layer in self.layers:
@@ -110,10 +106,10 @@ class NeuralNetwork:
         Get the genome of the agent.
         :return: The genome of the agent
         """
-        # This method is used to get the genome of the agent
         parameters = []
         for layer in self.layers:
-            parameters.extend([layer.weights.flatten(), layer.biases.flatten()])
+            parameters.append(layer.weights.flatten())
+            parameters.append(layer.biases.flatten())
         return np.concatenate(parameters)
 
     def save_parameters(self):

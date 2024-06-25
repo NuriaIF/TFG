@@ -6,6 +6,7 @@ import pygame
 from game.ai.ai_agent import AIAgent
 from game.ai.neural_network.neural_network import NeuralNetwork
 
+NEURAL_NET_LAYER_SIZES = [149, 100, 60, 6]
 
 class GeneticAlgorithm:
     """
@@ -14,14 +15,14 @@ class GeneticAlgorithm:
     def __init__(self):
         self.current_agent_index: int = 0
         self._agents: list[AIAgent] = []
-        self.mutation_rate: float = 0.01
-        self.mutation_strength: float = 0.02
+        self.mutation_rate: float = 0.1
+        self.mutation_strength: float = 0.2
         self.generation_duration: int = 100
         self.generation_timer: int = 0
         self.parents_selected_list: list[AIAgent] = []
         self.end_of_selection: bool = False
         self.current_generation = 1
-        self.elite_fraction = 0.2  # 10% of the best agents are preserved as elite
+        self.elite_fraction = 0.13  # 13% of the best agents are preserved as elite
         self.best_individuals: list[tuple[AIAgent, int]] = []
         self.elitism_list: list[AIAgent] = []
 
@@ -43,63 +44,43 @@ class GeneticAlgorithm:
         """
         Evolve the agents
         """
-        # self.elitism_list = []
-        # neural_networks = [agent.neural_network for agent in self._agents]
-        # num_agents = len(self._agents)
-        # next_generation = []
-        # 
-        # # Elitism: Preserve the top agents
-        # elitism_count = int(self.elite_fraction * num_agents)
-        # # next_generation.extend(sorted(self._agents, key=lambda x: x.best_fitness, reverse=True)[:elitism_count])
-        # agents_ordered = sorted(self._agents, key=lambda x: x.best_fitness, reverse=True)
-        # next_generation.extend(agents_ordered[:elitism_count])
-        # top_agent = sorted(self._agents, key=lambda x: x.best_fitness, reverse=True)[0]
-        # top_agent.neural_network.save_parameters()
-        # top_agent.save_fitness_score_log()
-        # self.elitism_list = agents_ordered[:elitism_count]
-
-        population = self._agents
-        fitness_scores = [agent.best_fitness for agent in self._agents]
+        population = self.get_agents()
 
         # Ordenar la población por fitness score en orden descendente
-        sorted_population = [x for _, x in
-                             sorted(zip(fitness_scores, population), key=lambda pair: pair[0], reverse=True)]
-
-        # Determinar el número de individuos élite a conservar
-        num_elite = int(self.elite_fraction * len(population))
-        next_generation = sorted_population[:num_elite]
-
+        sorted_population = sorted(population, key=lambda x: x.fitness_score, reverse=True)
         top_agent = sorted_population[0]
         top_agent.neural_network.save_parameters()
 
-        # Mantener los genomas de los élites sin cambios
-        for elite in next_generation:
-            elite.genome = elite.get_genome().copy()
+        # Determinar el número de individuos élite a conservar
+        num_elite = int(round(self.elite_fraction * len(population)))
+        if self.elite_fraction > 0 and len(population) > 0:
+            num_elite = max(1, num_elite)
+        elite = sorted_population[:num_elite]
 
+        next_generation = []
+        # Mantener los genomas de los élites sin cambios
+        for agent in elite:
+            genome_copy = agent.get_genome().copy()
+            next_generation.append(AIAgent(None, NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES,
+                                                               parameters=genome_copy)))
+        parent1 = sorted_population[0]
+        parent2 = sorted_population[1]
         # Generar el resto de la nueva generación
         while len(next_generation) < len(population):
-            parent1 = self.tournament_selection(k=3)
-            parent2 = self.tournament_selection(k=3)
-            child1, child2 = self._crossover(parent1.get_genome(), parent2.get_genome())
-            child1, child2 = self._mutate(child1), self._mutate(child2)
-            next_generation.append(AIAgent(None, NeuralNetwork(layer_sizes=[292, 150, 60, 6], parameters=child1)))
+            # parent1 = self.tournament_selection(sorted_population)
+            # parent2 = self.tournament_selection(sorted_population)
+            # child1, child2 = self._crossover(parent1.get_genome(), parent2.get_genome())
+            child1, child2 = self._mutate(parent1.get_genome()), self._mutate(parent1.get_genome())
+            next_generation.append(AIAgent(None, NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES,
+                                                               parameters=child1)))
             if len(next_generation) < len(population):
-                next_generation.append(AIAgent(None, NeuralNetwork(layer_sizes=[292, 150, 60, 6], parameters=child2)))
+                next_generation.append(AIAgent(None, NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES,
+                                                                   parameters=child2)))
+        self.mutation_rate *= 0.99
+        self.mutation_strength *= 0.99
 
         self._agents = next_generation
         self.current_generation += 1
-
-        # while len(next_generation) < num_agents:
-        #     parent1, parent2 = self.tournament_selection(), self.tournament_selection()
-        #     child_genome = self._crossover(parent1.get_genome(), parent2.get_genome())
-        #     child_genome = self._mutate(child_genome)
-        #     index = len(next_generation)
-        #     neural_network = neural_networks[index]
-        #     neural_network.set_parameters(child_genome)
-        #     next_generation.append(AIAgent(self._agents[index].controlled_entity, neural_network))
-        # 
-        # self._agents = next_generation
-        # self.current_generation += 1
 
     def _crossover(self, genome1, genome2):
         """
@@ -111,17 +92,6 @@ class GeneticAlgorithm:
         if len(genome1) != len(genome2):
             raise ValueError("Genomes must have the same length")
 
-        # One-point crossover
-        # crossover_point = np.random.randint(1, len(genome1))
-        # child_genome = np.concatenate((genome1[:crossover_point], genome2[crossover_point:]))
-        # return child_genome
-
-        # Uniform crossover
-        # child_genome = np.empty(len(genome1))
-        # for i in range(len(genome1)):
-        #     child_genome[i] = genome1[i] if np.random.rand() > 0.5 else genome2[i]
-        # return child_genome
-        
         # One-point crossover with 2 children
         crossover_point = np.random.randint(1, len(genome1))
         child_genome1 = np.concatenate((genome1[:crossover_point], genome2[crossover_point:]))
@@ -134,56 +104,47 @@ class GeneticAlgorithm:
                 genome[i] += np.random.normal(0, self.mutation_strength)
         return genome
 
-    def tournament_selection(self, k=3):
-        tournament = random.sample(self._agents, k)
-        parent = max(tournament, key=lambda x: x.best_fitness)
+    # def tournament_selection(self, sorted_population, tournament_size=4):
+    #     tournament = random.sample(sorted_population, tournament_size)
+    #     parent = max(tournament, key=lambda x: x.fitness_score)
+    #     return parent
+    def tournament_selection(self, sorted_population, tournament_size=4):
+        # Selección por torneo mejorada que favorece ligeramente a los más aptos
+        probabilities = self.calculate_probabilities(sorted_population)
+        tournament = np.random.choice(sorted_population, tournament_size, replace=False, p=probabilities)
+        parent = max(tournament, key=lambda x: x.fitness_score)
         return parent
 
-    def select_agents(self):
-        for agent in self._agents:
-            agent.evaluate_fitness()
+    def calculate_probabilities(self, sorted_population):
+        """
+        Calculate the probabilities of selection for each individual in the sorted population.
 
-        num_agents = len(self._agents)
-        agents = self._agents.copy()
-        agents.sort(key=lambda x: x.best_fitness, reverse=True)
-        top_agents = agents[:num_agents // 2]
-        parent1, parent2 = self.tournament_selection(), self.tournament_selection()
-        # parent1, parent2 = top_agents[0], top_agents[1]
-        # 
-        # parent1 = top_agents[0]  # El mejor agente
-        # parent2 = top_agents[1]  # El segundo mejor agente
-        # parent1 = best_individuals[0]
-        # parent2 = best_individuals[1]
-        parent1.neural_network.save_parameters()
-        parent1.save_fitness_score_log()
+        The probabilities are calculated in such a way that individuals with higher fitness
+        (at the beginning of the sorted list) have a higher probability of being selected.
+        This is done by assigning a probability inversely proportional to their position in
+        the sorted list.
 
-        self.parents_selected_list: list[AIAgent] = [parent1, parent2]
-        parent1.select_as_parent()
-        parent2.select_as_parent()
-        self.end_of_selection = True
+        The method ensures that the selection process is biased towards better performing
+        individuals, but still allows less fit individuals a chance to be selected, thereby
+        maintaining genetic diversity within the population.
 
-    def select_agents_manually(self):
-        # Instead of calculation, let player select manually the parents
-        # Wait until player selects parents
-        for event in pygame.event.get():
-            # Player press space to move into parents and enter to select one, player has to select
-            # 2 parents
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    self._agents[self.current_agent_index].deselect()
-                    self.current_agent_index += 1
-                    if self.current_agent_index >= len(self._agents):
-                        self.current_agent_index = 0
-                    self._agents[self.current_agent_index].select()
-                if event.key == pygame.K_RETURN:
-                    self.parents_selected_list.append(self._agents[self.current_agent_index])
-                    self._agents[self.current_agent_index].select_as_parent()
-                    # if key is return and has selected 2 parents
-                    if len(self.parents_selected_list) == 2:
-                        # self.generation_state = "evolving"
-                        self.end_of_selection = True
-        for agent in self.parents_selected_list:
-            agent.deselect_as_parent()
+        :param sorted_population: List of individuals sorted by fitness in descending order.
+        :return: List of probabilities corresponding to each individual in the sorted population.
+        """
+        total = sum(range(1, len(sorted_population) + 1))
+        return [(len(sorted_population) - i) / total for i in range(len(sorted_population))]
+
+    # def roulette_wheel_selection(self, population):
+    #     fitness_scores = [agent.fitness_score for agent in population]
+    #     min_fitness = min(fitness_scores)
+    #     if min_fitness < 0:
+    #         fitness_scores = [fitness - min_fitness for fitness in fitness_scores]
+    #
+    #     total_fitness = sum(fitness_scores)
+    #     selection_probs = [fitness / total_fitness for fitness in fitness_scores]
+    #
+    #     selected_index = np.random.choice(len(population), p=selection_probs)
+    #     return population[selected_index]
 
     def get_generation_number(self):
         return self.current_generation

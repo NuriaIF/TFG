@@ -25,7 +25,6 @@ class Car:
         self.entity_manager.set_layer(entity, RenderLayer.ENTITIES)
         self.entity_manager.get_physics(entity).set_mass(self.mass)
         self.entity_manager.get_physics(entity).set_drag(self.drag)
-        # self.car_entity.give_collider()
         self.entity_manager.get_collider(entity).debug_config_show_collider()
         self.entity_manager.get_transform(entity).debug_config_show_transform()
         self.entity_manager.get_transform(entity).debug_config_show_forward()
@@ -129,6 +128,9 @@ class Car:
         """
         self.car_knowledge = CarKnowledge()
         self.selected_as_parent = False
+        self.fitness_score = 0
+        self.current_rotation_speed = 0
+        self._is_accelerating = False
 
     def set_fitness(self, fitness_score):
         """

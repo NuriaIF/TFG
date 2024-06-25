@@ -23,6 +23,7 @@ class Collider:
         self._is_in_training: bool = is_training
         self._is_active: bool = is_active
         self._collider_debug_show: bool = False
+        self._colliding: bool = False
 
     def get_rect(self) -> pygame.Rect:
         return self.rect
@@ -62,6 +63,12 @@ class Collider:
     def set_active(self, is_active: bool) -> None:
         self._is_active = is_active
 
+    def set_colliding(self, colliding: bool) -> None:
+        self._colliding = colliding
+
+    def is_colliding(self) -> bool:
+        return self._colliding
+
     def shows_debug_collider(self) -> bool:
         return self._collider_debug_show
 
@@ -69,4 +76,8 @@ class Collider:
         self._collider_debug_show = True
 
     def debug_config_hide_collider(self) -> None:
+        self._collider_debug_show = False
+
+    def reset(self) -> None:
+        self._colliding = False
         self._collider_debug_show = False

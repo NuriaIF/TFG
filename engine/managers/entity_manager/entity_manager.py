@@ -112,14 +112,7 @@ class EntityManager:
     def set_physics(self, entity, updated_physics):
         self.physics[entity] = updated_physics
 
-    def reset_entities(self):
-        index = 0
-        for transform in self.transforms:
-            if self.layers[index] == RenderLayer.ENTITIES:
-                transform.set_position(Vector2(0, 0))
-            transform.set_rotation(0)
-            index += 1
-        for physics in self.physics:
-            physics.set_velocity(0)
-            physics.set_acceleration(0)
-            physics.set_force(0)
+    def reset_entity(self, entity_id):
+        self.get_transform(entity_id).reset()
+        self.get_physics(entity_id).reset()
+        self.get_collider(entity_id).reset()

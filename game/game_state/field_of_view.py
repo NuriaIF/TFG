@@ -58,7 +58,7 @@ class FOV:
         position = transform.get_position()
         tiles_within_square_and_center = tile_map.get_tiles_within_square((position.x, position.y),
                                                                           self.nearest_tile,
-                                                                          radius=3,
+                                                                          radius=1,
                                                                           vision_box=self.vision_box,
                                                                           angle=angle)
         tiles_within_square = tiles_within_square_and_center[0]
@@ -114,23 +114,27 @@ class FOV:
 
     def get_encoded_version(self) -> list[float]:
         if len(self.field_of_view) == 0:
-            return [0] * 288
+            return [0] * 144
         to_add = 144 - len(self.field_of_view)
         encoded_fov = []
         for tile, has_entity in self.field_of_view:
-            if tile.tile_type == MapType.GRASS:
+            if has_entity:
+                encoded_fov.append(-2.0)
+            elif tile.tile_type == MapType.GRASS:
                 encoded_fov.append(-0.75)
             elif tile.tile_type == MapType.SIDEWALK:
                 encoded_fov.append(-0.5)
             elif tile.tile_type == MapType.TRACK:
                 encoded_fov.append(1.0)
+            elif tile.tile_type == MapType.SEA:
+                encoded_fov.append(-2.0)
             else:
                 encoded_fov.append(-1.0)
-            if has_entity:
-                encoded_fov.append(1.0)
-            else:
-                encoded_fov.append(0.0)
+            # if has_entity:
+            #     encoded_fov.append(1.0)
+            # else:
+            #     encoded_fov.append(0.0)
         for _ in range(to_add):
             encoded_fov.append(-1.0)
-            encoded_fov.append(0.0)
+            # encoded_fov.append(0.0)
         return encoded_fov

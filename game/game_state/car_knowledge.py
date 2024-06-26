@@ -48,7 +48,7 @@ class CarKnowledge():
         self.traveled_distance = 0  # not used
 
     def update(self, on_tile: MapType, next_checkpoint_position: tuple[float, float], forward: Vector2, speed: float,
-               collider, entity_manager: EntityManager, frame_chronometer) -> None:
+               collider, car_in_tile_position: Vector2, frame_chronometer) -> None:
         """
         Update the car knowledge
         :param on_tile: type of the tile the car is on
@@ -62,7 +62,7 @@ class CarKnowledge():
         self._update_tile_chronometers(on_tile)
         self._update_still_chronometer(speed)
         self._update_speed_accumulator(speed)
-        self._update_distance_and_angle_to_next_checkpoint(next_checkpoint_position, forward, entity_manager)
+        self._update_distance_and_angle_to_next_checkpoint(next_checkpoint_position, forward, car_in_tile_position)
         self._update_tile_type(on_tile)
         self._update_collisions_count(collider)
 
@@ -131,14 +131,14 @@ class CarKnowledge():
         self.accumulator_speed += speed
 
     def _update_distance_and_angle_to_next_checkpoint(self, next_checkpoint_position: tuple[float, float],
-                                                      forward: Vector2, entity_manager: EntityManager) -> None:
+                                                      forward: Vector2, car_in_tile_position) -> None:
         """
         Update the distance and angle to the next checkpoint
         :param next_checkpoint_position: position of the next checkpoint
         :param forward: vector forward of the car
         """
-        nearest_tile = self.field_of_view.get_nearest_tile()
-        car_in_tile_position = entity_manager.get_transform(nearest_tile.entity_ID).get_position()
+        # nearest_tile = self.field_of_view.get_nearest_tile()
+        # car_in_tile_position = entity_manager.get_transform(nearest_tile.entity_ID).get_position()
 
         self.distance_to_next_checkpoint = math.sqrt((next_checkpoint_position[0] - car_in_tile_position[0]) ** 2 +
                                                      (next_checkpoint_position[1] - car_in_tile_position[1]) ** 2)

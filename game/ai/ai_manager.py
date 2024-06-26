@@ -11,12 +11,13 @@ from engine.managers.input_manager.key import Key
 from game.ai.ai_agent import AIAgent
 from game.ai.ai_input_manager import AIInputManager
 from game.ai.data_collector import DataCollector
+from game.ai.genetic_algorithm.genetic_algorithm import GeneticAlgorithm
 from game.ai.neural_network.neural_network import NeuralNetwork
 from game.entities.car import Car
-from game.ai.genetic_algorithm.genetic_algorithm import GeneticAlgorithm
 from game.game_state.chronometer import Chronometer
 
 NEURAL_NET_LAYER_SIZES = [149, 100, 60, 6]
+population_size = 15
 
 
 class AIManager:
@@ -27,7 +28,6 @@ class AIManager:
     def __init__(self, initialization_callback, entity_manager: EntityManager, training=True) -> None:
         self.entity_manager: EntityManager = entity_manager
         self.current_agent_index: int = 0
-        self.population_size: int = 15
         self.training: bool = training
         if training:
             self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm()
@@ -48,13 +48,6 @@ class AIManager:
         if self.data_collector_activated:
             self.data_collector = DataCollector()
 
-    def get_population_size(self) -> int:
-        """
-        Get the population size
-        :return: an integer representing the population size
-        """
-        return self.population_size
-
     def get_agents(self) -> list[AIAgent]:
         """
         Get the agents
@@ -71,10 +64,11 @@ class AIManager:
         Update the AI manager
         :param cars: list of cars
         :param input_manager: input manager
+        :param frame_chronometer: frame chronometer
         """
         if not self.get_agents():
             self.create_population(cars)
-        if self.state == "simulation":
+        elif self.state == "simulation":
             self.simulate(input_manager, frame_chronometer)
         elif self.state == "selection":
             self.select_agents()
@@ -85,6 +79,7 @@ class AIManager:
         """
         Simulate the AI agents
         :param input_manager: input manager to get the keys pressed
+        :param frame_chronometer: frame chronometer
         """
         # for agent in self.ai_agents:
         #     self.prepare_input(agent, game, tilemap)
@@ -97,9 +92,9 @@ class AIManager:
                     self.inputs = self.prepare_input(agent.controlled_entity)
                     outputs = agent.neural_network.forward(self.inputs)
                     # Convert outputs to commands
-                    agent.ai_input_manager.convert_outputs_to_commands(outputs)
+                    agent.controlled_entity.input_manager.convert_outputs_to_commands(outputs)
                 else:
-                    agent.ai_input_manager.stop_keys()
+                    agent.controlled_entity.input_manager.stop_keys()
                     physics = self.entity_manager.get_physics(agent.controlled_entity.entity_ID)
                     physics.set_velocity(0)
                     physics.set_acceleration(0)
@@ -153,12 +148,7 @@ class AIManager:
             self.no_improvement_counter = 0
             self.state = "evolving"  # "selection"
             for agent in self.get_agents():
-                agent.ai_input_manager.stop_keys()
-        # if input_manager.is_key_down(Key.K_N) or (all_less_than_zero and self.genetic_algorithm.generation_timer >= 50) \
-        #         or (all_stand_still and self.genetic_algorithm.generation_timer >= 50):
-        #     self.state = "selection"
-        #     for agent in self.get_agents():
-        #         agent.ai_input_manager.stop_keys()
+                agent.ai_input_manager.stop_keys()  # if input_manager.is_key_down(Key.K_N) or (all_less_than_zero and self.genetic_algorithm.generation_timer >= 50) \  #         or (all_stand_still and self.genetic_algorithm.generation_timer >= 50):  #     self.state = "selection"  #     for agent in self.get_agents():  #         agent.ai_input_manager.stop_keys()
 
     def select_agents(self) -> None:
         """
@@ -176,11 +166,12 @@ class AIManager:
         if self.data_collector_activated:
             self.data_collector.change_generation(frame_chronometer.get_elapsed_time(), self.get_agents(),
                                                   self.genetic_algorithm.current_generation)
-
+        cars = [agent.controlled_entity for agent in self.get_agents()]
         self.genetic_algorithm.evolve_agents()
         self.state = "simulation"
         self.genetic_algorithm.generation_timer = 0
         self.initialization_entities_callback()
+        self.reset(cars)
 
     def prepare_input(self, car: Car) -> list[float]:
         """
@@ -199,10 +190,8 @@ class AIManager:
         angle_to_next_checkpoint = car.car_knowledge.get_angle_to_next_checkpoint()
         car_in_tile = car.car_knowledge.get_field_of_view().get_nearest_tile().entity_ID
         car_in_tile_position = self.entity_manager.get_transform(car_in_tile).get_position()
-        relative_position = (
-            next_checkpoint_position[0] - car_in_tile_position[0],
-            next_checkpoint_position[1] - car_in_tile_position[1]
-        )
+        relative_position = (next_checkpoint_position[0] - car_in_tile_position[0],
+                             next_checkpoint_position[1] - car_in_tile_position[1])
         max_velocity = car.accelerate_max_speed
         min_velocity = -car.base_max_speed
         max_acceleration = car.engine_force / car.mass
@@ -258,13 +247,12 @@ class AIManager:
             agent.reset(car)
 
     def _create_new_population(self, cars):
-        return [AIAgent(cars[i], NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES)) for i in
-                range(self.population_size)]
+        return [AIAgent(cars[i], NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES)) for i in range(population_size)]
 
     def _load_agents_from_file(self, cars):
         # TODO: load agents from file
         agents = []
-        for i in range(self.population_size):
+        for i in range(population_size):
             agent = AIAgent(cars[i], NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES))
             agent.neural_network.load_parameters()
             agents.append(agent)

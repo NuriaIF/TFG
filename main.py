@@ -21,8 +21,8 @@ def main():
         # Calculate delta time
         FPSManager.start_frame()
 
-        game.render()
         game.update(FPSManager.get_delta_time())
+        game.render()
 
     pygame.quit()
     exit()

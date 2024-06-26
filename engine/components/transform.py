@@ -82,6 +82,9 @@ class Transform:
 
         return Vector2(forward_x, forward_y).normalize()
 
+    def set_forward(self, forward: Vector2) -> None:
+        self._rotation = math.degrees(math.atan2(forward.y, forward.x))
+
     def shows_debug_transform(self) -> bool:
         return self._transform_debug_show
 

@@ -39,7 +39,7 @@ class Engine:
     def update(self, delta_time: float):
         self.input_manager.update()
         self.handle_engine_inputs()
-
+        self._game_update(delta_time)
         self.camera.update(delta_time)
 
         batch_sprites = []
@@ -100,26 +100,24 @@ class Engine:
 
         self.draw_fps()
 
-        self.game_render()
+        self._game_render()
 
         # Fast return if debug mode is disabled, no need to render debug information
         if self.debug_renderer.debug_mode is False:
             self.window.swap_buffers()
             return
+
         self.draw_entity_debug_information()
         self.window.swap_buffers()
 
-    def game_render(self):
+    def _game_update(self, delta_time: float):
         pass
 
-    def game_render_debug(self):
+    def _game_render(self):
         pass
 
-    def create_entity(self, sprite_path: str, has_collider: bool = False, background_batched: bool = False,
-                      is_static: bool = True, is_training: bool = False) -> int:
-        entity_id = self.entity_manager.add_entity(sprite_path, has_collider=has_collider, batched=background_batched,
-                                                   is_static=is_static, is_training=is_training)
-        return entity_id
+    def _game_render_debug(self):
+        pass
 
     def play_music(self, file_name: str) -> None:
         self.sound_manager.play_music(file_name)

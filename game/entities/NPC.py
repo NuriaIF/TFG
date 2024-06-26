@@ -10,19 +10,41 @@ class NPC:
         self.base_max_speed = 200
         self.accelerate_max_speed = 500
         self.mass = 1000  # newtons
-        self.engine_force = 10000
+        self.npc_force = 400
         self.drag = 0.005
         self.base_rotation_speed = 100
         self.current_rotation_speed = 0
         self._is_accelerating = False
         self.entity_manager = entity_manager
+        self.goal: Vector2 = Vector2(0, 0)
+        self._is_on_goal = False
         entity_manager.set_layer(entity, RenderLayer.ENTITIES)
         entity_manager.get_physics(entity).set_mass(self.mass)
         entity_manager.get_physics(entity).set_drag(self.drag)
-        # self.car_entity.give_collider()
         entity_manager.get_collider(entity).debug_config_show_collider()
         entity_manager.get_transform(entity).debug_config_show_transform()
         entity_manager.get_transform(entity).debug_config_show_forward()
 
+    def move_towards_goal(self):
+        position = self.get_position()
+        goal = self.get_goal()
+        direction = goal - position
+        direction.normalize_ip()
+        # Make the npc look towards the goal
+        self.entity_manager.get_transform(self.entity_ID).set_forward(direction)
+        self.entity_manager.get_physics(self.entity_ID).add_force(self.npc_force)
+
+    def is_on_goal(self) -> bool:
+        return (self.goal - self.get_position()).magnitude() < 10
+
     def set_position(self, pos: Vector2):
         self.entity_manager.get_transform(self.entity_ID).set_position(pos)
+
+    def get_position(self):
+        return self.entity_manager.get_transform(self.entity_ID).get_position()
+
+    def set_goal(self, goal: Vector2):
+        self.goal = goal
+
+    def get_goal(self):
+        return self.goal

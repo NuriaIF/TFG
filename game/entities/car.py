@@ -4,6 +4,7 @@ from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.input_manager.key import Key
 from engine.managers.render_manager.render_layers import RenderLayer
+from game.ai.ai_input_manager import AIInputManager
 from game.game_state.car_knowledge import CarKnowledge
 
 
@@ -11,49 +12,50 @@ class Car:
     """
     Car class that represents a car entity in the game.
     """
-    def __init__(self, entity: int, entity_manager: EntityManager):
-        self.entity_ID = entity
-        self.base_max_speed = 200
-        self.accelerate_max_speed = 500
-        self.mass = 1000  # newtons
-        self.engine_force = 10000
-        self.drag = 0.005
+
+    def __init__(self, entity: int, entity_manager: EntityManager, input_manager: InputManager | AIInputManager):
+        self.entity_ID: int = entity
+        self.base_max_speed: float = 200
+        self.accelerate_max_speed: float = 500
+        self.mass: float = 1000  # newtons
+        self.engine_force: float = 10000
+        self.drag: float = 0.005
         self.base_rotation_speed = 100
         self.current_rotation_speed = 0
         self._is_accelerating = False
-        self.entity_manager = entity_manager
+        self.entity_manager: EntityManager = entity_manager
         self.entity_manager.set_layer(entity, RenderLayer.ENTITIES)
         self.entity_manager.get_physics(entity).set_mass(self.mass)
         self.entity_manager.get_physics(entity).set_drag(self.drag)
         self.entity_manager.get_collider(entity).debug_config_show_collider()
         self.entity_manager.get_transform(entity).debug_config_show_transform()
         self.entity_manager.get_transform(entity).debug_config_show_forward()
-
+        self.input_manager: InputManager | AIInputManager = input_manager
         self.selected_as_parent = False
 
         self.car_knowledge = CarKnowledge()
         self.fitness_score = 0
 
-    def update_input(self, input_manager: InputManager) -> None:
+    def update_input(self) -> None:
         """
         Update the input of the car entity
         :param input_manager: input manager
         """
         self._is_accelerating = False
-        if input_manager.is_key_down(Key.K_W):
+        if self.input_manager.is_key_down(Key.K_W):
             self.move_forward()
-        if input_manager.is_key_down(Key.K_S):
+        if self.input_manager.is_key_down(Key.K_S):
             self.move_backward()
-        if input_manager.is_key_down(Key.K_D):
+        if self.input_manager.is_key_down(Key.K_D):
             self.rotate_right()
-        if input_manager.is_key_down(Key.K_A):
+        if self.input_manager.is_key_down(Key.K_A):
             self.rotate_left()
 
-        if input_manager.is_key_down(Key.K_SHIFT):
+        if self.input_manager.is_key_down(Key.K_SHIFT):
             self.accelerate()
 
         # Break must be the last because it will override the other forces
-        if input_manager.is_key_down(Key.K_SPACE):
+        if self.input_manager.is_key_down(Key.K_SPACE):
             self.break_car()
 
     def update(self, delta_time: float) -> None:

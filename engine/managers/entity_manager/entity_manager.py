@@ -29,8 +29,8 @@ class EntityManager:
 
         self.next_entity_id: int = 0
 
-    def add_entity(self, sprite_path: str, has_collider: bool = False, batched: bool = False, is_static: bool = True,
-                   is_training: bool = False) -> int:
+    def create_entity(self, sprite_path: str, has_collider: bool = False, batched: bool = False, is_static: bool = True,
+                      is_training: bool = False) -> int:
         if len(sprite_path) == 0:
             raise ValueError("Sprite path cannot be empty")
 
@@ -63,25 +63,25 @@ class EntityManager:
 
         return entity_id
 
-    def get_transform(self, entity_id):
+    def get_transform(self, entity_id) -> Transform:
         return self.transforms[entity_id]
 
-    def get_physics(self, entity_id):
+    def get_physics(self, entity_id) -> Physics:
         return self.physics[entity_id]
 
-    def get_sprite(self, entity_id):
+    def get_sprite(self, entity_id) -> Sprite | Surface:
         return self.sprites[entity_id]
 
-    def get_collider(self, entity_id):
+    def get_collider(self, entity_id) -> Collider:
         return self.colliders[entity_id]
 
-    def get_layer(self, entity_id):
+    def get_layer(self, entity_id) -> RenderLayer:
         return self.layers[entity_id]
 
-    def is_batched(self, entity_id):
+    def is_batched(self, entity_id) -> bool:
         return self.batched[entity_id]
 
-    def set_layer(self, entity_id, layer: RenderLayer):
+    def set_layer(self, entity_id, layer: RenderLayer) -> None:
         self.layers[entity_id] = layer
 
     def get_sprite_rect(self, entity_id) -> pygame.Rect:

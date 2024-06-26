@@ -71,6 +71,8 @@ class AIAgent():
         return self.fitness_score_by_checkpoint
 
     def evaluate_speed_fitness(self):
+        if self.controlled_entity.car_knowledge.counter_frames == 0:
+            return 0
         average_speed = self.controlled_entity.car_knowledge.accumulator_speed / self.controlled_entity.car_knowledge.counter_frames
         average_speed = (average_speed - (-200)) / (500 - (-200))
         # penalize time spent still

@@ -41,6 +41,12 @@ class TileMap:
         self.tiles_fov = []
         self.ordered_tiles = []
 
+    def get_width_number(self):
+        return self.type_map_list.get_width()
+
+    def get_height_number(self):
+        return self.type_map_list.get_height()
+
     def generate_tiles(self, engine: Engine) -> None:
         for i in range(len(self.type_map_list)):
             x_pos = (i % self.type_map_list.get_width()) * TILE_SIZE
@@ -64,8 +70,12 @@ class TileMap:
 
         self.process_checkpoints()
 
-    def get_tile_at(self, vec2: Vector2) -> Tile:
-        return self.get_tile(int(vec2.x // TILE_SIZE), int(vec2.y // TILE_SIZE))
+    def get_tile_at_pos(self, vec2: Vector2) -> Tile:
+        [index_x, index_y] = self.get_tile_index_from_pos(vec2)
+        return self.get_tile(index_x, index_y)
+
+    def get_tile_index_from_pos(self, position: Vector2) -> [int, int]:
+        return int(position.x // TILE_SIZE), int(position.y // TILE_SIZE)
 
     def get_tiles_within_square(self, position: tuple[float, float], radius: float, vision_box: list[Vector2],
                                 angle: float) -> list[Tile]:
@@ -73,15 +83,15 @@ class TileMap:
         tiles_size: int = round((radius * 2 * radius * 2)) // TILE_SIZE
         for i in range(-tiles_size, tiles_size):
             for j in range(-tiles_size, tiles_size):
-                tile = self.get_tile_at(Vector2(int(position[0] + i * TILE_SIZE), int(position[1] + j * TILE_SIZE)))
+                tile = self.get_tile_at_pos(Vector2(int(position[0] + i * TILE_SIZE), int(position[1] + j * TILE_SIZE)))
                 if tile is not None:
                     if self._point_in_polygon(self.entity_manager.get_transform(tile.entity_ID).get_position(),
                                               vision_box):
                         tiles.append(tile)
         if radius == 6:
-            return self._order_tiles(tiles, angle, position=Vector2(position))
-        else:
-            return tiles
+            tiles = self._order_tiles(tiles, angle, position=Vector2(position))
+            tiles = tiles[:144]
+        return tiles
 
     def get_tiles_of_rect(self, position: tuple[float, float], radius: float, vision_box: list[Vector2]) -> list[Tile]:
         tiles: list[Tile] = []
@@ -90,19 +100,22 @@ class TileMap:
             tiles_size = 2
         for i in range(-tiles_size, tiles_size):
             for j in range(-tiles_size, tiles_size):
-                tile = self.get_tile_at(Vector2(int(position[0] + i * TILE_SIZE), int(position[1] + j * TILE_SIZE)))
+                tile_pos: Vector2 = Vector2(int(position[0] + i * TILE_SIZE), int(position[1] + j * TILE_SIZE))
+                # # Check out of bounds
+                # if 0 <= tile_pos.x < self.width - 1 and 0 <= tile_pos.y < self.height - 1:
+                #     continue
+                tile = self.get_tile_at_pos(tile_pos)
                 if tile is not None:
                     position_tile = self.entity_manager.get_transform(tile.entity_ID).get_position()
                     edge_upper_left = Vector2(position_tile.x + 1, position_tile.y + 1)
                     edge_upper_right = Vector2(position_tile.x + TILE_SIZE - 1, position_tile.y + 1)
                     edge_bottom_left = Vector2(position_tile.x + 1, position_tile.y + TILE_SIZE - 1)
                     edge_bottom_right = Vector2(position_tile.x + TILE_SIZE - 1, position_tile.y + TILE_SIZE - 1)
-                    if self._point_in_polygon(edge_upper_left, vision_box) or \
-                            self._point_in_polygon(edge_upper_right, vision_box) or \
-                            self._point_in_polygon(edge_bottom_left, vision_box) or \
-                            self._point_in_polygon(edge_bottom_right, vision_box):
+                    if (self._point_in_polygon(edge_upper_left, vision_box) or
+                            self._point_in_polygon(edge_upper_right, vision_box) or
+                            self._point_in_polygon(edge_bottom_left, vision_box) or
+                            self._point_in_polygon(edge_bottom_right, vision_box)):
                         tiles.append(tile)
-
         return tiles
 
     def set_checkpoint_line(self, start_index, offset_func, checkpoint_number):
@@ -133,7 +146,8 @@ class TileMap:
 
     def get_tile(self, x, y):
         map_width = self.type_map_list.get_width()
-        if 0 <= x < map_width and 0 <= y < self.height:
+        map_height = self.type_map_list.get_height()
+        if 0 <= x < map_width and 0 <= y < map_height:
             return self.tiles[y * map_width + x]
         return None
 
@@ -246,3 +260,4 @@ class TileMap:
                 tile_transform = self.entity_manager.get_transform(tile.entity_ID)
                 return tile_transform.get_position().x, tile_transform.get_position().y
         return float('inf'), float('inf')
+

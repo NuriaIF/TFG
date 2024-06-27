@@ -47,6 +47,9 @@ class CarKnowledge():
 
         self.traveled_distance = 0  # not used
 
+    def initialize(self, position_next_checkpoint) -> None:
+        self.position_of_next_checkpoint = position_next_checkpoint
+
     def update(self, on_tile: MapType, next_checkpoint_position: tuple[float, float], forward: Vector2, speed: float,
                collider, car_in_tile_position: Vector2, frame_chronometer) -> None:
         """

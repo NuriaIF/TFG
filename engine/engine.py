@@ -88,26 +88,25 @@ class Engine:
             EngineFonts.get_fonts().debug_UI_font.render(f"Camera Position: {self.camera.get_position()}", True,
                                                          EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 20))
 
-    def draw_entity_debug_information(self):
+    def _draw_entity_debug_information(self):
         for entity in self.entity_manager.entities:
             collider = self.entity_manager.get_collider(entity)
             transform = self.entity_manager.get_transform(entity)
-            self.debug_renderer.render_debug_information(collider, transform)
+            self.debug_renderer.draw_collider(collider)
+            self.debug_renderer.draw_transform_text(transform)
+            self.debug_renderer.draw_forward_vector(transform)
 
     def render(self):
         self.window.clear()
         self.renderer.render()
-
-        self.draw_fps()
-
         self._game_render()
 
-        # Fast return if debug mode is disabled, no need to render debug information
-        if self.debug_renderer.debug_mode is False:
-            self.window.swap_buffers()
-            return
+        if self.debug_renderer.debug_mode:
+            self._game_render_debug()
+            self._draw_entity_debug_information()
+            self.draw_camera_position()
+        self.draw_fps()
 
-        self.draw_entity_debug_information()
         self.window.swap_buffers()
 
     def _game_update(self, delta_time: float):

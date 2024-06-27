@@ -1,7 +1,6 @@
 import random
 
 import numpy as np
-import pygame
 
 from game.ai.ai_agent import AIAgent
 from game.ai.neural_network.neural_network import NeuralNetwork

@@ -31,30 +31,22 @@ class Game(Engine):
 
         self.explainability_and_interpretability = None
         self.chronometer = chronometer
-        self.manual_camera = True
+        self.manual_camera = False
 
     def _initialize(self):
         self.cars_manager.initialize()
         self.npcs_manager.initialize()
 
     def _game_update(self, delta_time):
+        if self.cars_manager.get_ai_manager().has_generation_ended():
+            self._initialize()
+            self.cars_manager.get_ai_manager().next_generation()
         self.cars_manager.update_cars(delta_time, self.npcs_manager.NPCs)
         self.npcs_manager.update_npc()
         self.move_camera()
 
     def _game_render(self):
-        self._game_render_debug()
-        for car in self.cars_manager.get_cars():
-            if car.selected_as_parent:
-                sprite_rect = self.entity_manager.get_sprite_rect(car.entity_ID)
-                self.renderer.draw_rect(sprite_rect, (0, 0, 255), 3)
-                car.selected_as_parent = False
-        if len(self.cars_manager.get_ai_manager().get_agents()) > 0:
-            sorted_list = sorted(self.cars_manager.get_ai_manager().get_agents(), key=lambda x: x.fitness_score, reverse=True)
-            agent_with_best_fitness = sorted_list[0]
-            self.debug_renderer.draw_rect_absolute(
-                self.entity_manager.get_sprite_rect(agent_with_best_fitness.controlled_entity.entity_ID), (0, 255, 0),
-                3)
+        pass
 
     def move_camera(self):
         """
@@ -87,6 +79,8 @@ class Game(Engine):
     def _game_render_debug(self):
         self._render_checkpoints()
         self.cars_manager.render_car_knowledge()
+        # self._render_tile_rects()
+        self.cars_manager.render_debug()
         self.npcs_manager.render_debug()
 
     def _render_checkpoints(self):
@@ -104,3 +98,8 @@ class Game(Engine):
         for tile in self.tile_map.checkpoint_lines:
             sprite_rect = self.entity_manager.get_sprite_rect(tile.entity_ID)
             self.debug_renderer.draw_rect(sprite_rect.copy(), (0, 255, 0), 1)
+
+    def _render_tile_rects(self):
+        for tile in self.tile_map.tiles:
+            sprite_rect = self.entity_manager.get_sprite_rect(tile.entity_ID)
+            self.debug_renderer.draw_rect(sprite_rect.copy(), (10, 200, 30), 1)

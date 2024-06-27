@@ -33,12 +33,13 @@ class DebugRenderer:
     def get_camera_position(self) -> Vector2:
         return self.camera_pos + Vector2(self.window.get_width(), self.window.get_height()) / 2
 
-    def _draw_entity_collider(self, collider: Collider) -> None:
+    def draw_collider(self, collider: Collider) -> None:
         if collider is None:
             raise ValueError("Collider cannot be None")
         if not collider.is_active() or not collider.shows_debug_collider():
             return
-        self.draw_rect(collider.rect, EngineAttributes.COLLIDER_COLOR_RECT, EngineAttributes.FORWARD_LINE_THICKNESS)
+        self.draw_rect_absolute(collider.rect, EngineAttributes.COLLIDER_COLOR_RECT,
+                                EngineAttributes.FORWARD_LINE_THICKNESS)
 
     def disable_debug_mode(self) -> None:
         self.debug_mode = False
@@ -46,7 +47,7 @@ class DebugRenderer:
     def enable_debug_mode(self) -> None:
         self.debug_mode = True
 
-    def _draw_entity_transform_text(self, transform: Transform) -> None:
+    def draw_transform_text(self, transform: Transform) -> None:
         if transform is None:
             raise ValueError("Transform cannot be None")
         if not transform.shows_debug_transform():
@@ -61,18 +62,18 @@ class DebugRenderer:
         rotation_text = f"Rotation: {rotation:.2f}"
         scale_text = f"Scale: ({scale[0]:.2f}, {scale[1]:.2f})"
 
-        # self.draw_text(position_text, position)
-        self.draw_text(rotation_text, Vector2(position[0], position[
-            1] + 15))  # self.draw_text(scale_text, Vector2(position[0], position[1] + 30))
+        self.draw_text(position_text, position.copy())
+        #self.draw_text(rotation_text, Vector2(position[0], position[1] + 15))
+        #self.draw_text(scale_text, Vector2(position[0], position[1] + 30))
 
-    def _draw_entity_forward_vector(self, transform: Transform) -> None:
+    def draw_forward_vector(self, transform: Transform) -> None:
         if transform is None:
             raise ValueError("Transform cannot be None")
         if not transform.shows_debug_forward():
             return
 
         forward_vector = transform.get_forward()
-        position = transform.get_position()
+        position = transform.get_position().copy()
 
         # Define a scale for how long you want the forward vector line to be
         line_length = 50
@@ -83,18 +84,10 @@ class DebugRenderer:
         # Calculate the endpoint of the line
         end_position = position + scaled_forward_vector
 
-        position.update(
-            apply_view_to_position(position.x, position.y, self.get_camera_position().x, self.get_camera_position().y))
-        end_position.update(apply_view_to_position(end_position.x, end_position.y, self.get_camera_position().x,
-                                                   self.get_camera_position().y))
         # Draw the line from the entity's position to the calculated endpoint
         self.draw_line(position, end_position, EngineAttributes.FORWARD_LINE_COLOR,
                        EngineAttributes.FORWARD_LINE_THICKNESS)
 
-    def render_debug_information(self, collider: Collider, transform: Transform) -> None:
-        self._draw_entity_collider(collider)
-        self._draw_entity_transform_text(transform)
-        self._draw_entity_forward_vector(transform)
 
     def draw_rect(self, rect: pygame.Rect, color: tuple[int, int, int] = (255, 0, 0), thickness: int = 1) -> None:
         apply_view_to_rect(rect, self.get_camera_position())
@@ -113,6 +106,8 @@ class DebugRenderer:
     def draw_line(self, start_pos: Vector2, end_pos: Vector2, color: tuple[int, int, int], thickness: int = 1) -> None:
         start_pos.update(apply_view_to_position(start_pos.x, start_pos.y, self.get_camera_position().x,
                                                 self.get_camera_position().y))
+        end_pos.update(
+            apply_view_to_position(end_pos.x, end_pos.y, self.get_camera_position().x, self.get_camera_position().y))
         pygame.draw.line(self.window.get_window(), color, start_pos, end_pos, thickness)
 
     def draw_circle(self, center: Vector2, radius: int, color: tuple[int, int, int] = (255, 0, 0),

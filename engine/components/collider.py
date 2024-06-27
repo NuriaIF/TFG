@@ -24,6 +24,14 @@ class Collider:
         self._is_active: bool = is_active
         self._collider_debug_show: bool = False
         self._colliding: bool = False
+        self._non_collideable_colliders: dict['Collider'] = {}
+
+    def get_non_collideable_colliders(self) -> dict['Collider']:
+        return self._non_collideable_colliders
+
+    def add_non_collideable_collider(self, collider: 'Collider') -> None:
+        self._non_collideable_colliders.update({collider: collider})
+
 
     def get_rect(self) -> pygame.Rect:
         return self.rect

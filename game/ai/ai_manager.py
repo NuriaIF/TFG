@@ -11,12 +11,11 @@ from engine.managers.input_manager.key import Key
 from game.ai.ai_agent import AIAgent
 from game.ai.ai_input_manager import AIInputManager
 from game.ai.data_collector import DataCollector
-from game.ai.genetic_algorithm.genetic_algorithm import GeneticAlgorithm
+from game.ai.genetic_algorithm.genetic_algorithm import GeneticAlgorithm, NEURAL_NET_LAYER_SIZES
 from game.ai.neural_network.neural_network import NeuralNetwork
 from game.entities.car import Car
 from game.game_state.chronometer import Chronometer
 
-NEURAL_NET_LAYER_SIZES = [149, 100, 60, 6]
 population_size = 15
 
 
@@ -25,13 +24,12 @@ class AIManager:
     AI Manager class that manages the AI agents
     """
 
-    def __init__(self, initialization_callback, entity_manager: EntityManager, training=True) -> None:
+    def __init__(self, entity_manager: EntityManager, training=True) -> None:
         self.entity_manager: EntityManager = entity_manager
         self.current_agent_index: int = 0
         self.training: bool = training
         if training:
             self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm()
-            self.initialization_entities_callback = initialization_callback
         self._agents: list[AIAgent] = []
         self.state: str = "simulation"
 
@@ -47,6 +45,7 @@ class AIManager:
         self.data_collector_activated = True
         if self.data_collector_activated:
             self.data_collector = DataCollector()
+        self._end_of_generation = False
 
     def get_agents(self) -> list[AIAgent]:
         """
@@ -170,8 +169,21 @@ class AIManager:
         self.genetic_algorithm.evolve_agents()
         self.state = "simulation"
         self.genetic_algorithm.generation_timer = 0
-        self.initialization_entities_callback()
         self.reset(cars)
+        self._end_of_generation = True
+
+    def has_generation_ended(self) -> bool:
+        """
+        Check if the generation has ended
+        :return: True if the generation has ended, False otherwise
+        """
+        return self._end_of_generation
+
+    def next_generation(self) -> None:
+        """
+        Go to the next generation
+        """
+        self._end_of_generation = False
 
     def prepare_input(self, car: Car) -> list[float]:
         """
@@ -188,10 +200,10 @@ class AIManager:
 
         next_checkpoint_position = car.car_knowledge.get_next_checkpoint_position()
         angle_to_next_checkpoint = car.car_knowledge.get_angle_to_next_checkpoint()
-        car_in_tile = car.car_knowledge.get_field_of_view().get_nearest_tile().entity_ID
-        car_in_tile_position = self.entity_manager.get_transform(car_in_tile).get_position()
-        relative_position = (next_checkpoint_position[0] - car_in_tile_position[0],
-                             next_checkpoint_position[1] - car_in_tile_position[1])
+
+        car_position = self.entity_manager.get_transform(car.entity_ID).get_position()
+        relative_position = (next_checkpoint_position[0] - car_position[0],
+                             next_checkpoint_position[1] - car_position[1])
         max_velocity = car.accelerate_max_speed
         min_velocity = -car.base_max_speed
         max_acceleration = car.engine_force / car.mass

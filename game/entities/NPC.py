@@ -18,12 +18,30 @@ class NPC:
         self.entity_manager = entity_manager
         self.goal: Vector2 = Vector2(0, 0)
         self._is_on_goal = False
+        self.goal_range = 100
+
+        self.road_probability: float = 0.1
         entity_manager.set_layer(entity, RenderLayer.ENTITIES)
         entity_manager.get_physics(entity).set_mass(self.mass)
         entity_manager.get_physics(entity).set_drag(self.drag)
         entity_manager.get_collider(entity).debug_config_show_collider()
         entity_manager.get_transform(entity).debug_config_show_transform()
         entity_manager.get_transform(entity).debug_config_show_forward()
+
+    def set_npc_force(self, npc_force: int):
+        self.npc_force = npc_force
+
+    def set_goal_range(self, goal_range: int):
+        self.goal_range = goal_range
+
+    def get_goal_range(self) -> int:
+        return self.goal_range
+
+    def set_road_probability(self, road_probability: float):
+        self.road_probability = road_probability
+
+    def get_road_probability(self) -> float:
+        return self.road_probability
 
     def move_towards_goal(self):
         position = self.get_position()

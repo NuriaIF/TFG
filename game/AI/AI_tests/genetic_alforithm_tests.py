@@ -2,8 +2,8 @@ import unittest
 import numpy as np
 from unittest.mock import MagicMock
 
-from game.ai.genetic_algorithm.genetic_algorithm import GeneticAlgorithm
-from game.ai.ai_agent import AIAgent
+from game.AI.genetic_algorithm.genetic_algorithm import GeneticAlgorithm
+from game.AI.ai_agent import AIAgent
 
 class TestGeneticAlgorithm(unittest.TestCase):
     def setUp(self):

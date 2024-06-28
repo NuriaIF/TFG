@@ -1,0 +1,396 @@
+         5991258 function calls (5991257 primitive calls) in 2.091 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        5    0.088    0.018    2.080    0.416 C:\0.Proyectos\TFG_\engine\engine.py:47(update)
+        5    0.000    0.000    1.068    0.214 C:\0.Proyectos\TFG_\game\game.py:39(_game_update)
+       92    0.000    0.000    0.849    0.009 C:\0.Proyectos\TFG_\engine\managers\collider_manager\collider_manager.py:13(update)
+       92    0.533    0.006    0.849    0.009 C:\0.Proyectos\TFG_\engine\managers\collider_manager\collider_manager.py:24(check_collision)
+        1    0.001    0.001    0.795    0.795 C:\0.Proyectos\TFG_\engine\engine.py:34(initialize)
+        1    0.000    0.000    0.771    0.771 C:\0.Proyectos\TFG_\game\game.py:33(_game_initialize)
+        1    0.037    0.037    0.768    0.768 C:\0.Proyectos\TFG_\game\map\tile_map.py:51(generate_tiles)
+     8831    0.066    0.000    0.705    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:32(create_entity)
+     8831    0.012    0.000    0.605    0.000 C:\0.Proyectos\TFG_\engine\managers\resource_manager\sprite_loader.py:8(load)
+     8831    0.578    0.000    0.578    0.000 {built-in method pygame.image.load}
+        5    0.000    0.000    0.272    0.054 C:\0.Proyectos\TFG_\game\cars_manager.py:84(update_cars)
+        5    0.000    0.000    0.149    0.030 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:60(update)
+        1    0.000    0.000    0.138    0.138 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:158(evolve_agents)
+        1    0.000    0.000    0.137    0.137 C:\0.Proyectos\TFG_\game\ai\genetic_algorithm\genetic_algorithm.py:42(evolve_agents)
+       14    0.055    0.004    0.130    0.009 C:\0.Proyectos\TFG_\game\ai\genetic_algorithm\genetic_algorithm.py:100(_mutate)
+       75    0.000    0.000    0.122    0.002 C:\0.Proyectos\TFG_\game\cars_manager.py:102(handle_ai_knowledge)
+       75    0.000    0.000    0.120    0.002 C:\0.Proyectos\TFG_\game\game_state\field_of_view.py:32(update)
+       75    0.000    0.000    0.117    0.002 C:\0.Proyectos\TFG_\game\game_state\field_of_view.py:41(_get_field_of_view)
+      150    0.027    0.000    0.117    0.001 C:\0.Proyectos\TFG_\game\map\tile_map.py:81(get_tiles_within_square)
+  1123482    0.096    0.000    0.096    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:75(get_collider)
+  1167281    0.088    0.000    0.088    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:66(get_transform)
+  1123203    0.083    0.000    0.083    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:69(get_physics)
+  1113967    0.076    0.000    0.076    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:87(is_active)
+   299964    0.058    0.000    0.058    0.000 {method 'rand' of 'numpy.random.mtrand.RandomState' objects}
+    24300    0.031    0.000    0.036    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:187(_point_in_polygon)
+    24871    0.009    0.000    0.033    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:74(get_tile_at_pos)
+     8844    0.008    0.000    0.023    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:115(reset_entity)
+        1    0.000    0.000    0.021    0.021 C:\0.Proyectos\TFG_\engine\managers\render_manager\renderer.py:167(create_background_batch)
+        1    0.006    0.006    0.021    0.021 C:\0.Proyectos\TFG_\engine\managers\render_manager\background_batch.py:5(__init__)
+    30219    0.017    0.000    0.017    0.000 {method 'normal' of 'numpy.random.mtrand.RandomState' objects}
+       75    0.010    0.000    0.017    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:148(_order_tiles)
+    24871    0.012    0.000    0.016    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:141(get_tile)
+     8831    0.015    0.000    0.015    0.000 {method 'convert_alpha' of 'pygame.surface.Surface' objects}
+     8816    0.010    0.000    0.014    0.000 C:\0.Proyectos\TFG_\game\map\map_types.py:24(map_type_to_file)
+   219203    0.014    0.000    0.014    0.000 {method 'append' of 'list' objects}
+     8947    0.013    0.000    0.013    0.000 {method 'blit' of 'pygame.surface.Surface' objects}
+     8816    0.004    0.000    0.013    0.000 C:\0.Proyectos\TFG_\engine\managers\render_manager\background_batch.py:38(add_entity)
+       30    0.000    0.000    0.011    0.000 C:\0.Proyectos\TFG_\game\ai\neural_network\neural_network.py:7(__init__)
+       90    0.001    0.000    0.011    0.000 C:\0.Proyectos\TFG_\game\ai\neural_network\layer.py:5(__init__)
+        5    0.000    0.000    0.010    0.002 C:\0.Proyectos\TFG_\engine\engine.py:97(render)
+       90    0.010    0.000    0.010    0.000 {method 'randn' of 'numpy.random.mtrand.RandomState' objects}
+    24946    0.008    0.000    0.008    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:78(get_tile_index_from_pos)
+    91540    0.008    0.000    0.008    0.000 C:\0.Proyectos\TFG_\engine\components\transform.py:33(get_position)
+     8846    0.007    0.000    0.007    0.000 C:\0.Proyectos\TFG_\engine\components\transform.py:8(__init__)
+     8831    0.007    0.000    0.007    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:20(__init__)
+     8844    0.005    0.000    0.007    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:111(reset)
+    53064    0.006    0.000    0.006    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:72(get_sprite)
+        5    0.000    0.000    0.006    0.001 C:\0.Proyectos\TFG_\engine\managers\render_manager\renderer.py:140(render)
+        1    0.000    0.000    0.006    0.006 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:224(create_population)
+        1    0.000    0.000    0.006    0.006 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:258(_create_new_population)
+        1    0.000    0.000    0.006    0.006 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:259(<listcomp>)
+    53051    0.005    0.000    0.006    0.000 C:\0.Proyectos\TFG_\engine\managers\render_manager\renderer.py:151(update)
+        3    0.000    0.000    0.005    0.002 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:77(simulate)
+     8831    0.005    0.000    0.005    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:5(__init__)
+    53051    0.005    0.000    0.005    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:81(is_batched)
+    60231    0.005    0.000    0.005    0.000 C:\0.Proyectos\TFG_\game\map\map_types_list.py:38(get_width)
+    53051    0.005    0.000    0.005    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:78(get_layer)
+     9325    0.003    0.000    0.004    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\types.py:176(__get__)
+     8816    0.004    0.000    0.004    0.000 C:\0.Proyectos\TFG_\game\entities\tile.py:5(__init__)
+     8844    0.004    0.000    0.004    0.000 C:\0.Proyectos\TFG_\engine\components\transform.py:115(reset)
+      976    0.002    0.000    0.004    0.000 {method 'sort' of 'list' objects}
+    53295    0.004    0.000    0.004    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:64(is_static)
+    33584    0.004    0.000    0.004    0.000 {built-in method builtins.max}
+33976/33975    0.003    0.000    0.003    0.000 {built-in method builtins.len}
+       11    0.003    0.000    0.003    0.000 {method 'fill' of 'pygame.surface.Surface' objects}
+    17632    0.003    0.000    0.003    0.000 C:\0.Proyectos\TFG_\game\map\map_types_list.py:11(__getitem__)
+     8943    0.002    0.000    0.002    0.000 {method 'get_rect' of 'pygame.surface.Surface' objects}
+       75    0.001    0.000    0.002    0.000 C:\0.Proyectos\TFG_\game\game_state\field_of_view.py:59(_get_tiles_with_entity)
+        1    0.000    0.000    0.002    0.002 C:\0.Proyectos\TFG_\game\cars_manager.py:58(initialize)
+    24923    0.002    0.000    0.002    0.000 C:\0.Proyectos\TFG_\game\map\map_types_list.py:41(get_height)
+       15    0.000    0.000    0.002    0.000 C:\0.Proyectos\TFG_\game\cars_manager.py:47(create_car)
+        5    0.000    0.000    0.002    0.000 C:\0.Proyectos\TFG_\engine\managers\window_manager\window_manager.py:37(swap_buffers)
+        5    0.002    0.000    0.002    0.000 {built-in method pygame.display.flip}
+     8844    0.002    0.000    0.002    0.000 C:\0.Proyectos\TFG_\engine\components\transform.py:46(set_position)
+    17633    0.002    0.000    0.002    0.000 {method 'get_width' of 'pygame.surface.Surface' objects}
+       10    0.000    0.000    0.002    0.000 C:\0.Proyectos\TFG_\engine\managers\render_manager\renderer.py:123(draw_text_absolute)
+       10    0.002    0.000    0.002    0.000 {method 'render' of 'pygame.font.Font' objects}
+       15    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:185(prepare_input)
+       15    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\components\sprite.py:10(__init__)
+      152    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\managers\physics_manager\physics_manager.py:7(update)
+       15    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\ai\neural_network\neural_network.py:54(forward)
+     8844    0.001    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:79(reset)
+      152    0.001    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\managers\physics_manager\physics_manager.py:15(_update_physics_and_transform)
+     9039    0.001    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:37(set_collidered)
+    17637    0.001    0.000    0.001    0.000 {method 'get_height' of 'pygame.surface.Surface' objects}
+       45    0.001    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\ai\neural_network\layer.py:13(forward)
+        5    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\managers\window_manager\window_manager.py:40(clear)
+       15    0.001    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\game_state\field_of_view.py:115(get_encoded_version)
+        5    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\game.py:47(_game_render)
+     9325    0.001    0.000    0.001    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\enum.py:801(value)
+       17    0.001    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\ai\neural_network\neural_network.py:104(get_parameters)
+       16    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\ai\ai_agent.py:37(get_genome)
+       75    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\ai\data_collector.py:17(collect_fitness)
+    10794    0.001    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:174(<lambda>)
+       75    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:53(update)
+      780    0.001    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:68(intersects)
+       75    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:97(get_tiles_of_rect)
+    10794    0.001    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:181(<lambda>)
+        5    0.000    0.000    0.001    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:545(update)
+     8936    0.001    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:96(set_colliding)
+      112    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\components\sprite.py:30(update)
+        3    0.001    0.000    0.001    0.000 {built-in method io.open}
+      112    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\components\sprite.py:36(apply_transform)
+       75    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\game_state\field_of_view.py:77(_get_vision_box)
+        1    0.000    0.000    0.001    0.001 C:\0.Proyectos\TFG_\game\map\tile_map.py:46(clear)
+        4    0.001    0.000    0.001    0.000 {method 'clear' of 'list' objects}
+        1    0.000    0.000    0.001    0.001 C:\0.Proyectos\TFG_\game\ai\neural_network\neural_network.py:115(save_parameters)
+        5    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\engine.py:83(draw_fps)
+        5    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\NPC_manager.py:86(update_npc)
+       90    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\ai\ai_agent.py:41(evaluate_fitness)
+        5    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\engine\managers\input_manager\input_manager.py:11(update)
+        5    0.001    0.000    0.001    0.000 {built-in method pygame.event.get}
+       75    0.000    0.000    0.001    0.000 C:\0.Proyectos\TFG_\game\entities\car.py:39(update_input)
+        1    0.000    0.000    0.001    0.001 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\lib\npyio.py:475(save)
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\field_of_view.py:92(<listcomp>)
+      242    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\transform.py:76(get_forward)
+     8844    0.000    0.000    0.000    0.000 {method 'clear' of 'set' objects}
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\NPC_manager.py:100(initialize)
+       90    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\data_collector.py:42(_update_fitness)
+      300    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\field_of_view.py:96(_rotate_point)
+      450    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_input_manager.py:38(is_key_down)
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\NPC_manager.py:35(is_npc_pos_invalid)
+       26    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\NPC_manager.py:62(npc_get_random_pos)
+      900    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:182(<listcomp>)
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:135(process_checkpoints)
+     1890    0.000    0.000    0.000    0.000 {method 'extend' of 'list' objects}
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:136(_update_distance_and_angle_to_next_checkpoint)
+      900    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:183(<listcomp>)
+        3    0.000    0.000    0.000    0.000 {method '__exit__' of '_io._IOBase' objects}
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\cars_manager.py:130(handle_ai_training)
+      112    0.000    0.000    0.000    0.000 {built-in method pygame.transform.rotate}
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\data_collector.py:31(change_generation)
+       90    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:216(get_next_checkpoint_position)
+        5    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:865(draw)
+       42    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:115(set_checkpoint_line)
+       43    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:797(add)
+       13    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\NPC_manager.py:54(npc_get_initial_random_pos)
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\lib\format.py:666(write_array)
+      165    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_agent.py:73(evaluate_speed_fitness)
+      152    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:61(update_rect)
+      117    0.000    0.000    0.000    0.000 {method 'flatten' of 'numpy.ndarray' objects}
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\field_of_view.py:50(_get_checkpoint_activation_area)
+      516    0.000    0.000    0.000    0.000 {built-in method builtins.round}
+     1177    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+       33    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\NPC_manager.py:26(is_npc_initial_pos_invalid)
+        2    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\json\__init__.py:120(dump)
+        1    0.000    0.000    0.000    0.000 {method 'tofile' of 'numpy.ndarray' objects}
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:111(_update_tile_chronometers)
+      112    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\camera_coordinates.py:10(apply_view_to_pos_vec)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\car.py:16(__init__)
+     1908    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:52(get_non_collideable_colliders)
+       45    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_input_manager.py:7(__init__)
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:158(calculate_angle_to_checkpoint)
+       15    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\linalg\linalg.py:2383(norm)
+       39    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\NPC.py:46(move_towards_goal)
+      165    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_agent.py:87(evaluate_distance_to_checkpoint_fitness)
+       43    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:760(add_internal)
+       30    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_agent.py:12(__init__)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\neural_network\neural_network.py:84(set_parameters)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\neural_network\neural_network.py:51(leaky_relu)
+      241    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\chronometer.py:22(get_elapsed_time)
+      780    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:8(__init__)
+       90    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\data_collector.py:61(_update_total_fitness)
+       30    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:18(__init__)
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:177(<listcomp>)
+      617    0.000    0.000    0.000    0.000 {built-in method math.sin}
+       61    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\json\encoder.py:413(_iterencode)
+       16    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\managers\input_manager\input_manager.py:29(is_key_down)
+        2    0.000    0.000    0.000    0.000 {method 'copy' of 'numpy.ndarray' objects}
+       30    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\neural_network\neural_network.py:22(relu)
+      366    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:55(add_non_collideable_collider)
+      617    0.000    0.000    0.000    0.000 {built-in method math.cos}
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game.py:54(move_camera)
+      116    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\camera_coordinates.py:5(apply_view_to_pos)
+       65    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\NPC.py:55(is_on_goal)
+      975    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:58(get_rect)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game.py:70(_center_camera_on_car)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\engine.py:41(handle_engine_inputs)
+      143    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\NPC.py:61(get_position)
+       15    0.000    0.000    0.000    0.000 {built-in method numpy.array}
+       61    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\json\encoder.py:333(_iterencode_dict)
+      975    0.000    0.000    0.000    0.000 {method 'distance_to' of 'pygame.math.Vector2' objects}
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:202(_update_tile_intervals)
+      617    0.000    0.000    0.000    0.000 {built-in method math.radians}
+       90    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\data_collector.py:73(_update_checkpoint_fitness)
+       90    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\data_collector.py:79(_update_fitness_speed_and_still)
+      864    0.000    0.000    0.000    0.000 {method 'colliderect' of 'pygame.rect.Rect' objects}
+      780    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:12(get_intersects)
+       90    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\data_collector.py:85(_update_distance_to_checkpoint)
+      638    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:35(get_velocity)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\fps_manager.py:38(start_frame)
+      392    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:49(set_vector_velocity)
+      155    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\sprite.py:21(update_transform)
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:192(_update_still_chronometer)
+      304    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\transform.py:28(displace)
+      165    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_agent.py:65(evaluate_checkpoint_fitness)
+      142    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\chronometer.py:11(start)
+       16    0.000    0.000    0.000    0.000 {built-in method pygame.key.get_pressed}
+      150    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\random.py:546(uniform)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_input_manager.py:22(convert_outputs_to_commands)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\car.py:127(reset)
+      437    0.000    0.000    0.000    0.000 {method 'normalize' of 'pygame.math.Vector2' objects}
+       59    0.000    0.000    0.000    0.000 {method 'write' of '_io.TextIOWrapper' objects}
+       51    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\json\encoder.py:277(_iterencode_list)
+      450    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_input_manager.py:41(_get_pressed)
+      456    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:52(get_vector_velocity)
+      328    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\camera_coordinates.py:34(get_camera_position)
+      189    0.000    0.000    0.000    0.000 {built-in method math.atan2}
+      252    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\tile.py:13(set_as_checkpoint)
+      152    0.000    0.000    0.000    0.000 {method 'move' of 'pygame.rect.Rect' objects}
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:185(_update_collisions_count)
+       90    0.000    0.000    0.000    0.000 {built-in method numpy.zeros}
+      337    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\transform.py:51(get_rotation)
+       60    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_input_manager.py:44(stop_keys)
+      309    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:99(is_colliding)
+      158    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\chronometer.py:16(stop)
+      409    0.000    0.000    0.000    0.000 {method 'add' of 'set' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\lib\format.py:414(_write_array_header)
+      307    0.000    0.000    0.000    0.000 {built-in method time.time}
+      347    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:32(get_mass)
+      152    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:17(add_velocity)
+       59    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\encodings\cp1252.py:18(encode)
+      165    0.000    0.000    0.000    0.000 {built-in method math.pow}
+       39    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\transform.py:85(set_forward)
+      195    0.000    0.000    0.000    0.000 {method 'clip' of 'pygame.rect.Rect' objects}
+        7    0.000    0.000    0.000    0.000 {built-in method builtins.sorted}
+      120    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\chronometer.py:5(__init__)
+       19    0.000    0.000    0.000    0.000 {built-in method builtins.sum}
+      152    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:109(set_transform)
+       43    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:154(add_internal)
+       42    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:122(get_offset_func)
+      214    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:61(set_force)
+       33    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:50(get_agents)
+       90    0.000    0.000    0.000    0.000 {method 'reshape' of 'numpy.ndarray' objects}
+       15    0.000    0.000    0.000    0.000 {method 'dot' of 'numpy.ndarray' objects}
+       10    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\fps_manager.py:44(get_delta_time)
+      232    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\camera_coordinates.py:30(get_window_size)
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:250(reset)
+      155    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\sprite.py:44(is_added_to_renderer)
+      112    0.000    0.000    0.000    0.000 {method 'update' of 'pygame.math.Vector2' objects}
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:129(_update_speed_accumulator)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\fps_manager.py:23(calculate_avg_fps)
+      176    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:26(get_drag)
+      152    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:112(set_physics)
+      150    0.000    0.000    0.000    0.000 {built-in method math.sqrt}
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:177(_update_tile_type)
+       15    0.000    0.000    0.000    0.000 {built-in method numpy.asarray}
+      118    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:93(set_active)
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\car.py:61(update)
+        2    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\json\encoder.py:204(iterencode)
+      152    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:38(get_force)
+      180    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\lib\format.py:390(_wrap_header_guess_version)
+       30    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\field_of_view.py:14(__init__)
+       54    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:40(get_width_number)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_agent.py:106(reset)
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\lib\format.py:366(_wrap_header)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\camera.py:36(move)
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\field_of_view.py:26(get_checkpoint_activation_area)
+       90    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\car.py:137(set_fitness)
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\abc.py:117(__instancecheck__)
+      189    0.000    0.000    0.000    0.000 {built-in method math.degrees}
+       13    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\NPC.py:58(set_position)
+       52    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:43(get_height_number)
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:206(get_checkpoint_in)
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:95(reach_checkpoint)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.print}
+        5    0.000    0.000    0.000    0.000 {method 'tick' of 'pygame.time.Clock' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method _abc._abc_instancecheck}
+      130    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:127(<lambda>)
+       60    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\neural_network\neural_network.py:89(<genexpr>)
+      156    0.000    0.000    0.000    0.000 {method 'random' of '_random.Random' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\lib\format.py:338(header_data_from_array_1_0)
+       45    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\managers\input_manager\input_manager.py:7(__init__)
+        9    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\car.py:103(rotate_left)
+       69    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:55(set_velocity)
+        8    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\car.py:83(move_forward)
+       43    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:418(has_internal)
+       31    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\interval.py:6(__init__)
+       59    0.000    0.000    0.000    0.000 {built-in method _codecs.charmap_encode}
+       10    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\camera.py:39(get_position)
+      112    0.000    0.000    0.000    0.000 {method 'copy' of 'pygame.math.Vector2' objects}
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\cars_manager.py:110(<listcomp>)
+       10    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:857(sprites)
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\field_of_view.py:57(<listcomp>)
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\abc.py:121(__subclasscheck__)
+       15    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\pygame\sprite.py:113(__init__)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\camera.py:15(set_position)
+       15    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\json\encoder.py:223(floatstr)
+       58    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:67(set_static)
+       90    0.000    0.000    0.000    0.000 {built-in method builtins.abs}
+       15    0.000    0.000    0.000    0.000 {method 'ravel' of 'numpy.ndarray' objects}
+       75    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game.py:74(<lambda>)
+        1    0.000    0.000    0.000    0.000 {built-in method _abc._abc_subclasscheck}
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\car.py:90(move_backward)
+        7    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\car.py:97(rotate_right)
+       44    0.000    0.000    0.000    0.000 {built-in method builtins.hasattr}
+       39    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:23(add_force)
+       43    0.000    0.000    0.000    0.000 {method 'insert' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\lib\format.py:243(dtype_to_descr)
+       45    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:46(get_collidered_collider)
+       16    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\transform.py:72(rotate)
+       15    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\linalg\linalg.py:140(isComplexType)
+        3    0.000    0.000    0.000    0.000 {built-in method builtins.all}
+       39    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\NPC.py:64(set_goal)
+       45    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\core\multiarray.py:741(dot)
+       43    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\sprite.py:47(set_added_to_renderer)
+       30    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:44(set_mass)
+       45    0.000    0.000    0.000    0.000 {method 'keys' of 'dict' objects}
+       13    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:87(get_sprite_rect)
+       45    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:58(set_acceleration)
+       45    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:43(get_collidered_physics)
+       48    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:117(<genexpr>)
+        4    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\car.py:75(accelerate)
+       34    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\genetic_algorithm\genetic_algorithm.py:35(get_agents)
+       65    0.000    0.000    0.000    0.000 {method 'magnitude' of 'pygame.math.Vector2' objects}
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\camera.py:28(update)
+       60    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:125(<lambda>)
+       16    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\cars_manager.py:55(get_ai_manager)
+       30    0.000    0.000    0.000    0.000 {built-in method builtins.issubclass}
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\compat\py3k.py:49(isfileobj)
+        6    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\car.py:109(break_car)
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\os.py:1080(__subclasshook__)
+        2    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\json\encoder.py:259(_make_iterencode)
+       30    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\transform.py:103(debug_config_show_transform)
+       48    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:118(<genexpr>)
+       20    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\managers\window_manager\window_manager.py:15(get_window)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\managers\entity_manager\entity_manager.py:84(set_layer)
+       26    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\NPC.py:37(get_goal_range)
+       39    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\NPC.py:67(get_goal)
+       11    0.000    0.000    0.000    0.000 {method 'copy' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\cars_manager.py:109(<listcomp>)
+       34    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:130(<genexpr>)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:81(get_next_checkpoint_position)
+        4    0.000    0.000    0.000    0.000 {built-in method builtins.repr}
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\camera_coordinates.py:26(update_camera_position)
+       17    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\core\multiarray.py:153(concatenate)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\fps_manager.py:34(get_average_fps)
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\lib\utils.py:1151(drop_metadata)
+       39    0.000    0.000    0.000    0.000 {method 'normalize_ip' of 'pygame.math.Vector2' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\_collections_abc.py:78(_check_methods)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\collider.py:105(debug_config_show_collider)
+       15    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\linalg\linalg.py:2379(_norm_dispatcher)
+       26    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\entities\NPC.py:43(get_road_probability)
+        2    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\codecs.py:186(__init__)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:29(set_drag)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\managers\render_manager\renderer.py:21(set_camera_position)
+       10    0.000    0.000    0.000    0.000 {method 'get_time' of 'pygame.time.Clock' objects}
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\physics.py:41(get_acceleration)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\transform.py:106(debug_config_show_forward)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\camera_coordinates.py:22(update_window_size)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:50(initialize)
+       15    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\core\multiarray.py:346(where)
+       16    0.000    0.000    0.000    0.000 {method 'union' of 'pygame.rect.Rect' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\lib\format.py:201(magic)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\components\sprite.py:50(get_rect)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\car_knowledge.py:88(get_angle_to_next_checkpoint)
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\interval.py:11(close)
+        1    0.000    0.000    0.000    0.000 {built-in method _struct.calcsize}
+       10    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:131(<lambda>)
+       10    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\engine_fonts.py:19(get_fonts)
+       10    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\tile_map.py:129(<lambda>)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:172(has_generation_ended)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\genetic_algorithm\genetic_algorithm.py:49(<lambda>)
+       15    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:237(<lambda>)
+        4    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\managers\render_manager\background_batch.py:43(get_batch_surface)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\managers\window_manager\window_manager.py:18(get_width)
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\map\map_types_list.py:17(__len__)
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:165(<listcomp>)
+        1    0.000    0.000    0.000    0.000 {method 'encode' of 'str' objects}
+       10    0.000    0.000    0.000    0.000 {method 'length' of 'pygame.math.Vector2' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\lib\format.py:196(_check_version)
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\engine\managers\window_manager\window_manager.py:21(get_height)
+        3    0.000    0.000    0.000    0.000 {built-in method _json.encode_basestring_ascii}
+        1    0.000    0.000    0.000    0.000 {built-in method nt.fspath}
+        3    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        5    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\cars_manager.py:44(get_cars)
+        1    0.000    0.000    0.000    0.000 {built-in method numpy.asanyarray}
+        5    0.000    0.000    0.000    0.000 {built-in method builtins.id}
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\ai_manager.py:179(next_generation)
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\game_state\interval.py:15(is_already_closed)
+        1    0.000    0.000    0.000    0.000 {built-in method _struct.pack}
+        1    0.000    0.000    0.000    0.000 {method 'fileno' of '_io.BufferedWriter' objects}
+        1    0.000    0.000    0.000    0.000 {method 'write' of '_io.BufferedWriter' objects}
+        1    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\nuria\AppData\Local\Programs\Python\Python310\lib\site-packages\numpy\lib\npyio.py:471(_save_dispatcher)
+        1    0.000    0.000    0.000    0.000 C:\0.Proyectos\TFG_\game\ai\genetic_algorithm\genetic_algorithm.py:28(load_agents)
+
+

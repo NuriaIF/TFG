@@ -2,7 +2,7 @@ import unittest
 
 from matplotlib import pyplot as plt
 
-from game.ai.neural_network.neural_network import NeuralNetwork
+from game.AI.neural_network.neural_network import NeuralNetwork
 
 
 class TestPopulationDiversity(unittest.TestCase):

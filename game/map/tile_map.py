@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import math
 
-from pygame import Vector2
+from pygame import Vector2, Rect
 
 from engine.engine import Engine
 from engine.managers.entity_manager.entity_manager import EntityManager
-from engine.managers.render_manager.render_layers import RenderLayer
 from game.entities.tile import Tile
 from game.map.checkpoints.checkpoint_direction import CheckpointDirection
 from game.map.checkpoints.checkpoints_loader import CheckpointsLoader
@@ -31,11 +30,8 @@ class TileMap:
         self.checkpoints: list[Tile] = []
         self.checkpoint_lines: list[Tile] = []
 
-        self.generate_tiles(engine)
         self.height = self.type_map_list.get_height() * TILE_SIZE
         self.width = self.type_map_list.get_width() * TILE_SIZE
-
-        self._generate_walls(engine)
 
         self.positions = []
         self.tiles_fov = []
@@ -47,7 +43,12 @@ class TileMap:
     def get_height_number(self):
         return self.type_map_list.get_height()
 
-    def generate_tiles(self, engine: Engine) -> None:
+    def clear(self):
+        self.tiles.clear()
+        self.checkpoints.clear()
+        self.checkpoint_lines.clear()
+
+    def generate_tiles(self) -> None:
         for i in range(len(self.type_map_list)):
             x_pos = (i % self.type_map_list.get_width()) * TILE_SIZE
             y_pos = (i // self.type_map_list.get_width()) * TILE_SIZE
@@ -93,29 +94,22 @@ class TileMap:
             tiles = tiles[:144]
         return tiles
 
-    def get_tiles_of_rect(self, position: tuple[float, float], radius: float, vision_box: list[Vector2]) -> list[Tile]:
+    def get_tiles_of_rect(self, entity_pos: Vector2, rect: Rect) -> list[Tile]:
         tiles: list[Tile] = []
-        tiles_size: int = round((radius * 2 * radius * 2)) // TILE_SIZE
-        if tiles_size < 1:
-            tiles_size = 2
-        for i in range(-tiles_size, tiles_size):
-            for j in range(-tiles_size, tiles_size):
-                tile_pos: Vector2 = Vector2(int(position[0] + i * TILE_SIZE), int(position[1] + j * TILE_SIZE))
-                # # Check out of bounds
-                # if 0 <= tile_pos.x < self.width - 1 and 0 <= tile_pos.y < self.height - 1:
-                #     continue
-                tile = self.get_tile_at_pos(tile_pos)
+        bot_left = entity_pos
+        rect_center = entity_pos + Vector2(rect.width // 2, rect.height // 2)
+        top: int = int(entity_pos.y) + rect.height
+        bottom: int = int(entity_pos.y) - rect.height
+        left: int = int(entity_pos.x) - rect.width
+        right: int = int(entity_pos.x) + rect.width
+        rect_width_in_tiles = rect.width
+        rect_height_in_tiles = rect.height
+        # TODO: FINISH THIS FUNCTION
+        for x in range(left, right, TILE_SIZE):
+            for y in range(bottom, top, TILE_SIZE):
+                tile = self.get_tile_at_pos(Vector2(x+TILE_SIZE/2, y+TILE_SIZE*1.5 ))
                 if tile is not None:
-                    position_tile = self.entity_manager.get_transform(tile.entity_ID).get_position()
-                    edge_upper_left = Vector2(position_tile.x + 1, position_tile.y + 1)
-                    edge_upper_right = Vector2(position_tile.x + TILE_SIZE - 1, position_tile.y + 1)
-                    edge_bottom_left = Vector2(position_tile.x + 1, position_tile.y + TILE_SIZE - 1)
-                    edge_bottom_right = Vector2(position_tile.x + TILE_SIZE - 1, position_tile.y + TILE_SIZE - 1)
-                    if (self._point_in_polygon(edge_upper_left, vision_box) or
-                            self._point_in_polygon(edge_upper_right, vision_box) or
-                            self._point_in_polygon(edge_bottom_left, vision_box) or
-                            self._point_in_polygon(edge_bottom_right, vision_box)):
-                        tiles.append(tile)
+                    tiles.append(tile)
         return tiles
 
     def set_checkpoint_line(self, start_index, offset_func, checkpoint_number):
@@ -209,42 +203,11 @@ class TileMap:
 
         return inside
 
-    def _generate_walls(self, engine: Engine) -> None:
-        border_width = TILE_SIZE * 8
-        # Create large entities that surround the map that have colliders, so the car can't leave the map
-        upper_wall = self.entity_manager.create_entity("tiles/map_border_center", has_collider=True, is_static=True)
-        upper_wall_transform = self.entity_manager.get_transform(upper_wall)
-        upper_wall_transform.set_position(
-            Vector2(self.type_map_list.get_width() * TILE_SIZE / 2, -TILE_SIZE + border_width))
-        self.entity_manager.set_layer(upper_wall, RenderLayer.TILES)
-        self.entity_manager.get_collider(upper_wall).debug_config_show_collider()
-
-        bottom_wall = self.entity_manager.create_entity("tiles/map_border_center", has_collider=True, is_static=True)
-        bottom_wall_transform = self.entity_manager.get_transform(bottom_wall)
-        bottom_wall_transform.set_position(
-            Vector2(self.type_map_list.get_width() * TILE_SIZE / 2, self.height - border_width))
-        bottom_wall_transform.rotate(180)
-        self.entity_manager.set_layer(bottom_wall, RenderLayer.TILES)
-        self.entity_manager.get_collider(bottom_wall).debug_config_show_collider()
-
-        left_wall = self.entity_manager.create_entity("tiles/map_border_lateral", has_collider=True, is_static=True)
-        left_wall_transform = self.entity_manager.get_transform(left_wall)
-        left_wall_transform.set_position(Vector2(-TILE_SIZE + border_width, self.height / 2))
-        self.entity_manager.set_layer(left_wall, RenderLayer.TILES)
-        self.entity_manager.get_collider(left_wall).debug_config_show_collider()
-
-        right_wall = self.entity_manager.create_entity("tiles/map_border_lateral", has_collider=True, is_static=True)
-        right_wall_transform = self.entity_manager.get_transform(right_wall)
-        right_wall_transform.set_position(Vector2(self.width - border_width, self.height / 2))
-        right_wall_transform.rotate(180)
-        self.entity_manager.set_layer(right_wall, RenderLayer.TILES)
-        self.entity_manager.get_collider(right_wall).debug_config_show_collider()
-
     def get_checkpoint_in(self, area: list[Tile]) -> int:
         """
         Check if the area contains a checkpoint and return the checkpoint number
-        :param area: 
-        :return: 
+        :param area:
+        :return:
         """
         for tile in area:
             if tile.is_checkpoint():
@@ -260,4 +223,3 @@ class TileMap:
                 tile_transform = self.entity_manager.get_transform(tile.entity_ID)
                 return tile_transform.get_position().x, tile_transform.get_position().y
         return float('inf'), float('inf')
-

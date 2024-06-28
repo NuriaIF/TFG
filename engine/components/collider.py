@@ -1,4 +1,9 @@
+from typing import Optional, Callable
+
 import pygame as pygame
+
+from engine.components.physics import Physics
+from engine.components.transform import Transform
 
 
 class Intersection:
@@ -14,34 +19,59 @@ class Intersection:
 
 
 class Collider:
-    def __init__(self, rect: pygame.Rect, is_active: bool = True, is_training: bool = False):
+    def __init__(self, rect: pygame.Rect, is_active: bool = True):
         # if rect is None:
         #     raise ValueError("Rect cannot be None")
         # if not isinstance(rect, pygame.Rect):
         #     raise ValueError("Rect must be an instance of pygame.Rect")
         self.rect = rect
-        self._is_in_training: bool = is_training
         self._is_active: bool = is_active
         self._collider_debug_show: bool = False
         self._colliding: bool = False
-        self._non_collideable_colliders: dict['Collider'] = {}
 
-    def get_non_collideable_colliders(self) -> dict['Collider']:
+        self._non_collideable_colliders: set['Collider'] = set()
+        self._collision_callback: Optional[Callable] = None
+
+        self._collidered_physics: Physics | None = None
+        self._collidered_transforms: Transform | None = None
+        self._collidered_collider: Collider | None = None
+
+    def set_collidered(self, physics: 'Physics | None', transform: 'Transform | None',
+                       collider: 'Collider | None') -> None:
+        self._collidered_physics = physics
+        self._collidered_transforms = transform
+        self._collidered_collider = collider
+
+    def get_collidered_physics(self) -> Physics | None:
+        return self._collidered_physics
+
+    def get_collidered_collider(self) -> 'Collider | None':
+        return self._collidered_collider
+
+    def get_collidered_transform(self) -> Transform | None:
+        return self._collidered_transforms
+
+    def get_non_collideable_colliders(self) -> set['Collider']:
         return self._non_collideable_colliders
 
-    def add_non_collideable_collider(self, collider: 'Collider') -> None:
-        self._non_collideable_colliders.update({collider: collider})
+    def set_collision_callback(self, callback: Callable) -> None:
+        self._collision_callback = callback
 
+    def get_collision_callback(self) -> Optional[Callable]:
+        return self._collision_callback
+
+    def add_non_collideable_collider(self, collider: 'Collider') -> None:
+        self._non_collideable_colliders.add(collider)
 
     def get_rect(self) -> pygame.Rect:
         return self.rect
 
-    def update_rect(self, rect: pygame.Rect) -> None:
+    def update_rect(self, sprite_rect: pygame.Rect) -> None:
         # if rect is None:
         #     raise ValueError("Rect cannot be None")
         # if not isinstance(rect, pygame.Rect):
         #     raise ValueError("Rect must be an instance of pygame.Rect")
-        self.rect = rect
+        self.rect = sprite_rect
 
     def intersects(self, other_collider: 'Collider') -> Intersection:
         """
@@ -65,8 +95,6 @@ class Collider:
     def is_active(self):
         return self._is_active
 
-    def is_in_training(self):
-        return self._is_in_training
 
     def set_active(self, is_active: bool) -> None:
         self._is_active = is_active
@@ -87,5 +115,7 @@ class Collider:
         self._collider_debug_show = False
 
     def reset(self) -> None:
-        self._colliding = False
         self._collider_debug_show = False
+
+        self.set_colliding(False)
+        self.set_collidered(None, None, None)

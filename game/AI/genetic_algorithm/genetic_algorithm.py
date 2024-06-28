@@ -2,8 +2,8 @@ import random
 
 import numpy as np
 
-from game.ai.ai_agent import AIAgent
-from game.ai.neural_network.neural_network import NeuralNetwork
+from game.AI.AI_agent import AIAgent
+from game.AI.neural_network.neural_network import NeuralNetwork
 
 NEURAL_NET_LAYER_SIZES = [149, 100, 60, 6]
 

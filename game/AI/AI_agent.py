@@ -3,8 +3,8 @@ import math
 
 import numpy as np
 
-from game.ai.ai_input_manager import AIInputManager
-from game.ai.neural_network.neural_network import NeuralNetwork
+from game.AI.AI_input_manager import AIInputManager
+from game.AI.neural_network.neural_network import NeuralNetwork
 from game.entities.car import Car
 
 

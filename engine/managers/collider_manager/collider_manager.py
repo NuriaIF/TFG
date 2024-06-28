@@ -1,63 +1,62 @@
 from engine.components.collider import Collider
 from engine.components.physics import Physics
 from engine.components.transform import Transform
-from pygame import Rect
+from pygame import Rect, Vector2
+
+from engine.managers.entity_manager.entity_manager import EntityManager
+from engine.managers.render_manager.renderer import DebugRenderer
+
 
 class ColliderManager:
-    def __init__(self):
-        self.colliders: list[Collider] = []
+    def __init__(self, entity_manager: EntityManager, debug_renderer: DebugRenderer):
+        self._debug_renderer = debug_renderer
+        self._entity_manager = entity_manager
+        self._entities_with_colliders = []
 
-    def update(self, collider: Collider, sprite_rect: Rect, physics: Physics, transform: Transform,
-               next_frame_collider: Collider) -> None:
-        # if not isinstance(entity, Entity):
-        #     raise ValueError("entity must be an instance of Entity")
-        # if not isinstance(collider, Collider):
-        #     raise ValueError("collider must be an instance of Collider")
-        # if not isinstance(sprite_rect, Rect):
-        #     raise ValueError("sprite_rect must be an instance of pygame.Rect")
+    def send_data(self, entity: int) -> None:
+        self._entities_with_colliders.append(entity)
 
-        collider.update_rect(sprite_rect)
+    def debug_render(self) -> None:
+        for entity in self._entities_with_colliders:
+            collider: Collider = self._entity_manager.get_collider(entity)
+            self._debug_renderer.draw_rect_absolute(collider.get_rect())
 
-        if collider not in self.colliders:
-            self.colliders.append(collider)
+    def update(self) -> None:
+        colliders: list[Collider] = []
+        for entity in self._entities_with_colliders:
+            physics: Physics = self._entity_manager.get_physics(entity)
+            if physics.is_static():
+                return  # Static entities don't move, so they don't need to check for collision
+            colliders.append(self._entity_manager.get_collider(entity))
+            collider: Collider = self._entity_manager.get_collider(entity)
+            transform: Transform = self._entity_manager.get_transform(entity)
+            self.check_collision(collider, physics, transform)
 
-        if physics.is_static():
-            return  # Static entities don't move, so they don't need to check for collision
-        self.check_collision_continuous(collider, physics, transform, next_frame_collider)
-
-    def check_collision_continuous(self, collider: Collider, physics: Physics, transform: Transform,
-                                   next_frame_collider: Collider) -> None:
+    def check_collision(self, collider: Collider, physics: Physics, transform: Transform) -> None:
         colliding = False
-        for other_collider in self.colliders:
+        for entity in self._entities_with_colliders:
+            other_collider: Collider = self._entity_manager.get_collider(entity)
+            other_transform: Transform = self._entity_manager.get_transform(entity)
+            other_physics: Physics = self._entity_manager.get_physics(entity)
+
             if other_collider is collider:
+                continue
+
+            # This reiterative (collider.is_active()) check is necessary because the callback may have
+            # changed the collider active state
+            if not other_collider.is_active() or not collider.is_active():
                 continue
 
             if other_collider in collider.get_non_collideable_colliders():
                 continue
 
-            if other_collider.is_in_training() and collider.is_in_training():
-                continue
-
-
             intersection = collider.intersects(other_collider)
             if intersection.get_intersects():
                 colliding = True
-                # Reverse the velocity as a simple response to collision
-                physics.set_velocity(-physics.get_velocity() * 0.05)
-
-                # Adjust the entity's position slightly in the opposite direction of its current velocity
-                # This is to ensure it doesn't remain stuck within the collider
-                direction_of_movement = -1 if physics.get_velocity() < 0 else 1
-
-                # Calculate a small displacement away from the collider
-                # This can be a fixed small value or based on the intersection area or entity's speed
-                displacement_magnitude = min(abs(physics.get_velocity()),
-                                             5)  # Example: min current speed or a small constant
-                slight_displacement = direction_of_movement * transform.get_forward() * displacement_magnitude
-
-                # Apply the displacement to move the entity slightly away from the collision
-                transform.displace(slight_displacement)
-
-                break  # Exit the loop after handling the collision
-
-        collider.set_colliding(colliding)
+                # Set the velocity to be the opposite of the direction from one transform to the other
+                colliders_direction = transform.get_position() - other_transform.get_position()
+                collider.set_collidered(other_physics, other_transform, other_collider)
+                physics.set_vector_velocity(colliders_direction.normalize() * 100000 / physics.get_mass())
+                if collider.get_collision_callback() is not None:
+                    collider.get_collision_callback()()
+            collider.set_colliding(colliding)

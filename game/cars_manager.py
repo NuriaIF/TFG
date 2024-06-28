@@ -1,18 +1,20 @@
 import pygame
 from pygame import Vector2
 
+from engine.components.collider import Collider
 from engine.components.transform import Transform
 from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.render_manager.renderer import DebugRenderer, Renderer
-from game.ai.ai_input_manager import AIInputManager
-from game.ai.ai_manager import AIManager, population_size
+from game.AI.AI_input_manager import AIInputManager
+from game.AI.AI_manager import AIManager, population_size
 from game.entities.NPC import NPC
 from game.entities.car import Car
+from game.entities.tile import Tile
 from game.game_mode import GameMode
 from game.game_state.chronometer import Chronometer
 from game.map.map_types import MapType
-from game.map.tile_map import TileMap
+from game.map.tile_map import TileMap, TILE_SIZE
 
 
 class CarsManager:
@@ -30,12 +32,22 @@ class CarsManager:
         self._ai_manager: AIManager = AIManager(self._entity_manager,
                                                 self._game_mode == GameMode.AI_TRAINING)
 
-    def get_cars(self):
+        self._number_of_cars = 1
+        if self._game_mode == GameMode.AI_TRAINING:
+            self._number_of_cars = population_size
+        self._npc_transforms: list[Transform] = []
+        self._npc_sprite_rects: list[pygame.Rect] = []
+
+        map_width = self._tile_map.width // 16
+        self._initial_car_position = (11 + 8) + (42 + 8) * map_width
+        # self._initial_car_position = Vector2((11 + 8) * TILE_SIZE, (42 + 8) * TILE_SIZE)
+
+    def get_cars(self) -> list[Car]:
         return self._cars
 
-    def create_car(self, is_training: bool) -> Car:
-        entity: int = self._entity_manager.create_entity("entities/car", has_collider=True, is_static=False,
-                                                         is_training=is_training)
+    def create_car(self) -> Car:
+        entity: int = self._entity_manager.create_entity("entities/car", has_collider=True, is_static=False)
+        self._entity_manager.get_physics(entity).set_mass(10000)  # Needed for collisions
         if self._game_mode == GameMode.MANUAL:
             return Car(entity, self._entity_manager, self._input_manager)
         return Car(entity, self._entity_manager, AIInputManager())
@@ -45,23 +57,30 @@ class CarsManager:
 
     def initialize(self):
         if len(self._cars) == 0:
-            if self._game_mode == GameMode.MANUAL or self._game_mode == GameMode.AI_PLAYING:
-                self._cars.append(self.create_car(False))
-            elif self._game_mode == GameMode.AI_TRAINING:
-                for i in range(population_size):
-                    self._cars.append(self.create_car(True))
+            for i in range(self._number_of_cars):
+                self._cars.append(self.create_car())
 
-        map_width = self._tile_map.width // 16
-        tile_id = self._tile_map.tiles[(11 + 8) + (42 + 8) * map_width].entity_ID
+        tile_id = self._tile_map.tiles[self._initial_car_position].entity_ID
         start_tile = self._entity_manager.get_transform(tile_id).get_position()
-
+        car: Car
+        print("NEW INITIALIZATION")
         for car in self._cars:
-            self._entity_manager.reset_entity(car.entity_ID)
             car.reset()
+            self._entity_manager.get_transform(car.entity_ID).debug_config_show_transform()
             first_checkpoint_position = self._tile_map.get_next_checkpoint_position(0)
             car.car_knowledge.initialize(first_checkpoint_position)
-            self._entity_manager.get_transform(car.entity_ID).set_position(
-                Vector2(start_tile[0], start_tile[1]))  # car.set_position(Vector2(start_tile[0], start_tile[1]))
+            car.set_position(Vector2(start_tile[0], start_tile[1]))
+            car_collider: Collider = self._entity_manager.get_collider(car.entity_ID)
+            car_physics = self._entity_manager.get_physics(car.entity_ID)
+            car_collider.set_active(True)
+            car_physics.set_static(False)
+            # Add all the cars to non-collideable colliders
+            # So while its training, they don't collide with each other
+            if self._game_mode is GameMode.AI_TRAINING:
+                for other_car in self._cars:
+                    other_car_collider: Collider = self._entity_manager.get_collider(other_car.entity_ID)
+                    if car_collider is not other_car_collider:
+                        car_collider.add_non_collideable_collider(other_car_collider)
 
     def update_cars(self, delta_time: float, npcs: list[NPC]):
         if self._game_mode is GameMode.AI_TRAINING or self._game_mode is GameMode.AI_PLAYING:
@@ -69,36 +88,56 @@ class CarsManager:
         i: int
         car: Car
         for i, car in enumerate(self._cars):
-            car_knowledge = car.car_knowledge
-            fov = car_knowledge.field_of_view
-            car_entity_id = car.entity_ID
+            car_transform: Transform = self._entity_manager.get_transform(car.entity_ID)
+            tile_of_car: Tile = self._tile_map.get_tile_at_pos(car_transform.get_position())
 
-            car_transform: Transform = self._entity_manager.get_transform(car_entity_id)
-            npc_transforms: list[Transform] = [self._entity_manager.get_transform(npc.entity_ID) for npc in npcs]
-            npc_sprite_rects: list[pygame.Rect] = [self._entity_manager.get_sprite_rect(npc.entity_ID) for npc in npcs]
+            self.handle_ai_knowledge(car, tile_of_car, npcs)
 
-            fov.update(car_transform, self._tile_map, npc_transforms, npc_sprite_rects)
-
-            checkpoint = self._tile_map.get_checkpoint_in(fov.get_checkpoint_activation_area())
-
-            car_in_tile = self._tile_map.get_tile_at_pos(car_transform.get_position())
-
-            total_checkpoints = len(self._tile_map.checkpoints)
-            car_knowledge.reach_checkpoint(checkpoint, total_checkpoints)
-            next_checkpoint_position = self._tile_map.get_next_checkpoint_position(car_knowledge.checkpoint_number)
-
-            car_forward = car_transform.get_forward()
-            car_velocity = self._entity_manager.get_physics(car_entity_id).get_velocity()
-
-            collider = self._entity_manager.get_collider(car_entity_id)
-            car_knowledge.update(car_in_tile.tile_type, next_checkpoint_position, car_forward, car_velocity, collider,
-                                 car_transform.get_position(), self._chronometer)
-
-            if checkpoint is not None:
-                car.traveled_distance = checkpoint * 10
+            if GameMode.AI_TRAINING:
+                self.handle_ai_training(car, tile_of_car)
 
             car.update_input()
             car.update(delta_time)
+
+    def handle_ai_knowledge(self, car: Car, tile_of_car: Tile, npcs: list[NPC]):
+        car_knowledge = car.car_knowledge
+        fov = car_knowledge.field_of_view
+        car_entity_id = car.entity_ID
+
+        car_transform: Transform = self._entity_manager.get_transform(car_entity_id)
+        if len(self._npc_transforms) == 0:
+            self._npc_transforms = [self._entity_manager.get_transform(npc.entity_ID) for npc in npcs]
+            self._npc_sprite_rects = [self._entity_manager.get_sprite_rect(npc.entity_ID) for npc in npcs]
+
+        fov.update(car_transform, self._tile_map, self._npc_transforms, self._npc_sprite_rects)
+
+        checkpoint = self._tile_map.get_checkpoint_in(fov.get_checkpoint_activation_area())
+
+        total_checkpoints = len(self._tile_map.checkpoints)
+        car_knowledge.reach_checkpoint(checkpoint, total_checkpoints)
+        next_checkpoint_position = self._tile_map.get_next_checkpoint_position(car_knowledge.checkpoint_number)
+
+        car_forward = car_transform.get_forward()
+        car_velocity = self._entity_manager.get_physics(car_entity_id).get_velocity()
+
+        collider = self._entity_manager.get_collider(car_entity_id)
+        car_knowledge.update(tile_of_car.tile_type, next_checkpoint_position, car_forward, car_velocity, collider,
+                             car_transform.get_position(), self._chronometer)
+
+        if checkpoint is not None:
+            car.traveled_distance = checkpoint * 10
+
+    def handle_ai_training(self, car: Car, tile_of_car: Tile):
+        car_entity_id = car.entity_ID
+        car_physics = self._entity_manager.get_physics(car_entity_id)
+        car_collider = self._entity_manager.get_collider(car_entity_id)
+        if car_collider.is_colliding() or tile_of_car.tile_type == MapType.SIDEWALK:
+            car_physics.set_velocity(0)
+            car_physics.set_acceleration(0)
+            car_physics.set_force(0)
+            car.car_knowledge.has_collided = True
+            car_collider.set_active(False)
+            self._entity_manager.get_physics(car_entity_id).set_vector_velocity(Vector2(0, 0))
 
     def render_debug(self):
         for car in self._cars:
@@ -106,6 +145,8 @@ class CarsManager:
                 sprite_rect = self._entity_manager.get_sprite_rect(car.entity_ID)
                 self._debug_renderer.draw_rect(sprite_rect, (0, 0, 255), 3)
                 car.selected_as_parent = False
+            car_position = self._entity_manager.get_transform(car.entity_ID).get_position().copy()
+            self._debug_renderer.draw_text_absolute(f"Checkpoint number: {car.car_knowledge.checkpoint_number}", Vector2(100, 0), (255, 255, 255))
         if len(self._ai_manager.get_agents()) > 0:
             sorted_list = sorted(self._ai_manager.get_agents(), key=lambda x: x.fitness_score, reverse=True)
             agent_with_best_fitness = sorted_list[0]
@@ -154,13 +195,12 @@ class CarsManager:
                 sprite_rect = self._entity_manager.get_sprite_rect(tile.entity_ID)
                 transform = self._entity_manager.get_transform(tile.entity_ID)
                 self._debug_renderer.draw_rect(sprite_rect, (255, 0, 0), 1)
-                self._debug_renderer.draw_circle(transform.get_position().copy(), 2, (255, 255, 0), 1)
 
-                if num < 10:
-                    text_position = transform.get_position().copy()
-                    text_position = Vector2(text_position[0] + 4, text_position[1])
-                else:
-                    text_position = transform.get_position().copy()
+                # if num < 10:
+                #     text_position = transform.get_position().copy()
+                #     text_position = Vector2(text_position[0] + 4, text_position[1])
+                # else:
+                #     text_position = transform.get_position().copy()
                 # self._renderer.draw_text(str(num), text_position, (0, 0, 255), size=10)
             num += 1
 

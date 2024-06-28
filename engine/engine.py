@@ -1,8 +1,5 @@
-from pygame import Vector2
+from pygame import Vector2, Rect
 
-from engine.components.collider import Collider
-from engine.components.transform import Transform
-from engine.engine_attributes import EngineAttributes
 from engine.engine_fonts import EngineFonts
 from engine.fps_manager import FPSManager
 from engine.managers.collider_manager.collider_manager import ColliderManager
@@ -14,6 +11,7 @@ from engine.managers.render_manager.renderer import Renderer, DebugRenderer
 from engine.managers.sound_manager.sound_manager import SoundManager
 from engine.managers.window_manager.window_manager import Window
 from game.camera import Camera
+from game.camera_coordinates import CameraCoords
 
 
 class Engine:
@@ -25,10 +23,24 @@ class Engine:
         self.physics_manager = PhysicsManager()
         self.sound_manager = SoundManager()
         self.engine_fonts = EngineFonts()
-        self.collider_manager = ColliderManager()
-        self.camera = Camera(Vector2(self.window.get_width(), self.window.get_height()))
-        self.entity_manager = EntityManager()
+        self._entity_manager = EntityManager()
+        self.collider_manager = ColliderManager(self._entity_manager, self.debug_renderer)
+        self.camera = Camera()
         self.background_batch_created = False
+        self._is_second_update = False
+
+    def initialize(self):
+        self._game_initialize()
+        for entity in self._entity_manager.entities:
+            if self._entity_manager.get_collider(entity).is_active():
+                self.collider_manager.send_data(entity)
+
+    def reset(self):
+        print("RESET")
+        for entity in self._entity_manager.entities:
+            if not self._entity_manager.get_physics(entity).is_static():
+                self._entity_manager.reset_entity(entity)
+        self._game_reset()
 
     def handle_engine_inputs(self):
         if self.input_manager.is_key_down(Key.K_O):
@@ -41,33 +53,26 @@ class Engine:
         self.handle_engine_inputs()
         self._game_update(delta_time)
         self.camera.update(delta_time)
-
+        CameraCoords.update_window_size(Vector2(self.window.get_width(), self.window.get_height()))
         batch_sprites = []
         batch_transforms = []
 
-        self.renderer.set_camera_position(self.camera.get_position())
         self.debug_renderer.set_camera_position(self.camera.get_position())
-        for entity in self.entity_manager.entities:
+
+        for entity in self._entity_manager.entities:
             # Getting the next frame collider before updating the physics
             # This way a collider never enters another, blocking the entity
-            transform = self.entity_manager.get_transform(entity)
-            physics = self.entity_manager.get_physics(entity)
-            sprite = self.entity_manager.get_sprite(entity)
-            collider = self.entity_manager.get_collider(entity)
-
-            if collider.is_active():
-                sprite_rect = self.entity_manager.get_sprite_rect(entity)
-                next_frame_transform: Transform = \
-                    self.physics_manager.get_next_transform_and_physics(transform, physics, delta_time)[0]
-                next_frame_collider: Collider = Collider(
-                    self.entity_manager.get_rect_with_transform(entity, next_frame_transform))
-                self.collider_manager.update(collider, sprite_rect, physics, transform, next_frame_collider)
-
+            transform = self._entity_manager.get_transform(entity)
+            physics = self._entity_manager.get_physics(entity)
+            sprite = self._entity_manager.get_sprite(entity)
+            collider = self._entity_manager.get_collider(entity)
             if not physics.is_static():
-                self.physics_manager.update(entity, physics, transform, self.entity_manager, delta_time)
+                self.physics_manager.update(entity, physics, transform, self._entity_manager, delta_time)
 
-            is_batched = self.entity_manager.is_batched(entity)
-            layer = self.entity_manager.get_layer(entity)
+            sprite_rect: Rect = self._entity_manager.get_sprite_rect(entity)
+            collider.update_rect(sprite_rect)
+            is_batched = self._entity_manager.is_batched(entity)
+            layer = self._entity_manager.get_layer(entity)
             self.renderer.update(sprite, transform, is_batched, layer)
 
             if is_batched:
@@ -78,22 +83,25 @@ class Engine:
             self.renderer.create_background_batch(batch_sprites, batch_transforms)
             self.background_batch_created = True
 
-    def draw_fps(self):
-        self.renderer.draw_surface(
-            EngineFonts.get_fonts().debug_UI_font.render(f"FPS: {round(FPSManager.get_average_fps(), 2)}", True,
-                                                         EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 0))
+        # This only work the second update onwards
+        # Because needs the rects from the sprites updated and for them to be updated
+        # They need to be rendered first
+        if self._is_second_update:
+            self.collider_manager.update()
+        self._is_second_update = True
+
+    def _draw_fps(self):
+        self.debug_renderer.draw_text_absolute(f"FPS: {round(FPSManager.get_average_fps(), 2)}", Vector2(0, 0))
 
     def draw_camera_position(self):
-        self.renderer.draw_surface(
-            EngineFonts.get_fonts().debug_UI_font.render(f"Camera Position: {self.camera.get_position()}", True,
-                                                         EngineAttributes.DEBUG_FONT_COLOR), Vector2(0, 20))
+        self.debug_renderer.draw_text_absolute(f"Camera Position: {self.camera.get_position()}", Vector2(0, 20))
 
     def _draw_entity_debug_information(self):
-        for entity in self.entity_manager.entities:
-            collider = self.entity_manager.get_collider(entity)
-            transform = self.entity_manager.get_transform(entity)
+        for entity in self._entity_manager.entities:
+            collider = self._entity_manager.get_collider(entity)
+            transform = self._entity_manager.get_transform(entity)
             self.debug_renderer.draw_collider(collider)
-            self.debug_renderer.draw_transform_text(transform)
+            self.debug_renderer.draw_transform(transform)
             self.debug_renderer.draw_forward_vector(transform)
 
     def render(self):
@@ -105,9 +113,16 @@ class Engine:
             self._game_render_debug()
             self._draw_entity_debug_information()
             self.draw_camera_position()
-        self.draw_fps()
+            self.collider_manager.debug_render()
+        self._draw_fps()
 
         self.window.swap_buffers()
+
+    def _game_initialize(self):
+        pass
+
+    def _game_reset(self):
+        pass
 
     def _game_update(self, delta_time: float):
         pass

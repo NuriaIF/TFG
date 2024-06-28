@@ -179,8 +179,6 @@ class CarKnowledge():
         Update the nearest tile
         :param on_tile: type of the tile the car is on
         """
-        if on_tile == MapType.SIDEWALK:
-            self.has_collided = True
         if self.last_nearest_tile != on_tile:
             self.last_nearest_tile = on_tile
 
@@ -189,7 +187,6 @@ class CarKnowledge():
         Update the collisions count
         """
         if collider.is_colliding():
-            self.has_collided = True
             self.collisions_count += 1
 
     def _update_still_chronometer(self, speed) -> None:

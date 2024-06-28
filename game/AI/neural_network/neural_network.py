@@ -1,6 +1,6 @@
 import numpy as np
 
-from game.ai.neural_network.layer import Layer
+from game.AI.neural_network.layer import Layer
 
 
 class NeuralNetwork:

@@ -13,6 +13,7 @@ def main():
     chrono = Chronometer()
     chrono.start()
     game = Game(chrono)
+    game.initialize()
 
     # Clock for controlling frame rate and calculating delta time
     running = True

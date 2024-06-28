@@ -3,6 +3,7 @@ from pygame import Vector2
 
 from engine.components.transform import Transform
 from engine.managers.resource_manager.sprite_loader import SpriteLoader
+from game.camera_coordinates import apply_view_to_pos_vec
 
 
 class Sprite(pygame.sprite.Sprite):
@@ -35,8 +36,10 @@ class Sprite(pygame.sprite.Sprite):
     def apply_transform(self):
         """Apply stored transformations to the sprite."""
         # And then rotate the scaled image in two steps, instead of using rotozoom
-        self.image = pygame.transform.rotate(self.original_image, -self.transform.get_rotation())
-        self.rect = self.image.get_rect(center=self.transform.get_position() + self.camera_pos)
+        self.image = pygame.transform.rotate(self.original_image, self.transform.get_rotation() + 180)
+        pos_view_space: Vector2 = self.transform.get_position().copy()
+        apply_view_to_pos_vec(pos_view_space, self.camera_pos)
+        self.rect = self.image.get_rect(center=pos_view_space)
 
     def is_added_to_renderer(self) -> bool:
         return self._is_added_to_renderer

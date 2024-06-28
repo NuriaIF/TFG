@@ -8,11 +8,11 @@ from pygame import Vector2
 from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.input_manager.key import Key
-from game.ai.ai_agent import AIAgent
-from game.ai.ai_input_manager import AIInputManager
-from game.ai.data_collector import DataCollector
-from game.ai.genetic_algorithm.genetic_algorithm import GeneticAlgorithm, NEURAL_NET_LAYER_SIZES
-from game.ai.neural_network.neural_network import NeuralNetwork
+from game.AI.AI_agent import AIAgent
+from game.AI.AI_input_manager import AIInputManager
+from game.AI.data_collector import DataCollector
+from game.AI.genetic_algorithm.genetic_algorithm import GeneticAlgorithm, NEURAL_NET_LAYER_SIZES
+from game.AI.neural_network.neural_network import NeuralNetwork
 from game.entities.car import Car
 from game.game_state.chronometer import Chronometer
 
@@ -94,10 +94,7 @@ class AIManager:
                     agent.controlled_entity.input_manager.convert_outputs_to_commands(outputs)
                 else:
                     agent.controlled_entity.input_manager.stop_keys()
-                    physics = self.entity_manager.get_physics(agent.controlled_entity.entity_ID)
-                    physics.set_velocity(0)
-                    physics.set_acceleration(0)
-                    physics.set_force(0)
+
 
             if not self.training:
                 return

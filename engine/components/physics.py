@@ -9,6 +9,7 @@ class Physics:
         self.force: float = 0
         self.drag: float = 0.1
         self._is_static: bool = is_static
+        self._vector_velocity: Vector2 = Vector2(0, 0)
 
     def add_acceleration(self, acceleration: float) -> None:
         self.acceleration += acceleration
@@ -45,6 +46,12 @@ class Physics:
             raise ValueError("Mass cannot be negative")
         self.mass = mass
 
+    def set_vector_velocity(self, vector_velocity: Vector2) -> None:
+        self._vector_velocity = vector_velocity
+
+    def get_vector_velocity(self) -> Vector2:
+        return self._vector_velocity
+
     def set_velocity(self, velocity: float) -> None:
         self.velocity = velocity
 
@@ -57,6 +64,9 @@ class Physics:
     def is_static(self) -> bool:
         return self._is_static
 
+    def set_static(self, is_static: bool) -> None:
+        self._is_static = is_static
+
     def copy(self) -> 'Physics':
         physics = Physics(self.is_static())
         physics.mass = self.mass
@@ -68,5 +78,6 @@ class Physics:
 
     def reset(self) -> None:
         self.velocity = 0
+        self._vector_velocity = Vector2(0, 0)
         self.acceleration = 0
         self.force = 0

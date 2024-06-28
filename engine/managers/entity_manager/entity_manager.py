@@ -29,8 +29,7 @@ class EntityManager:
 
         self.next_entity_id: int = 0
 
-    def create_entity(self, sprite_path: str, has_collider: bool = False, batched: bool = False, is_static: bool = True,
-                      is_training: bool = False) -> int:
+    def create_entity(self, sprite_path: str, has_collider: bool = False, batched: bool = False, is_static: bool = True) -> int:
         if len(sprite_path) == 0:
             raise ValueError("Sprite path cannot be empty")
 
@@ -40,7 +39,7 @@ class EntityManager:
         transform = Transform()
         physics = Physics(is_static=is_static)
         sprite = SpriteLoader.load(sprite_path) if batched else Sprite(sprite_path)
-        collider = Collider(sprite.get_rect(), is_active=has_collider, is_training=is_training)
+        collider = Collider(sprite.get_rect(), is_active=has_collider)
 
         # Add components to their respective lists
         self.transforms.append(transform)
@@ -116,3 +115,4 @@ class EntityManager:
         self.get_transform(entity_id).reset()
         self.get_physics(entity_id).reset()
         self.get_collider(entity_id).reset()
+

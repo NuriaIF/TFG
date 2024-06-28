@@ -4,7 +4,7 @@ from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.input_manager.key import Key
 from engine.managers.render_manager.render_layers import RenderLayer
-from game.ai.ai_input_manager import AIInputManager
+from game.AI.AI_input_manager import AIInputManager
 from game.game_state.car_knowledge import CarKnowledge
 
 
@@ -98,13 +98,13 @@ class Car:
         """
         Rotate the car to the right
         """
-        self.entity_manager.get_transform(self.entity_ID).rotate(self.current_rotation_speed)
+        self.entity_manager.get_transform(self.entity_ID).rotate(-self.current_rotation_speed)
 
     def rotate_left(self) -> None:
         """
         Rotate the car to the left
         """
-        self.entity_manager.get_transform(self.entity_ID).rotate(-self.current_rotation_speed)
+        self.entity_manager.get_transform(self.entity_ID).rotate(self.current_rotation_speed)
 
     def break_car(self) -> None:
         """

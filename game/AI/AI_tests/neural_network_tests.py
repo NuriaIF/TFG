@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from game.ai.neural_network.neural_network import NeuralNetwork
+from game.AI.neural_network.neural_network import NeuralNetwork
 
 
 class TestNeuralNetwork(unittest.TestCase):

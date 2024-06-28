@@ -77,10 +77,10 @@ class Transform:
         # Convert rotation to radians because math trig functions expect radians
         radians = math.radians(self._rotation)
 
-        forward_x = math.sin(radians)
-        forward_y = math.cos(radians + math.pi)  # Add pi to rotate 180 degrees, forward starts looking up
+        forward_x = math.sin(-radians)
+        forward_y = math.cos(radians)  # Add pi to rotate 180 degrees, forward starts looking up
 
-        return Vector2(forward_x, forward_y).normalize()
+        return -Vector2(forward_x, forward_y).normalize()
 
     def set_forward(self, forward: Vector2) -> None:
         self._rotation = math.degrees(math.atan2(forward.y, forward.x)) + 90
@@ -97,7 +97,6 @@ class Transform:
     def copy(self) -> 'Transform':
         new_transform = Transform()
         new_transform._position = self._position.copy()
-        new_transform._rotation = self._rotation
         new_transform._scale = self._scale.copy()
         return new_transform
 

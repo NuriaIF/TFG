@@ -1,13 +1,14 @@
 import csv
 import json
 
-from game.game_state.interval import Interval
+from game.AI.ai_info.interval import Interval
 
 
 class DataCollector:
     def __init__(self):
         self.generation_intervals: list[Interval] = []
         self.generation_intervals.append(Interval(0, 0))
+        self.top_fitness_per_generation = []
 
         self.total_fitness_per_car_through_time = {}
         self.fitness_checkpoint_per_car_through_time = {}
@@ -163,5 +164,13 @@ class DataCollector:
         self._save_checkpoint_fitness_scores()
         self.save_speed_fitness_scores()
         self._save_fitness_distance_to_checkpoint()
+        self.save_top_fitness()
         # self._save_fitness_angle_to_checkpoint()
         # self._save_fitness_collision()
+
+    def add_top_fitness(self, top_fitness):
+        self.top_fitness_per_generation.append(top_fitness)
+
+    def save_top_fitness(self):
+        with open('top_fitness.json', 'w') as f:
+            json.dump(self.top_fitness_per_generation, f)

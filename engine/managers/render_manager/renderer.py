@@ -1,4 +1,5 @@
 import pygame
+from numpy import ndarray
 from pygame import Vector2
 
 from engine.components.collider import Collider
@@ -87,11 +88,10 @@ class DebugRenderer:
                            thickness: int = 1) -> None:
         pygame.draw.rect(self.window.get_window(), color, rect, thickness)
 
-    def draw_polygon(self, points: list[Vector2], color: tuple[int, int, int], thickness: int = 1) -> None:
-        for point in points:
-            point.update(
-                apply_view_to_pos(point.x, point.y, CameraCoords.get_camera_position().x,
-                                  CameraCoords.get_camera_position().y))
+    def draw_polygon(self, points: ndarray, color: tuple[int, int, int], thickness: int = 1) -> None:
+        for i in range(len(points)):
+            points[i] = apply_view_to_pos(points[i][0], points[i][1], CameraCoords.get_camera_position().x,
+                                          CameraCoords.get_camera_position().y)
         pygame.draw.polygon(self.window.get_window(), color, points, width=thickness)
 
     def draw_line(self, start_pos: Vector2, end_pos: Vector2, color: tuple[int, int, int], thickness: int = 1) -> None:
@@ -141,7 +141,7 @@ class Renderer:
         self.sprite_group.update()
         if self.background_batch is not None:
             self.surface_batch.blit(self.background_batch.get_batch_surface(),
-                                    apply_view_to_pos(0, int(self.surface_batch.get_height()*1.5),
+                                    apply_view_to_pos(0, int(self.surface_batch.get_height() * 1.5),
                                                       CameraCoords.get_camera_position().x,
                                                       CameraCoords.get_camera_position().y))
         self.window.get_window().blit(self.surface_batch, (0, 0))

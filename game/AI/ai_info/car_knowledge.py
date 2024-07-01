@@ -2,11 +2,9 @@ import math
 
 from pygame import Vector2
 
-from engine.components.transform import Transform
-from engine.managers.entity_manager.entity_manager import EntityManager
-from game.game_state.chronometer import Chronometer
-from game.game_state.field_of_view import FOV
-from game.game_state.interval import Interval
+from game.AI.ai_info.chronometer import Chronometer
+from game.AI.ai_info.field_of_view import FOV
+from game.AI.ai_info.interval import Interval
 from game.map.map_types import MapType
 
 
@@ -45,13 +43,13 @@ class CarKnowledge():
         self.lap_number = 0
         self.position_of_next_checkpoint = None  # used for AI inputs
 
-        self.traveled_distance = 0  # not used
+        self.traveled_distance = 0
 
     def initialize(self, position_next_checkpoint) -> None:
         self.position_of_next_checkpoint = position_next_checkpoint
 
     def update(self, on_tile: MapType, next_checkpoint_position: tuple[float, float], forward: Vector2, speed: float,
-               collider, car_in_tile_position: Vector2, frame_chronometer) -> None:
+               collider, car_in_tile_position: Vector2, frame_chronometer, checkpoint_distances) -> None:
         """
         Update the car knowledge
         :param on_tile: type of the tile the car is on
@@ -70,6 +68,14 @@ class CarKnowledge():
         self._update_collisions_count(collider)
 
         self._update_tile_intervals(on_tile, frame_chronometer)
+
+        self.traveled_distance = 0
+        if self.checkpoint_number != -1:
+            self.traveled_distance += self.lap_number * sum(checkpoint_distances)
+            for i in range(len(checkpoint_distances)):
+                if i <= self.checkpoint_number:
+                    self.traveled_distance += checkpoint_distances[i]
+            self.traveled_distance -= self.distance_to_next_checkpoint
 
     def get_field_of_view(self) -> FOV:
         """
@@ -98,7 +104,7 @@ class CarKnowledge():
         :param checkpoint: number of the checkpoint
         :param total_checkpoints: total number of checkpoints
         """
-        if checkpoint is None:
+        if checkpoint == -1:
             return
         if self.checkpoint_number + 1 == checkpoint:  # or self.checkpoint_number == checkpoint - 1:
             self.checkpoint_number = checkpoint

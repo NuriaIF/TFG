@@ -91,9 +91,6 @@ class Transform:
     def shows_debug_forward(self) -> bool:
         return self._forward_debug_show
 
-    # def copy(self) -> 'Transform':
-    #     return copy.deepcopy(self)
-    # 
     def copy(self) -> 'Transform':
         new_transform = Transform()
         new_transform._position = self._position.copy()

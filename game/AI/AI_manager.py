@@ -3,18 +3,19 @@ from __future__ import annotations
 import json
 
 import numpy as np
-from pygame import Vector2
 
 from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.input_manager.key import Key
 from game.AI.AI_agent import AIAgent
 from game.AI.AI_input_manager import AIInputManager
+from game.AI.ai_state import AIState
 from game.AI.data_collector import DataCollector
 from game.AI.genetic_algorithm.genetic_algorithm import GeneticAlgorithm, NEURAL_NET_LAYER_SIZES
+from game.AI.neural_network.initial_data import load_data_from_csv, prepare_data_for_training
 from game.AI.neural_network.neural_network import NeuralNetwork
 from game.entities.car import Car
-from game.game_state.chronometer import Chronometer
+from game.AI.ai_info.chronometer import Chronometer
 
 population_size = 15
 
@@ -31,9 +32,7 @@ class AIManager:
         if training:
             self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm()
         self._agents: list[AIAgent] = []
-        self.state: str = "simulation"
-
-        self.best_individuals: list[AIAgent] = []
+        self.state: AIState = AIState.SIMULATION
 
         self.no_improvement_counter = 0
         self.no_improvement_limit = 200
@@ -46,6 +45,8 @@ class AIManager:
         if self.data_collector_activated:
             self.data_collector = DataCollector()
         self._end_of_generation = False
+
+        self._all_disabled = False
 
     def get_agents(self) -> list[AIAgent]:
         """
@@ -67,93 +68,35 @@ class AIManager:
         """
         if not self.get_agents():
             self.create_population(cars)
-        elif self.state == "simulation":
-            self.simulate(input_manager, frame_chronometer)
-        elif self.state == "selection":
-            self.select_agents()
-        elif self.state == "evolving":
+        elif self.state == AIState.SIMULATION:
+            self.simulate(frame_chronometer)
+            if self.training:
+                self.handle_user_inputs(input_manager, frame_chronometer)
+        elif self.state == AIState.EVOLVING:
             self.evolve_agents(frame_chronometer)
 
-    def simulate(self, input_manager: InputManager, frame_chronometer) -> None:
+    def simulate(self, frame_chronometer) -> None:
         """
         Simulate the AI agents
-        :param input_manager: input manager to get the keys pressed
         :param frame_chronometer: frame chronometer
         """
-        # for agent in self.ai_agents:
-        #     self.prepare_input(agent, game, tilemap)
-        if self.state == "simulation":
-            for agent in self.get_agents():
-                agent.evaluate_fitness()
-                if self.data_collector_activated:
-                    self.data_collector.collect_fitness(agent, frame_chronometer.get_elapsed_time())
-                if not agent.disabled:
-                    self.inputs = self.prepare_input(agent.controlled_entity)
-                    outputs = agent.neural_network.forward(self.inputs)
-                    # Convert outputs to commands
-                    agent.controlled_entity.input_manager.convert_outputs_to_commands(outputs)
-                else:
-                    agent.controlled_entity.input_manager.stop_keys()
-
-
-            if not self.training:
-                return
-
-        # Evolve best agent
-        # TODO: check if generation is over
-        # check if generation is over
-        self.genetic_algorithm.generation_timer += 1
-        # detect keys pressed, 'N' for next generation
-        # key_pressed = False
-        # if self.genetic_algorithm.generation_timer >= self.genetic_algorithm.generation_duration:
-        all_less_than_zero = True
-        all_stand_still = True
-        # for agent in self.get_agents():
-        #     if agent.fitness_score > 0:
-        #         all_less_than_zero = False
-        #     if agent.controlled_entity.car_entity.get_physics().get_velocity() > 0.1:
-        #         all_stand_still = False
-        # Change generation when there is not improvement anymore
-        current_best_fitness = max(agent.fitness_score for agent in self.get_agents())
-        global_best_fitness = max(agent.best_fitness for agent in self.get_agents())
-        all_still_or_colliding = True
+        self._all_disabled = True
+        if len(self.get_agents()) > 1:
+            if self.genetic_algorithm.generation_timer.get_elapsed_time() == 0:
+                self.genetic_algorithm.generation_timer.start()
         for agent in self.get_agents():
-            still = self.entity_manager.get_physics(agent.controlled_entity.entity_ID).get_velocity() < 0.2
-            colliding = self.entity_manager.get_collider(agent.controlled_entity.entity_ID).is_colliding()
-            if not (still or colliding):
-                all_still_or_colliding = False
-        # if global_best_fitness > current_best_fitness:
-        if all_still_or_colliding:
-            self.no_improvement_counter += 1
-        else:
-            self.no_improvement_counter = 0
-        all_disabled = all(agent.disabled for agent in self.get_agents())
-        if input_manager.is_key_down(Key.K_S):
-            cars = [agent.controlled_entity for agent in self.get_agents()]
+            agent.evaluate_fitness()
             if self.data_collector_activated:
-                self.data_collector.save_data(frame_chronometer.get_elapsed_time(), cars)
-        if input_manager.is_key_down(
-                Key.K_N) or all_disabled:  # or self.no_improvement_counter >= self.no_improvement_limit:
-            # antes de pasar a la siguiente generacion
-            self.fitness_scores[self.genetic_algorithm.current_generation] = []
-            for agent in self.get_agents():
-                self.fitness_scores[self.genetic_algorithm.current_generation].append(agent.best_fitness)
-            with open('fitness_scores.json', 'w') as f:
-                json.dump(self.fitness_scores, f)
-
-            self.no_improvement_counter = 0
-            self.state = "evolving"  # "selection"
-            for agent in self.get_agents():
-                agent.ai_input_manager.stop_keys()  # if input_manager.is_key_down(Key.K_N) or (all_less_than_zero and self.genetic_algorithm.generation_timer >= 50) \  #         or (all_stand_still and self.genetic_algorithm.generation_timer >= 50):  #     self.state = "selection"  #     for agent in self.get_agents():  #         agent.ai_input_manager.stop_keys()
-
-    def select_agents(self) -> None:
-        """
-        Select agents to evolve
-        """
-        self.genetic_algorithm.select_agents()
-        if self.genetic_algorithm.end_of_selection:
-            self.state = "evolving"
-            self.genetic_algorithm.end_of_selection = False
+                self.data_collector.collect_fitness(agent, frame_chronometer.get_elapsed_time())
+            if not agent.controlled_entity.disabled:
+                self.inputs = self.prepare_input(agent.controlled_entity)
+                agent.inputs = self.inputs
+                outputs = agent.neural_network.forward(self.inputs)
+                # Convert outputs to commands
+                agent.controlled_entity.input_manager.convert_outputs_to_commands(outputs)
+                self._all_disabled = False
+            else:
+                agent.controlled_entity.input_manager.stop_keys()
 
     def evolve_agents(self, frame_chronometer) -> None:
         """
@@ -164,10 +107,12 @@ class AIManager:
                                                   self.genetic_algorithm.current_generation)
         cars = [agent.controlled_entity for agent in self.get_agents()]
         self.genetic_algorithm.evolve_agents()
-        self.state = "simulation"
-        self.genetic_algorithm.generation_timer = 0
+        self.state = AIState.SIMULATION
+        self.genetic_algorithm.generation_timer.reset()
         self.reset(cars)
         self._end_of_generation = True
+        if self.data_collector_activated:
+            self.data_collector.add_top_fitness(self.genetic_algorithm.top_fitness)
 
     def has_generation_ended(self) -> bool:
         """
@@ -188,36 +133,27 @@ class AIManager:
         :param car: car to get the inputs from
         :return: list of inputs for the neural network of the car
         """
-        transform = self.entity_manager.get_transform(car.entity_ID)
         physics = self.entity_manager.get_physics(car.entity_ID)
 
-        agent_forward: Vector2 = transform.get_forward()
         agent_velocity: float = physics.get_velocity()
-        agent_acceleration: float = physics.get_acceleration()
 
         next_checkpoint_position = car.car_knowledge.get_next_checkpoint_position()
-        angle_to_next_checkpoint = car.car_knowledge.get_angle_to_next_checkpoint()
 
         car_position = self.entity_manager.get_transform(car.entity_ID).get_position()
         relative_position = (next_checkpoint_position[0] - car_position[0],
                              next_checkpoint_position[1] - car_position[1])
         max_velocity = car.accelerate_max_speed
         min_velocity = -car.base_max_speed
-        max_acceleration = car.engine_force / car.mass
-        min_acceleration = -car.engine_force / car.mass
         normalized_velocity = (agent_velocity - min_velocity) / (max_velocity - min_velocity)
-        normalized_acceleration = (agent_acceleration - min_acceleration) / (max_acceleration - min_acceleration)
         distance = np.linalg.norm(relative_position)
         # Normalize relative vector
         if distance != 0:
             normalized_relative_position = relative_position / distance
         else:
             normalized_relative_position = np.zeros_like(relative_position)
-        normalized_angle = angle_to_next_checkpoint / 180
 
         agent_field_of_view: list[float] = car.car_knowledge.field_of_view.get_encoded_version()
-        inputs = [normalized_velocity, normalized_acceleration] + list(normalized_relative_position) + [
-            normalized_angle]
+        inputs = [normalized_velocity] + list(normalized_relative_position)
         inputs.extend(agent_field_of_view)
         return inputs
 
@@ -227,20 +163,23 @@ class AIManager:
         """
         # or load agents from file
         # self._load_agents_from_file()
+        # start with knowledge
         if len(cars) == 1:
+            data = load_data_from_csv(filename="assets/text_files/nn_data.csv")
+            inputs, targets = prepare_data_for_training(data)
             self.get_agents().append(AIAgent(cars[0], NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES)))
             self.get_agents()[0].neural_network.load_parameters()
+            # self.get_agents()[0].neural_network.train(inputs, targets, epochs=10)
             return
         agents = self._create_new_population(cars)  # or self._load_agents_from_file(cars)
         self.genetic_algorithm.load_agents(agents)
         agents_copy = self.get_agents().copy()
         agents_copy.sort(key=lambda x: x.best_fitness, reverse=True)
-        self.best_individuals = agents_copy[:2]
 
     def get_ai_input_manager_of(self, car: Car) -> AIInputManager:
         """
-        Get the AI input manager of the car
-        :param car: car to get the AI input manager
+        Get the AI input manager of a car
+        :param car: the car to get the AI input manager from
         :return: AI input manager of the car
         """
         for agent in self.get_agents():
@@ -256,7 +195,14 @@ class AIManager:
             agent.reset(car)
 
     def _create_new_population(self, cars):
-        return [AIAgent(cars[i], NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES)) for i in range(population_size)]
+        agents: list[AIAgent] = []
+        data = load_data_from_csv(filename="assets/text_files/nn_data.csv")
+        inputs, targets = prepare_data_for_training(data)
+        for i in range(population_size):
+            agents.append(AIAgent(cars[i], NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES)))
+            # agents[i].neural_network.train(inputs, targets, epochs=10)
+            agents[i].neural_network.load_parameters()
+        return agents
 
     def _load_agents_from_file(self, cars):
         # TODO: load agents from file
@@ -266,3 +212,26 @@ class AIManager:
             agent.neural_network.load_parameters()
             agents.append(agent)
         return agents
+
+    def handle_user_inputs(self, input_manager, frame_chronometer):
+        # check if generation is over
+        if input_manager.is_key_down(Key.K_S):
+            cars = [agent.controlled_entity for agent in self.get_agents()]
+            if self.data_collector_activated:
+                self.data_collector.save_data(frame_chronometer.get_elapsed_time(), cars)
+        # detect keys pressed, 'N' for next generation
+        if (input_manager.is_key_down(Key.K_N)
+                or self._all_disabled
+                or self.genetic_algorithm.generation_timer.get_elapsed_time() >
+                self.genetic_algorithm.generation_duration):
+            # antes de pasar a la siguiente generacion
+            self.fitness_scores[self.genetic_algorithm.current_generation] = []
+            for agent in self.get_agents():
+                self.fitness_scores[self.genetic_algorithm.current_generation].append(agent.best_fitness)
+            with open('fitness_scores.json', 'w') as f:
+                json.dump(self.fitness_scores, f)
+
+            self.no_improvement_counter = 0
+            self.state = AIState.EVOLVING
+            for agent in self.get_agents():
+                agent.ai_input_manager.stop_keys()

@@ -9,7 +9,7 @@ class FPSManager:
     clock: pygame.time.Clock  # Pygame clock object
     time_increment: float  # Time increment
 
-    def __new__(cls, max_fps: int = 1000, time_increment: float = 1.0):
+    def __new__(cls, max_fps: int = 30, time_increment: float = 1.0):
         if cls._instance is None:
             cls._instance = super(FPSManager, cls).__new__(cls)
             # Initialize without type hints

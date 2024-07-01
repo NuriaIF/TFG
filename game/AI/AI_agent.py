@@ -28,17 +28,25 @@ class AIAgent():
         self.collisions_penalty = - 10
 
         self.fitness_distance_accumulated = 0
-        self.disabled = False
 
         self.fitness_score_by_checkpoint = 0
         self.fitness_score_by_distance = 0
         self.fitness_score_by_speed = 0
+
+        self.last_fitness_score = 0
+        self.last_fitness_score_by_checkpoint = 0
+        self.last_fitness_score_by_distance = 0
+        self.last_fitness_score_by_speed = 0
+
+        self.inputs = []
 
     def get_genome(self):  # Genome is neural network weights and biases
         # return np.concatenate([param.data.numpy().flatten() for param in self.neural_network.get_parameters()])
         return self.neural_network.get_parameters()
 
     def evaluate_fitness(self):
+        if self.controlled_entity.is_disabled():
+            return self.last_fitness_score
         angle_to_next_checkpoint = abs(self.controlled_entity.car_knowledge.angle_to_next_checkpoint)
         angle_to_next_checkpoint = (angle_to_next_checkpoint - 0) / (180 - 0)  # Normalize angle between 0 and 1
 
@@ -47,32 +55,38 @@ class AIAgent():
         speed_reward = self.evaluate_speed_fitness()
         regularization = 0.01 * np.random.normal()
 
-        if self.controlled_entity.car_knowledge.has_collided:
-            self.disabled = True
-
+        for neuron in self.inputs:
+            if neuron == -2.0:
+                self.fitness_score += 10
         self.fitness_score = (
                 checkpoint_reward
                 + distance_penalty
-                + speed_reward
                 - regularization
         )
         self.controlled_entity.set_fitness(self.fitness_score)
         if self.fitness_score > self.best_fitness:
             self.best_fitness = self.fitness_score
 
+        self.fitness_score = self.controlled_entity.car_knowledge.traveled_distance
+        self.last_fitness_score = self.fitness_score
         return self.fitness_score
 
     def evaluate_checkpoint_fitness(self):
+        if self.controlled_entity.is_disabled():
+            return self.last_fitness_score_by_checkpoint
         checkpoint_reached = self.controlled_entity.car_knowledge.checkpoint_value
 
         checkpoint_reward = self.checkpoint_reward * checkpoint_reached
         self.fitness_score_by_checkpoint = checkpoint_reward
 
+        self.last_fitness_score_by_checkpoint = self.fitness_score_by_checkpoint
         return self.fitness_score_by_checkpoint
 
     def evaluate_speed_fitness(self):
         if self.controlled_entity.car_knowledge.counter_frames == 0:
             return 0
+        if self.controlled_entity.is_disabled():
+            return self.last_fitness_score_by_speed
         average_speed = self.controlled_entity.car_knowledge.accumulator_speed / self.controlled_entity.car_knowledge.counter_frames
         average_speed = (average_speed - (-200)) / (500 - (-200))
         # penalize time spent still
@@ -82,13 +96,17 @@ class AIAgent():
         speed_reward = self.speed_reward * average_speed
 
         self.fitness_score_by_speed = still_penalty + speed_reward
+        self.last_fitness_score_by_speed = self.fitness_score_by_speed
         return self.fitness_score_by_speed
 
     def evaluate_distance_to_checkpoint_fitness(self):
+        if self.controlled_entity.is_disabled():
+            return self.last_fitness_score_by_distance
         distance = self.controlled_entity.car_knowledge.distance_to_next_checkpoint
         penalty = self.distance_penalty * math.pow(distance / 160, 1.5)  # Penalización exponencial para distancias > 160
         self.fitness_distance_accumulated += penalty
         self.fitness_score_by_distance = self.fitness_distance_accumulated
+        self.last_fitness_score_by_distance = self.fitness_score_by_distance
         return self.fitness_score_by_distance
 
     def select_as_parent(self):
@@ -111,7 +129,6 @@ class AIAgent():
         self.fitness_distance_accumulated = 0
         self.fitness_score = float('-inf')
         self.best_fitness = float('-inf')
-        self.disabled = False
         self.controlled_entity = car
         self.controlled_entity.selected_as_parent = False
         self.controlled_entity.traveled_distance = 0

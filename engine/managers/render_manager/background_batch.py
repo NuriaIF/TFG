@@ -38,7 +38,7 @@ class BackgroundBatch:
     def add_entity(self, sprite, position):
         x = int((position.x - self.offset_x))
         y = int((position.y - self.offset_y))
-        self.batch_surface.blit(sprite, (x, y))
+        self.batch_surface.blit(sprite, (x, -y + self.rows * self.entity_height - 1))
 
     def get_batch_surface(self):
         return self.batch_surface

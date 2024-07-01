@@ -5,7 +5,7 @@ from engine.managers.input_manager.input_manager import InputManager
 from engine.managers.input_manager.key import Key
 from engine.managers.render_manager.render_layers import RenderLayer
 from game.AI.AI_input_manager import AIInputManager
-from game.game_state.car_knowledge import CarKnowledge
+from game.AI.ai_info.car_knowledge import CarKnowledge
 
 
 class Car:
@@ -35,6 +35,7 @@ class Car:
 
         self.car_knowledge = CarKnowledge()
         self.fitness_score = 0
+        self.disabled = False
 
     def update_input(self) -> None:
         """
@@ -133,6 +134,7 @@ class Car:
         self.fitness_score = 0
         self.current_rotation_speed = 0
         self._is_accelerating = False
+        self.disabled = False
 
     def set_fitness(self, fitness_score):
         """
@@ -140,3 +142,9 @@ class Car:
         :param fitness_score: fitness score to be set
         """
         self.fitness_score = fitness_score
+
+    def disable(self):
+        self.disabled = True
+
+    def is_disabled(self):
+        return self.disabled

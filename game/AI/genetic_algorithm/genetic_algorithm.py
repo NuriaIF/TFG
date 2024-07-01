@@ -1,29 +1,30 @@
-import random
-
 import numpy as np
 
 from game.AI.AI_agent import AIAgent
 from game.AI.neural_network.neural_network import NeuralNetwork
+from game.AI.ai_info.chronometer import Chronometer
 
-NEURAL_NET_LAYER_SIZES = [149, 100, 60, 6]
+NEURAL_NET_LAYER_SIZES = [147, 32, 6]
+
 
 class GeneticAlgorithm:
     """
     Genetic Algorithm class that manages the genetic algorithm
     """
+
     def __init__(self):
         self.current_agent_index: int = 0
         self._agents: list[AIAgent] = []
-        self.mutation_rate: float = 0.1
-        self.mutation_strength: float = 0.2
-        self.generation_duration: int = 100
-        self.generation_timer: int = 0
+        self.mutation_rate: float = 0.04
+        self.mutation_strength: float = 0.1
+        self.generation_duration: int = 300
+        self.generation_timer: Chronometer = Chronometer()
         self.parents_selected_list: list[AIAgent] = []
         self.end_of_selection: bool = False
         self.current_generation = 1
         self.elite_fraction = 0.13  # 13% of the best agents are preserved as elite
-        self.best_individuals: list[tuple[AIAgent, int]] = []
         self.elitism_list: list[AIAgent] = []
+        self.top_fitness = 0
 
     def load_agents(self, agents: list[AIAgent]):
         """
@@ -49,6 +50,7 @@ class GeneticAlgorithm:
         sorted_population = sorted(population, key=lambda x: x.fitness_score, reverse=True)
         top_agent = sorted_population[0]
         top_agent.neural_network.save_parameters()
+        self.top_fitness = top_agent.fitness_score
 
         # Determinar el número de individuos élite a conservar
         num_elite = int(round(self.elite_fraction * len(population)))
@@ -66,10 +68,8 @@ class GeneticAlgorithm:
         parent2 = sorted_population[1]
         # Generar el resto de la nueva generación
         while len(next_generation) < len(population):
-            # parent1 = self.tournament_selection(sorted_population)
-            # parent2 = self.tournament_selection(sorted_population)
-            # child1, child2 = self._crossover(parent1.get_genome(), parent2.get_genome())
-            child1, child2 = self._mutate(parent1.get_genome()), self._mutate(parent1.get_genome())
+            child1, child2 = self._crossover(parent1.get_genome().copy(), parent2.get_genome().copy())
+            child1, child2 = self._mutate(child1), self._mutate(child2)
             next_generation.append(AIAgent(None, NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES,
                                                                parameters=child1)))
             if len(next_generation) < len(population):
@@ -95,6 +95,21 @@ class GeneticAlgorithm:
         crossover_point = np.random.randint(1, len(genome1))
         child_genome1 = np.concatenate((genome1[:crossover_point], genome2[crossover_point:]))
         child_genome2 = np.concatenate((genome2[:crossover_point], genome1[crossover_point:]))
+        return child_genome1, child_genome2
+
+    def _crossover(self, genome1, genome2):
+        """
+        Crossover two genomes
+        :param genome1: weights and biases of the neural network of the first parent
+        :param genome2: weights amd biases of the neural network of the second parent
+        :return: child genome
+        """
+        if len(genome1) != len(genome2):
+            raise ValueError("Genomes must have the same length")
+
+        # Uniform crossover
+        child_genome1 = np.array([g1 if np.random.rand() < 0.5 else g2 for g1, g2 in zip(genome1, genome2)])
+        child_genome2 = np.array([g1 if np.random.rand() < 0.5 else g2 for g1, g2 in zip(genome1, genome2)])
         return child_genome1, child_genome2
 
     def _mutate(self, genome):

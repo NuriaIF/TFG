@@ -11,6 +11,7 @@ from game.game_mode import GameMode
 from game.map.map_types import MapType
 from game.map.tile_map import TileMap
 
+seed = 1234
 
 class NPCManager:
     def __init__(self, entity_manager: EntityManager, tile_map: TileMap, debug_renderer: DebugRenderer,
@@ -37,7 +38,7 @@ class NPCManager:
         :return: True if the position is invalid, False otherwise
         """
         return self.is_npc_pos_invalid(pos) \
-            or self._tile_map.get_tile_at_pos(pos).tile_type == MapType.TRACK
+            or self._tile_map.get_tile_at_pos_vec(pos).tile_type == MapType.TRACK
 
     def is_npc_pos_invalid(self, pos: Vector2) -> bool:
         """
@@ -48,11 +49,11 @@ class NPCManager:
         :param pos:
         :return:
         """
-        tile_index = self._tile_map.get_tile_index_from_pos(pos)
+        tile_index = self._tile_map.get_tile_index_from_pos_vec(pos)
         tile_index_x = tile_index[0]
         tile_index_y = tile_index[1]
-        return self._tile_map.get_tile_at_pos(pos) is None \
-            or self._tile_map.get_tile_at_pos(pos).tile_type == MapType.SEA \
+        return self._tile_map.get_tile_at_pos_vec(pos) is None \
+            or self._tile_map.get_tile_at_pos_vec(pos).tile_type == MapType.SEA \
             or tile_index_x > self._tile_map.get_width_number() - self._map_margin_invalid \
             or tile_index_x < self._map_margin_invalid \
             or tile_index_y > self._tile_map.get_height_number() - self._map_margin_invalid \
@@ -78,7 +79,7 @@ class NPCManager:
             if not self.is_npc_pos_invalid(goal_position):  # Check if the goal is valid
                 # And if it is, check of it is on the road, if it is, return it with a certain probability
                 # If the probability fails, keep looping until a valid goal is found
-                if self._tile_map.get_tile_at_pos(goal_position).tile_type == MapType.TRACK:
+                if self._tile_map.get_tile_at_pos_vec(goal_position).tile_type == MapType.TRACK:
                     if random.random() < road_probability:
                         return goal_position
                     else:
@@ -97,6 +98,7 @@ class NPCManager:
         They check if the goal is valid (no collider, within map bounds).
         They enter the road with a certain low probability.
         """
+        random.seed(seed)
         for npc in self._NPCs:
             if npc.is_on_goal() or self._entity_manager.get_collider(npc.entity_ID).is_colliding():
                 random_goal: Vector2 = self.npc_get_random_pos(npc)
@@ -115,8 +117,8 @@ class NPCManager:
         pass
 
     def create_npc_entities(self):
-        number_of_people = 20
-        number_of_bikes = 10
+        number_of_people = 15
+        number_of_bikes = 5
         if len(self._NPCs) == 0:
             for i in range(number_of_people):
                 person = NPC(
@@ -135,6 +137,7 @@ class NPCManager:
                 self._NPCs[j].set_road_probability(self._road_probability_bike)
 
     def configure_npcs(self, cars: list[Car]):
+        random.seed(seed)
         for npc in self._NPCs:
             npc.set_position(self.npc_get_initial_random_pos())
             npc.set_goal(npc.get_position())
@@ -152,5 +155,5 @@ class NPCManager:
                     npc_collider.add_non_collideable_collider(car_collider)
 
     def initialize(self, cars: list[Car]):
-        self.create_npc_entities()
+        # self.create_npc_entities()
         self.configure_npcs(cars)

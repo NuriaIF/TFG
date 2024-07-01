@@ -14,15 +14,16 @@ from game.map.tile_map import TileMap
 class Game(Engine):
     def __init__(self, chronometer):
         super().__init__()
-        self._game_mode: GameMode = GameMode.MANUAL
+        self._game_mode: GameMode = GameMode.AI_TRAINING
 
         # self.play_music("GameMusic")
 
-        self._tile_map: TileMap = TileMap(self, self._entity_manager)
+        self._tile_map: TileMap = TileMap(self._entity_manager)
 
         self._cars_manager = CarsManager(self._game_mode, self._tile_map, self._entity_manager, self.input_manager,
-                                         self.renderer, self.debug_renderer, chronometer)
-        self._npcs_manager = NPCManager(self._entity_manager, self._tile_map, self.debug_renderer, self._game_mode)
+                                         self.renderer, self.debug_renderer,
+                                         self._tile_map.distance_between_checkpoints, chronometer)
+        # self._npcs_manager = NPCManager(self._entity_manager, self._tile_map, self.debug_renderer, self._game_mode)
 
         self.better_fitness_index = []
 
@@ -30,21 +31,23 @@ class Game(Engine):
         self._chronometer = chronometer
         self._manual_camera = False
 
+        self.menu = False
+
     def _game_initialize(self):
         self._tile_map.generate_tiles()
         self._cars_manager.initialize()
-        self._npcs_manager.initialize(self._cars_manager.get_cars())
+        # self._npcs_manager.initialize(self._cars_manager.get_cars())
 
     def _game_reset(self):
         self._cars_manager.initialize()
-        self._npcs_manager.initialize(self._cars_manager.get_cars())
+        # self._npcs_manager.initialize(self._cars_manager.get_cars())
 
     def _game_update(self, delta_time):
         if self._cars_manager.get_ai_manager().has_generation_ended():
             self.reset()
             self._cars_manager.get_ai_manager().next_generation()
-        self._cars_manager.update_cars(delta_time, self._npcs_manager.get_NPCs())
-        self._npcs_manager.update_npc()
+        self._cars_manager.update_cars(delta_time)
+        # self._npcs_manager.update_npc()
         self.move_camera()
 
     def _game_render(self):
@@ -87,8 +90,11 @@ class Game(Engine):
         self._render_checkpoints()
         self._cars_manager.render_car_knowledge()
         # self._render_tile_rects()
+        # self._render_tile_positions()
+
         self._cars_manager.render_debug()
-        self._npcs_manager.render_debug()
+        # self._npcs_manager.render_debug()
+
 
     def _render_checkpoints(self):
         for tile in self._tile_map.checkpoints:
@@ -110,3 +116,8 @@ class Game(Engine):
         for tile in self._tile_map.tiles:
             sprite_rect = self._entity_manager.get_sprite_rect(tile.entity_ID)
             self.debug_renderer.draw_rect(sprite_rect.copy(), (10, 200, 30), 1)
+
+    def _render_tile_positions(self):
+        for tile in self._tile_map.tiles:
+            transform = self._entity_manager.get_transform(tile.entity_ID).copy()
+            self.debug_renderer.draw_circle(transform.get_position(), 2, (255, 0, 0), 1)

@@ -7,15 +7,13 @@ from engine.managers.entity_manager.entity_manager import EntityManager
 from engine.managers.render_manager.renderer import DebugRenderer
 from game.entities.NPC import NPC
 from game.entities.car import Car
-from game.game_mode import GameMode
 from game.map.map_types import MapType
 from game.map.tile_map import TileMap
 
 seed = 1234
 
 class NPCManager:
-    def __init__(self, entity_manager: EntityManager, tile_map: TileMap, debug_renderer: DebugRenderer,
-                 game_mode: GameMode):
+    def __init__(self, entity_manager: EntityManager, tile_map: TileMap, debug_renderer: DebugRenderer):
         self._entity_manager = entity_manager
         self._debug_renderer: DebugRenderer = debug_renderer
         self._tile_map: TileMap = tile_map
@@ -24,7 +22,6 @@ class NPCManager:
         self._road_probability_person: float = 0.1
         self._goal_range_bike: int = 1000
         self._road_probability_bike: float = 1
-        self._game_mode: GameMode = game_mode
         # A margin of tiles in which the NPC can't spawn to avoid bugs
         self._map_margin_invalid: int = 8 + 4
 
@@ -105,8 +102,8 @@ class NPCManager:
                 npc.set_goal(random_goal)
             else:
                 npc.move_towards_goal()
-            if self._game_mode is GameMode.AI_TRAINING:
-                self._handle_npc_training(npc)
+            # if self._game_mode is GameMode.AI_TRAINING:
+            #     self._handle_npc_training(npc)
 
     def _handle_npc_training(self, npc: NPC):
         """
@@ -149,10 +146,10 @@ class NPCManager:
                 other_npc_collider: Collider = self._entity_manager.get_collider(other_npc.entity_ID)
                 if npc_collider is not other_npc_collider:
                     npc_collider.add_non_collideable_collider(other_npc_collider)
-            if self._game_mode is GameMode.AI_TRAINING:
-                for car in cars:
-                    car_collider: Collider = self._entity_manager.get_collider(car.entity_ID)
-                    npc_collider.add_non_collideable_collider(car_collider)
+            # if self._game_mode is GameMode.AI_TRAINING:
+            #     for car in cars:
+            #         car_collider: Collider = self._entity_manager.get_collider(car.entity_ID)
+            #         npc_collider.add_non_collideable_collider(car_collider)
 
     def initialize(self, cars: list[Car]):
         # self.create_npc_entities()

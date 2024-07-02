@@ -37,7 +37,7 @@ def main():
         if time.time() - start_time > profile_duration:
             print("deteniendo el perfilado")
             pr.disable()
-            profiling_file = os.path.join(os.path.dirname(__file__), 'profilers/training_mode/profiling_test_v04.txt')
+            profiling_file = os.path.join(os.path.dirname(__file__), 'training_mode/profiling_test_v04.txt')
             with open(profiling_file, 'w') as f:
                 ps = pstats.Stats(pr, stream=f).sort_stats('cumulative')
                 ps.print_stats()

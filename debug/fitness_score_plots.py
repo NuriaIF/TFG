@@ -90,17 +90,17 @@ def plot_top_fitness_per_gen(top_fitness_per_gen):
 
 
 # Cargar datos
-fitness_scores = load_json('../total_fitness_scores.json')
-generation_intervals = load_json('../generation_intervals.json')
-tiles_intervals_per_car = load_json('../tiles_intervals_per_car.json')
+fitness_scores = load_json('../assets/text_files/total_fitness_scores.json')
+generation_intervals = load_json('../assets/text_files/generation_intervals.json')
+tiles_intervals_per_car = load_json('../assets/text_files/tiles_intervals_per_car.json')
 
-tile_fitness_scores = load_json('../tile_fitness_scores.json')
-checkpoint_fitness_scores = load_json('../checkpoint_fitness_scores.json')
-speed_fitness_scores = load_json('../speed_fitness_scores.json')
-distance_to_checkpoint_fitness_scores = load_json('../distance_to_checkpoint_fitness_scores.json')
-angle_to_checkpoint_fitness_scores = load_json('../angle_to_checkpoint_fitness_scores.json')
-collision_fitness_scores = load_json('../collision_fitness_scores.json')
-top_fitness_per_gen = load_json('../top_fitness.json')
+tile_fitness_scores = load_json('../assets/text_files/tile_fitness_scores.json')
+checkpoint_fitness_scores = load_json('../assets/text_files/checkpoint_fitness_scores.json')
+speed_fitness_scores = load_json('../assets/text_files/speed_fitness_scores.json')
+distance_to_checkpoint_fitness_scores = load_json('../assets/text_files/distance_to_checkpoint_fitness_scores.json')
+angle_to_checkpoint_fitness_scores = load_json('../assets/text_files/angle_to_checkpoint_fitness_scores.json')
+collision_fitness_scores = load_json('../assets/text_files/collision_fitness_scores.json')
+top_fitness_per_gen = load_json('../assets/text_files/top_fitness.json')
 
 # cars = [int(car) - 8820 for car in list(fitness_scores.keys())]
 cars = [0]
@@ -108,17 +108,18 @@ start_time = [interval['start'] for interval in generation_intervals][-4]
 end_time = [interval['end'] for interval in generation_intervals][-1]
 
 # Plotear gráficos
-if False:
-    plt.figure(figsize=(12, 6))
-    plot_fitness_and_generations(fitness_scores, generation_intervals, cars, "total")
-    # plot_fitness_with_tile_colors(tile_fitness_scores, tiles_intervals_per_car, generation_intervals, cars)
+plt.figure(figsize=(12, 6))
+plot_fitness_and_generations(fitness_scores, generation_intervals, cars, "total")
 
-    # plot_fitness_and_generations(tile_fitness_scores, generation_intervals, cars, "tile type")
-    plot_fitness_and_generations(checkpoint_fitness_scores, generation_intervals, cars, "checkpoints")
-    plot_fitness_and_generations(speed_fitness_scores, generation_intervals, cars, "speed and still")
-    plot_fitness_and_generations(distance_to_checkpoint_fitness_scores, generation_intervals, cars, "distance to checkpoint")
-    # plot_fitness_and_generations(angle_to_checkpoint_fitness_scores, generation_intervals, cars, "angle to checkpoint")
-    # plot_fitness_and_generations(collision_fitness_scores, generation_intervals, cars, "collisions")
+plot_fitness_and_generations(checkpoint_fitness_scores, generation_intervals, cars, "checkpoints")
+plot_fitness_and_generations(speed_fitness_scores, generation_intervals, cars, "speed and still")
+plot_fitness_and_generations(distance_to_checkpoint_fitness_scores, generation_intervals, cars, "distance to checkpoint")
+
+# NOT USED
+# plot_fitness_with_tile_colors(tile_fitness_scores, tiles_intervals_per_car, generation_intervals, cars)
+# plot_fitness_and_generations(tile_fitness_scores, generation_intervals, cars, "tile type")
+# plot_fitness_and_generations(angle_to_checkpoint_fitness_scores, generation_intervals, cars, "angle to checkpoint")
+# plot_fitness_and_generations(collision_fitness_scores, generation_intervals, cars, "collisions")
 
 plot_top_fitness_per_gen(top_fitness_per_gen)
 

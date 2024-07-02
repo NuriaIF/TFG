@@ -8,7 +8,7 @@ from game.AI.neural_network.neural_network import NeuralNetwork
 from game.entities.car import Car
 
 
-class AIAgent():
+class AIAgent:
     def __init__(self, controlled_entity, neural_network):
         self.neural_network: NeuralNetwork = neural_network
         self.fitness_score = 0
@@ -38,8 +38,6 @@ class AIAgent():
         self.last_fitness_score_by_distance = 0
         self.last_fitness_score_by_speed = 0
 
-        self.inputs = []
-
     def get_genome(self):  # Genome is neural network weights and biases
         # return np.concatenate([param.data.numpy().flatten() for param in self.neural_network.get_parameters()])
         return self.neural_network.get_parameters()
@@ -55,9 +53,6 @@ class AIAgent():
         speed_reward = self.evaluate_speed_fitness()
         regularization = 0.01 * np.random.normal()
 
-        for neuron in self.inputs:
-            if neuron == -2.0:
-                self.fitness_score += 10
         self.fitness_score = (
                 checkpoint_reward
                 + distance_penalty

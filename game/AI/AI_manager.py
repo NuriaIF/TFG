@@ -90,7 +90,6 @@ class AIManager:
                 self.data_collector.collect_fitness(agent, frame_chronometer.get_elapsed_time())
             if not agent.controlled_entity.disabled:
                 self.inputs = self.prepare_input(agent.controlled_entity)
-                agent.inputs = self.inputs
                 outputs = agent.neural_network.forward(self.inputs)
                 # Convert outputs to commands
                 agent.controlled_entity.input_manager.convert_outputs_to_commands(outputs)

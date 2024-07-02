@@ -16,10 +16,6 @@ class InputManager:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    quit()
             elif event.type == pygame.MOUSEWHEEL:
                 if event.y > 0:
                     self.scroll_up_detected = True

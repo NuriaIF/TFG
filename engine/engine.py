@@ -17,7 +17,7 @@ from game.camera_coordinates import CameraCoords
 class Engine:
     def __init__(self):
         self.window = Window("Game", 1200, 800, fullscreen=True)
-        self.input_manager = InputManager()
+        self._input_manager = InputManager()
         self.renderer = Renderer(self.window)
         self.debug_renderer = DebugRenderer(self.window)
         self.physics_manager = PhysicsManager()
@@ -28,6 +28,13 @@ class Engine:
         self.camera = Camera()
         self.background_batch_created = False
         self._is_second_update = False
+        self._running = True
+
+    def is_running(self):
+        return self._running
+
+    def exit_running(self):
+        self._running = False
 
     def initialize(self):
         self._game_initialize()
@@ -43,13 +50,13 @@ class Engine:
         self._game_reset()
 
     def handle_engine_inputs(self):
-        if self.input_manager.is_key_down(Key.K_O):
+        if self._input_manager.is_key_down(Key.K_O):
             self.debug_renderer.enable_debug_mode()
-        if self.input_manager.is_key_down(Key.K_P):
+        if self._input_manager.is_key_down(Key.K_P):
             self.debug_renderer.disable_debug_mode()
 
     def update(self, delta_time: float):
-        self.input_manager.update()
+        self._input_manager.update()
         self.handle_engine_inputs()
         self._game_update(delta_time)
         self.camera.update(delta_time)
@@ -79,7 +86,7 @@ class Engine:
                 batch_transforms.append(transform)
                 batch_sprites.append(sprite)
 
-        if not self.background_batch_created:
+        if len(self._entity_manager.entities) > 0 and not self.background_batch_created:
             self.renderer.create_background_batch(batch_sprites, batch_transforms)
             self.background_batch_created = True
 

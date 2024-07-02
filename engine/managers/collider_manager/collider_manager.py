@@ -60,3 +60,7 @@ class ColliderManager:
                 if collider.get_collision_callback() is not None:
                     collider.get_collision_callback()()
             collider.set_colliding(colliding)
+
+    def clear(self):
+        self._entities_with_colliders.clear()
+

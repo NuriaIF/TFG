@@ -9,16 +9,13 @@ def main():
     # Initialize Pygame
     pygame.init()
 
-    FPSManager(max_fps=100,time_increment=1)
+    FPSManager(max_fps=100, time_increment=1)
     chrono = Chronometer()
-    chrono.start()
+    # chrono.start()
     game = Game(chrono)
     game.initialize()
 
-    # Clock for controlling frame rate and calculating delta time
-    running = True
-
-    while running:
+    while game.is_running():
         # Calculate delta time
         FPSManager.start_frame()
 

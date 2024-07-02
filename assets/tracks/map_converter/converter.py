@@ -1,4 +1,3 @@
-import numpy as np
 from PIL import Image
 
 TERRAIN_COLOR = (0, 255, 0)  # Green
@@ -9,13 +8,14 @@ CAR_COLOR = (0, 0, 255)  # Blue
 SEA_COLOR = (0, 162, 232)  # Light blue
 
 color_to_char = {
-        TERRAIN_COLOR: '\'',
-        ROAD_COLOR: 'o',
-        SIDEWALK_COLOR: '|',
-        CROSSWALK_COLOR: 'i',
-        CAR_COLOR: 'o',
-        SEA_COLOR: 'T',
-    }
+    TERRAIN_COLOR: '\'',
+    ROAD_COLOR: 'o',
+    SIDEWALK_COLOR: '|',
+    CROSSWALK_COLOR: 'i',
+    CAR_COLOR: 'o',
+    SEA_COLOR: 'T',
+}
+
 
 def within_tolerance(color1, color2, tolerance=4):
     return all(abs(a - b) <= tolerance for a, b in zip(color1, color2))
@@ -24,7 +24,7 @@ def within_tolerance(color1, color2, tolerance=4):
 def image_to_mlmap():
     image_name = input("Introduce el nombre del archivo de imagen (sin extensión): ")
 
-    image = Image.open(image_name + ".png").convert('RGB')
+    image = Image.open("../tracks_images/" + image_name + ".png").convert('RGB')
     pixels = image.load()
 
     width, height = image.size

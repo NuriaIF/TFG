@@ -51,7 +51,7 @@ class DebugRenderer:
         rotation_text = f"Rotation: {rotation:.2f}"
         scale_text = f"Scale: ({scale[0]:.2f}, {scale[1]:.2f})"
 
-        self.draw_text(position_text, position.copy())
+        self.draw_text(position_text, position)
         # self.draw_text(rotation_text, Vector2(position[0], position[1] + 15))
         # self.draw_text(scale_text, Vector2(position[0], position[1] + 30))
 
@@ -113,12 +113,15 @@ class DebugRenderer:
                              thickness: int = 1) -> None:
         pygame.draw.circle(self.window.get_window(), color, center, radius, width=thickness)
 
-    def draw_text(self, text: str, position: Vector2, color: tuple[int, int, int] = EngineAttributes.DEBUG_FONT_COLOR):
+    def draw_text(self, text: str, position: Vector2, color: tuple[int, int, int] = EngineAttributes.DEBUG_FONT_COLOR,
+                  centered: bool = False):
         text_surface = EngineFonts.get_fonts().debug_entity_font.render(text, True, color)
-        position.update(
-            apply_view_to_pos(position.x, position.y, CameraCoords.get_camera_position().x,
+        pos = position.copy()
+        pos.update(
+            apply_view_to_pos(pos.x, pos.y, CameraCoords.get_camera_position().x,
                               CameraCoords.get_camera_position().y))
-        self.window.get_window().blit(text_surface, position)
+
+        self.window.get_window().blit(text_surface, text_surface.get_rect(center=pos) if centered else pos)
 
     def draw_text_absolute(self, text: str, position: Vector2,
                            color: tuple[int, int, int] = EngineAttributes.DEBUG_FONT_COLOR):
@@ -176,15 +179,30 @@ class Renderer:
                   size: int = EngineAttributes.DEBUG_ENTITY_FONT_SIZE):
         current_font = pygame.font.SysFont(EngineAttributes.DEBUG_FONT, size, bold=False)
         text_surface = current_font.render(text, True, color)
-        position.update(
-            apply_view_to_pos(position.x, position.y,
+        pos = position.copy()
+        pos.update(
+            apply_view_to_pos(pos.x, pos.y,
                               CameraCoords.get_camera_position().x,
                               CameraCoords.get_camera_position().y))
-        self.window.get_window().blit(text_surface, position)
+        self.window.get_window().blit(text_surface, pos)
 
     def draw_text_absolute(self, text: str, position: Vector2,
                            color: tuple[int, int, int] = EngineAttributes.DEBUG_FONT_COLOR,
-                           size: int = EngineAttributes.DEBUG_ENTITY_FONT_SIZE):
+                           size: int = EngineAttributes.DEBUG_ENTITY_FONT_SIZE, centered: bool = False):
         current_font = pygame.font.SysFont(EngineAttributes.DEBUG_FONT, size, bold=False)
         text_surface = current_font.render(text, True, color)
-        self.window.get_window().blit(text_surface, position)
+        self.window.get_window().blit(text_surface, text_surface.get_rect(center=position) if centered else position)
+
+    def draw_rect_absolute(self, rect: pygame.Rect, color: tuple[int, int, int] = (255, 0, 0),
+                           thickness: int = 1) -> None:
+        pygame.draw.rect(self.window.get_window(), color, rect, thickness)
+
+    def draw_image_absolute(self, image: pygame.Surface, position: Vector2) -> None:
+        self.window.get_window().blit(image, position)
+
+    def render_clear(self) -> None:
+        self.sprite_group = pygame.sprite.LayeredUpdates()
+        self.background_batch = None
+        self.surface_batch_position: Vector2 = Vector2(0, 0)
+        self.surface_batch_dirty: bool = False
+        self.camera_pos = Vector2(0, 0)

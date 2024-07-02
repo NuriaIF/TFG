@@ -19,6 +19,9 @@ class NeuralNetwork:
         if parameters is not None:
             self.set_parameters(parameters)
 
+        self.inputs = []
+        self.outputs = []
+
     def relu(self, z):
         """
         Apply the ReLU activation function.
@@ -75,12 +78,14 @@ class NeuralNetwork:
         :return: The output of the network's final layer
         """
         # input_data is a flat array and needs to be reshaped to a column vector
+        self.inputs = input_data
         input_data = np.array(input_data, ndmin=2).T
         for layer in self.layers:
             layer.forward(input_data)
             input_data = layer.outputs
         output = input_data
-        return output.flatten()
+        self.outputs = output.flatten()
+        return self.outputs
 
     def backward(self, inputs, targets):
         # Convertir inputs y targets a columnas
@@ -185,7 +190,7 @@ class NeuralNetwork:
         :return: 
         """
         # Load the parameters of the neural network from a file
-        self.set_parameters(np.load("best_2.npy"))
+        self.set_parameters(np.load("assets/data_files/best_2.npy"))
 
     def get_total_params(self):
         """

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import numpy as np
-from numba import njit, float64, boolean
 from numpy import ndarray
 from pygame import Vector2, Rect
 
@@ -12,30 +11,10 @@ from game.map.checkpoints.checkpoints_loader import CheckpointsLoader
 from game.map.map_loader import MapLoader
 from game.map.map_types import MapType, map_type_to_encoded_value
 from game.map.map_types import map_type_to_file
+from engine.math.geometry import point_in_polygon
 
 TILE_SIZE = 16
 MAP_WALL_DEPTH = 100
-
-
-@njit(boolean(float64[:], float64[:, :]))
-def point_in_polygon(point: ndarray, polygon: ndarray[ndarray]) -> bool:
-    intersection_x = 0
-    x, y = point
-    n = len(polygon)
-    inside = False
-
-    p1x, p1y = polygon[0]
-    for i in range(1, n + 1):
-        p2x, p2y = polygon[i % n]
-        if p1y < y <= p2y or p2y < y <= p1y:
-            if x <= max(p1x, p2x):
-                if p1y != p2y:
-                    intersection_x = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                if p1x == p2x or x <= intersection_x:
-                    inside = not inside
-        p1x, p1y = p2x, p2y
-
-    return inside
 
 
 class TileMap:
@@ -43,18 +22,26 @@ class TileMap:
         self.entity_manager = entity_manager
 
         self.tiles: list[Tile] = []
-        self.type_map_list = MapLoader.load_map("road02")
+        self.type_map_list = MapLoader.load_map("road01")
+        self.current_map_name = "road01"
 
         self.checkpoints: list[Tile] = []
         self.checkpoint_lines: list[Tile] = []
         self.distance_between_checkpoints = []
 
-        self.height = self.type_map_list.get_height() * TILE_SIZE
-        self.width = self.type_map_list.get_width() * TILE_SIZE
+        self.height = 0
+        self.width = 0
 
         self.positions = []
         self.tiles_fov = []
         self.ordered_tiles = []
+
+    def load_map(self, map_name):
+        print("Loading map")
+        self.current_map_name = map_name
+        self.type_map_list = MapLoader.load_map(map_name)
+        self.height = self.type_map_list.get_height() * TILE_SIZE
+        self.width = self.type_map_list.get_width() * TILE_SIZE
 
     def get_width_number(self):
         return self.type_map_list.get_width()
@@ -63,12 +50,15 @@ class TileMap:
         return self.type_map_list.get_height()
 
     def clear(self):
-        self.tiles.clear()
-        self.checkpoints.clear()
-        self.checkpoint_lines.clear()
+        self.tiles = []
+        self.checkpoints = []
+        self.checkpoint_lines = []
+        self.distance_between_checkpoints = []
 
     def generate_tiles(self) -> None:
-        checkpoints_info = CheckpointsLoader.read_checkpoints("road02")
+        print("Generating tiles")
+        print(self.type_map_list)
+        checkpoints_info = CheckpointsLoader.read_checkpoints(self.current_map_name)
         checkpoints_dict = checkpoints_info[0]
         checkpoints_directions_dict = checkpoints_info[1]
 
@@ -152,7 +142,7 @@ class TileMap:
         return tiles
 
     def set_checkpoint_line(self, start_index, offset_func, checkpoint_number):
-        for j in range(-3, 4):
+        for j in range(-4, 5):
             index = offset_func[0](start_index, j)
             index2 = offset_func[1](start_index, j)
             if 0 <= index < len(self.tiles):
@@ -239,4 +229,3 @@ class TileMap:
         checkpoint_next = self.checkpoints[next_checkpoint_number]
         tile_transform = self.entity_manager.get_transform(checkpoint_next.entity_ID)
         return tile_transform.get_position().x, tile_transform.get_position().y
-

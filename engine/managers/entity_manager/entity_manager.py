@@ -116,3 +116,15 @@ class EntityManager:
         self.get_physics(entity_id).reset()
         self.get_collider(entity_id).reset()
 
+    def clear(self):
+        self.entities.clear()
+        self.transforms.clear()
+        self.physics.clear()
+        self.sprites.clear()
+        self.colliders.clear()
+        self.sprite_rects.clear()
+        self.next_frame_sprite_rects.clear()
+        self.batched.clear()
+        self.layers.clear()
+        self.next_entity_id = 0
+

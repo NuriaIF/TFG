@@ -172,16 +172,6 @@ class AIManager:
         agents = self._create_new_population(cars)  # or self._load_agents_from_file(cars)
         self.genetic_algorithm.load_agents(agents)
 
-    def get_ai_input_manager_of(self, car: Car) -> AIInputManager:
-        """
-        Get the AI input manager of a car
-        :param car: the car to get the AI input manager from
-        :return: AI input manager of the car
-        """
-        for agent in self.get_agents():
-            if agent.controlled_entity == car:
-                return agent.ai_input_manager
-
     def reset(self, cars: list[Car]):
         """
         Reset the agents
@@ -217,5 +207,3 @@ class AIManager:
 
             self.no_improvement_counter = 0
             self.state = AIState.EVOLVING
-            for agent in self.get_agents():
-                agent.ai_input_manager.stop_keys()

@@ -7,8 +7,8 @@ from pygame import Vector2, Rect
 from src.engine.managers.entity_manager.entity_manager import EntityManager
 from src.game.entities.tile import Tile
 from src.game.map.checkpoints.checkpoint_direction import CheckpointDirection
-from src.game.map.checkpoints.checkpoints_loader import CheckpointsLoader
-from src.game.map.map_loader import MapLoader
+from src.game.resource_manager.checkpoints_loader import CheckpointsLoader
+from src.game.resource_manager.map_loader import MapLoader
 from src.game.map.map_types import MapType, map_type_to_encoded_value
 from src.game.map.map_types import map_type_to_file
 from src.engine.math.geometry import point_in_polygon

@@ -11,7 +11,7 @@ from src.engine.managers.physics_manager.physics_manager import PhysicsManager
 from src.engine.managers.render_manager.renderer import Renderer, DebugRenderer
 from src.engine.managers.sound_manager.sound_manager import SoundManager
 
-from src.engine.managers.window_manager.window_manager import Window
+from src.engine.managers.window_manager.window import Window
 from src.game.camera import Camera
 from src.game.camera_coordinates import CameraCoords
 

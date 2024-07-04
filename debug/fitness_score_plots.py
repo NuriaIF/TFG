@@ -90,17 +90,18 @@ def plot_top_fitness_per_gen(top_fitness_per_gen):
 
 
 # Cargar datos
-fitness_scores = load_json('../assets/text_files/total_fitness_scores.json')
-generation_intervals = load_json('../assets/text_files/generation_intervals.json')
-tiles_intervals_per_car = load_json('../assets/text_files/tiles_intervals_per_car.json')
+fitness_scores = load_json('../assets/data_files/results/total_fitness_scores.json')
+generation_intervals = load_json('../assets/data_files/results/generation_intervals.json')
+tiles_intervals_per_car = load_json('../assets/data_files/results/tiles_intervals_per_car.json')
 
-tile_fitness_scores = load_json('../assets/text_files/tile_fitness_scores.json')
-checkpoint_fitness_scores = load_json('../assets/text_files/checkpoint_fitness_scores.json')
-speed_fitness_scores = load_json('../assets/text_files/speed_fitness_scores.json')
-distance_to_checkpoint_fitness_scores = load_json('../assets/text_files/distance_to_checkpoint_fitness_scores.json')
-angle_to_checkpoint_fitness_scores = load_json('../assets/text_files/angle_to_checkpoint_fitness_scores.json')
-collision_fitness_scores = load_json('../assets/text_files/collision_fitness_scores.json')
-top_fitness_per_gen = load_json('../assets/text_files/top_fitness.json')
+tile_fitness_scores = load_json('../assets/data_files/results/tile_fitness_scores.json')
+checkpoint_fitness_scores = load_json('../assets/data_files/results/checkpoint_fitness_scores.json')
+speed_fitness_scores = load_json('../assets/data_files/results/speed_fitness_scores.json')
+distance_to_checkpoint_fitness_scores = load_json(
+    '../assets/data_files/results/distance_to_checkpoint_fitness_scores.json')
+angle_to_checkpoint_fitness_scores = load_json('../assets/data_files/results/angle_to_checkpoint_fitness_scores.json')
+collision_fitness_scores = load_json('../assets/data_files/results/collision_fitness_scores.json')
+top_fitness_per_gen = load_json('../assets/data_files/results/top_fitness.json')
 
 # cars = [int(car) - 8820 for car in list(fitness_scores.keys())]
 cars = [0]

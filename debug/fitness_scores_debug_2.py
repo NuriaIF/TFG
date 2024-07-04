@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Cargar los datos desde el archivo JSON
-with open('../assets/text_files/fitness_scores.json', 'r') as f:
+with open('../assets/data_files/results/fitness_scores.json', 'r') as f:
     fitness_scores = json.load(f)
 
 # Convertir los datos a listas para graficar

@@ -4,9 +4,9 @@ import pstats
 import time
 import pygame
 
-from engine.fps_manager import FPSManager
-from game.game import Game
-from game.AI.ai_info.chronometer import Chronometer
+from src.engine.fps_manager import FPSManager
+from src.game.game import Game
+from src.game.AI.ai_info.chronometer import Chronometer
 
 
 def main():
@@ -35,7 +35,7 @@ def main():
 
         # Detener el perfilado después de cierto tiempo
         if time.time() - start_time > profile_duration:
-            print("deteniendo el perfilado")
+            print("Stopping profiling")
             pr.disable()
             profiling_file = os.path.join(os.path.dirname(__file__), 'training_mode/profiling_test_v04.txt')
             with open(profiling_file, 'w') as f:

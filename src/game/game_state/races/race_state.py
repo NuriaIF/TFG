@@ -9,7 +9,7 @@ from src.game.game_state.igame_state import IGameState
 from src.game.map.map_types import MapType
 
 
-class IRaceState(IGameState):
+class RaceState(IGameState):
     def __init__(self, game, state_enum):
         super().__init__(game, state_enum)
 

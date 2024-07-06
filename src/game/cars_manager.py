@@ -4,7 +4,6 @@ from pygame import Vector2
 from src.engine.components.collider import Collider
 from src.engine.components.transform import Transform
 from src.engine.managers.entity_manager.entity_manager import EntityManager
-from src.engine.managers.input_manager.input_manager import InputManager
 from src.engine.managers.render_manager.renderer import DebugRenderer, Renderer
 from src.game.AI.AI_manager import AIManager
 from src.game.AI.ai_info.chronometer import Chronometer
@@ -15,15 +14,14 @@ from src.game.map.tile_map import TileMap
 
 
 class CarsManager:
-    def __init__(self, tile_map: TileMap, entity_manager: EntityManager,
-                 input_manager: InputManager, renderer: Renderer, debug_renderer: DebugRenderer,
+    def __init__(self, tile_map: TileMap, entity_manager: EntityManager, renderer: Renderer,
+                 debug_renderer: DebugRenderer,
                  checkpoints_distances: list[float],
                  chronometer: Chronometer = None):
         self._ai_manager = None
         self._renderer = renderer
         self._debug_renderer = debug_renderer
         self._tile_map = tile_map
-        self._input_manager = input_manager
         self._entity_manager = entity_manager
         self._cars: [Car] = []
         self._chronometer = chronometer

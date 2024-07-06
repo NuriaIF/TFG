@@ -4,9 +4,9 @@ from pygame import Vector2
 from src.engine.components.transform import Transform
 from src.game.entities.car import Car
 from src.game.entities.tile import Tile
-from src.game.game_state.races.irace_state import IRaceState
+from src.game.game_state.races.race_state import RaceState
 
-class PlayingState(IRaceState):
+class PlayingState(RaceState):
     @overrides
     def initialize(self):
         super().initialize_race(1)

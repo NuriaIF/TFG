@@ -4,7 +4,6 @@ from src.engine.managers.entity_manager.entity_manager import EntityManager
 from src.engine.managers.input_manager.input_manager import InputManager
 from src.engine.managers.input_manager.key import Key
 from src.engine.managers.render_manager.render_layers import RenderLayer
-from src.engine.ai.AI_input_manager import AIInputManager
 from src.game.AI.ai_info.car_knowledge import CarKnowledge
 
 
@@ -13,7 +12,7 @@ class Car:
     Car class that represents a car entity in the game.
     """
 
-    def __init__(self, entity: int, entity_manager: EntityManager, input_manager: InputManager | AIInputManager):
+    def __init__(self, entity: int, entity_manager: EntityManager, input_manager: InputManager):
         self.entity_ID: int = entity
         self.base_max_speed: float = 200
         self.accelerate_max_speed: float = 500
@@ -30,7 +29,7 @@ class Car:
         self.entity_manager.get_collider(entity).debug_config_show_collider()
         self.entity_manager.get_transform(entity).debug_config_show_transform()
         self.entity_manager.get_transform(entity).debug_config_show_forward()
-        self.input_manager: InputManager | AIInputManager = input_manager
+        self.input_manager: InputManager = input_manager
         self.selected_as_parent = False
 
         self.car_knowledge = CarKnowledge()

@@ -3,8 +3,6 @@ import numpy as np
 from src.engine.ai.ai_agent import AIAgent
 from src.game.AI.ai_info.chronometer import Chronometer
 
-NEURAL_NET_LAYER_SIZES = [147, 32, 6]
-
 
 class GeneticAlgorithm:
     """

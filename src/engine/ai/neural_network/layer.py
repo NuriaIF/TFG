@@ -3,9 +3,9 @@ import numpy as np
 
 class Layer:
     def __init__(self, num_inputs, num_outputs, activation_function):
-        # Inicialización de He para pesos
+        # 'He' initialization for weights (Xavier initialization)
         self.weights = np.random.randn(num_outputs, num_inputs) * np.sqrt(2 / num_inputs)
-        # Inicializar biases a cero
+        # Initialize biases to 0
         self.biases = np.zeros((num_outputs, 1))
         self.activation_function = activation_function
         self.outputs = None

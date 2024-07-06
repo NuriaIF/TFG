@@ -83,7 +83,7 @@ class Game(Engine):
     def start_game(self):
         self._tile_map: TileMap = TileMap(self._entity_manager)
         self._tile_map.load_map(self._current_map_name)
-        self._cars_manager: CarsManager = CarsManager(self._tile_map, self._entity_manager, self._input_manager,
+        self._cars_manager: CarsManager = CarsManager(self._tile_map, self._entity_manager,
                                                       self.renderer, self.debug_renderer,
                                                       self._tile_map.distance_between_checkpoints,
                                                       self._chronometer)

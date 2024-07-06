@@ -7,10 +7,10 @@ from src.game.AI.AI_manager import AIManager
 from src.game.AI.explainability.explainability_manager import ExplainabilityManager
 from src.game.entities.car import Car
 from src.game.entities.tile import Tile
-from src.game.game_state.races.irace_state import IRaceState
+from src.game.game_state.races.race_state import RaceState
 
 
-class WatchingAIState(IRaceState):
+class WatchingAIState(RaceState):
     @overrides
     def initialize(self):
         super().initialize_race(1)

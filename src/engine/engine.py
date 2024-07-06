@@ -1,5 +1,6 @@
 from pygame import Vector2, Rect
 
+from src.engine.camera import Camera
 from src.engine.engine_fonts import EngineFonts
 from src.engine.fps_manager import FPSManager
 from src.engine.managers.collider_manager.collider_manager import ColliderManager
@@ -12,7 +13,6 @@ from src.engine.managers.render_manager.renderer import Renderer, DebugRenderer
 from src.engine.managers.sound_manager.sound_manager import SoundManager
 
 from src.engine.managers.window_manager.window import Window
-from src.game.camera import Camera
 from src.game.camera_coordinates import CameraCoords
 
 

@@ -8,7 +8,6 @@ from src.engine.ai.ai_agent import AIAgent
 from src.engine.managers.entity_manager.entity_manager import EntityManager
 from src.engine.managers.input_manager.input_manager import InputManager
 from src.engine.managers.input_manager.key import Key
-from src.engine.ai.AI_input_manager import AIInputManager
 from src.game.AI.ai_state import AIState
 from src.game.AI.car_ai_agent import CarAIAgent
 from src.game.AI.data_collector import DataCollector
@@ -184,7 +183,7 @@ class AIManager:
         agents: list[AIAgent] = []
         for i in range(population_size):
             agents.append(CarAIAgent(cars[i], NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES)))
-            agents[i].neural_network.load_parameters()
+            # agents[i].neural_network.load_parameters()
         return agents
 
     def handle_user_inputs(self, input_manager, frame_chronometer):

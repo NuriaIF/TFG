@@ -1,7 +1,7 @@
 import numpy as np
 
 from src.engine.ai.ai_agent import AIAgent
-from src.game.AI.ai_info.chronometer import Chronometer
+from src.game.ai.ai_info.chronometer import Chronometer
 
 
 class GeneticAlgorithm:

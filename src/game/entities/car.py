@@ -4,7 +4,7 @@ from src.engine.managers.entity_manager.entity_manager import EntityManager
 from src.engine.managers.input_manager.input_manager import InputManager
 from src.engine.managers.input_manager.key import Key
 from src.engine.managers.render_manager.render_layers import RenderLayer
-from src.game.AI.ai_info.car_knowledge import CarKnowledge
+from src.game.ai.ai_info.car_knowledge import CarKnowledge
 
 
 class Car:

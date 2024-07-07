@@ -1,7 +1,7 @@
 import csv
 import json
 
-from src.game.AI.ai_info.interval import Interval
+from src.game.ai.ai_info.interval import Interval
 
 
 class DataCollector:

@@ -8,13 +8,13 @@ from src.engine.ai.ai_agent import AIAgent
 from src.engine.managers.entity_manager.entity_manager import EntityManager
 from src.engine.managers.input_manager.input_manager import InputManager
 from src.engine.managers.input_manager.key import Key
-from src.game.AI.ai_state import AIState
-from src.game.AI.car_ai_agent import CarAIAgent
-from src.game.AI.data_collector import DataCollector
+from src.game.ai.ai_state import AIState
+from src.game.ai.car_ai_agent import CarAIAgent
+from src.game.ai.data_collector import DataCollector
 from src.engine.ai.genetic_algorithm.genetic_algorithm import GeneticAlgorithm
 from src.engine.ai.neural_network.neural_network import NeuralNetwork
 from src.game.entities.car import Car
-from src.game.AI.ai_info.chronometer import Chronometer
+from src.game.ai.ai_info.chronometer import Chronometer
 
 population_size = 15
 NEURAL_NET_LAYER_SIZES = [147, 32, 6]

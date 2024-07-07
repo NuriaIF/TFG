@@ -2,9 +2,9 @@ import math
 
 from pygame import Vector2
 
-from src.game.AI.ai_info.chronometer import Chronometer
-from src.game.AI.ai_info.field_of_view import FOV
-from src.game.AI.ai_info.interval import Interval
+from src.game.ai.ai_info.chronometer import Chronometer
+from src.game.ai.ai_info.field_of_view import FOV
+from src.game.ai.ai_info.interval import Interval
 from src.game.map.map_types import MapType
 
 

@@ -6,7 +6,7 @@ import pygame
 
 from src.engine.fps_manager import FPSManager
 from src.game.game import Game
-from src.game.AI.ai_info.chronometer import Chronometer
+from src.game.ai.ai_info.chronometer import Chronometer
 
 
 def main():

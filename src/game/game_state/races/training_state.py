@@ -3,7 +3,7 @@ from pygame import Vector2
 
 from src.engine.components.transform import Transform
 from src.engine.ai.AI_input_manager import AIInputManager
-from src.game.AI.AI_manager import AIManager, population_size
+from src.game.ai.ai_manager import AIManager, population_size
 from src.game.entities.car import Car
 from src.game.entities.tile import Tile
 from src.game.game_state.races.race_state import RaceState

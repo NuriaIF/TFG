@@ -5,8 +5,8 @@ from src.engine.components.collider import Collider
 from src.engine.components.transform import Transform
 from src.engine.managers.entity_manager.entity_manager import EntityManager
 from src.engine.managers.render_manager.renderer import DebugRenderer, Renderer
-from src.game.AI.AI_manager import AIManager
-from src.game.AI.ai_info.chronometer import Chronometer
+from src.game.ai.ai_info.chronometer import Chronometer
+from src.game.ai.ai_manager import AIManager
 from src.game.entities.car import Car
 from src.game.entities.tile import Tile
 from src.game.map.map_types import MapType

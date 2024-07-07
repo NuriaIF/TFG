@@ -116,6 +116,14 @@ class CarsManager:
             car_collider.set_active(False)
             self._entity_manager.get_physics(car_entity_id).set_vector_velocity(Vector2(0, 0))
 
+    def handle_car_out_of_bounds(self, car: Car, tile_of_car: Tile):
+        if tile_of_car is None or tile_of_car.tile_type == MapType.SEA:
+            last_checkpoint = self._tile_map.checkpoints[car.car_knowledge.checkpoint_number]
+            last_checkpoint_position = self._entity_manager.get_transform(last_checkpoint.entity_ID).get_position().copy()
+            car.set_position(last_checkpoint_position)
+            return last_checkpoint
+        return tile_of_car
+
     def render_car_knowledge(self):
         for car in self._cars:
             self._render_field_of_view(car)

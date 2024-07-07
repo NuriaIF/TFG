@@ -24,6 +24,8 @@ class PlayerVsAIState(RaceState):
             car_transform: Transform = self._game.get_entity_manager().get_transform(car.entity_ID)
             tile_of_car: Tile = self._game.get_tile_map().get_tile_at_pos_vec(car_transform.get_position())
 
+            self._game.get_cars_manager().handle_car_out_of_bounds(car, tile_of_car)
+
             self._game.get_cars_manager().handle_ai_knowledge(car, tile_of_car)
 
             car.update_input()

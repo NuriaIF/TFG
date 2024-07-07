@@ -2,10 +2,10 @@ from pygame import Vector2, Rect
 
 from src.engine.camera import Camera
 from src.engine.engine_fonts import EngineFonts
-from src.engine.fps_manager import FPSManager
 from src.engine.managers.collider_manager.collider_manager import ColliderManager
 
 from src.engine.managers.entity_manager.entity_manager import EntityManager
+from src.engine.managers.fps_manager import FPSManager
 from src.engine.managers.input_manager.input_manager import InputManager
 from src.engine.managers.input_manager.key import Key
 from src.engine.managers.physics_manager.physics_manager import PhysicsManager
@@ -123,7 +123,7 @@ class Engine:
             self._draw_entity_debug_information()
             self.draw_camera_position()
             self.collider_manager.debug_render()
-        # self._draw_fps()
+            self._draw_fps()
 
         self.window.swap_buffers()
 

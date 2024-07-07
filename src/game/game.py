@@ -96,22 +96,6 @@ class Game(Engine):
     def _game_update(self, delta_time):
         self.get_current_state().update(delta_time)
 
-    def update_cars(self, delta_time: float):
-        cars = self.get_cars_manager().get_cars()
-        i: int
-        car: Car
-        for i, car in enumerate(cars):
-            car_transform: Transform = self.get_entity_manager().get_transform(car.entity_ID)
-            tile_of_car: Tile = self.get_tile_map().get_tile_at_pos_vec(car_transform.get_position())
-
-            self.get_cars_manager().handle_ai_knowledge(car, tile_of_car)
-
-            car.update_input()
-            car.update(delta_time)
-        ai_cars = [cars[1]]
-        self.get_cars_manager().get_ai_manager().update(ai_cars, self._input_manager,
-                                                        self.get_chronometer())
-
     def _game_render(self):
         self.get_current_state().render()
 

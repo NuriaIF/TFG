@@ -1,19 +1,46 @@
+"""
+This module contains the PhysicsManager class.
+"""
 from src.engine.components.physics import Physics
 from src.engine.components.transform import Transform
 from src.engine.managers.entity_manager.entity_manager import EntityManager
 
 
 class PhysicsManager:
+    """
+    The physics manager is responsible for updating the physics of the entities.
+    Is applies to all the entities the forces, the velocities, the drags and the displacements.
+    """
     def update(self, entity: int, physics: Physics, transform: Transform, entity_manager: EntityManager,
                delta_time: float):
+        """
+        Update the physics of the entity.
+        Calls the physics updater for each entity and updates the transform and physics components.
+        :param entity: The id of the entity
+        :param physics: The physics component of the entity
+        :param transform: The transform component of the entity, so we can update the position
+        :param entity_manager: The entity manager, so we can get the components and update them
+        :param delta_time: The time passed since the last frame so physics are frame rate independent
+        :return:
+        """
         if physics.is_static():
             return
         updated_transform, updated_physics = self._update_physics_and_transform(physics, transform, delta_time)
         entity_manager.set_transform(entity, updated_transform)
         entity_manager.set_physics(entity, updated_physics)
 
-    def _update_physics_and_transform(self, physics: Physics, transform: Transform, delta_time: float) \
+    @staticmethod
+    def _update_physics_and_transform(physics: Physics, transform: Transform, delta_time: float) \
             -> (Transform, Physics):
+        """
+        Update the physics and transform of the entity.
+        This applies the forces, the drag, the acceleration and the displacement with a delta time to make it
+        frame rate independent.
+        :param physics: The physics component of the entity
+        :param transform: The transform component of the entity
+        :param delta_time: The time passed since the last frame
+        :return: The updated transform and physics components
+        """
         # Apply drag to velocity. Drag should slow down the car, acting in the opposite direction.
         # Assuming drag is a positive scalar that needs to be subtracted from velocity.
         if physics.get_velocity() > 0:

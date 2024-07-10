@@ -1,8 +1,12 @@
+"""
+This module contains the MenuState class.
+"""
 import pygame
 from overrides import overrides
 
 from src.engine.managers.input_manager.key import Mouse
 from src.game.game_state.igame_state import IGameState
+from src.game.game_state.menu.menu_actions.command import Command
 from src.game.game_state.menu.menu_actions.exit_game_command import ExitGameCommand
 from src.game.game_state.menu.menu_actions.start_play_command import StartPlayCommand
 from src.game.game_state.menu.menu_actions.start_player_vs_ai_command import StartPlayerVsAICommand
@@ -13,6 +17,13 @@ from src.game.game_state.menu.menu_actions.swap_map_previous_command import Swap
 
 
 class MenuState(IGameState):
+    """
+    Menu state
+    This state of the game handles the main menu.
+    This will show the user al the options to start the game, player vs. AI, watch AI or train a new AI.
+    From this state the user can also exit the game.
+    """
+
     def __init__(self, _game, state_enum):
         super().__init__(_game, state_enum)
         self.right_triangle_rect = None
@@ -33,11 +44,21 @@ class MenuState(IGameState):
         self.buttons_color = (0, 0, 0)
 
     @overrides
-    def initialize(self):
+    def initialize(self) -> None:
+        """
+        Initialize the menu state by setting up the menu
+        :return:
+        """
         self.setup_menu()
 
     @overrides
-    def update(self, delta_time):
+    def update(self, delta_time) -> None:
+        """
+        Update the menu state by checking if the user has clicked on a button and will execute the command
+        of the button clicked
+        :param delta_time:
+        :return: None
+        """
         mouse_pressed = self._game.get_input_manager().is_mouse_button_pressed(Mouse.MOUSE_LEFT)
         if mouse_pressed and not self.pressed:
             self.handle_mouse_event(self._game.get_input_manager().get_mouse_position())
@@ -46,14 +67,18 @@ class MenuState(IGameState):
             self.pressed = False
 
     @overrides
-    def render(self):
+    def render(self) -> None:
+        """
+        Render the menu state by rendering the buttons and the map image to select the map
+        :return: None
+        """
         for button in self.buttons:
             self._game.renderer.draw_rect_absolute(button['rect'], self.buttons_color, 0)
             self._game.renderer.draw_rect_absolute(button['rect'], self.buttons_color_border, 5)
             self._game.renderer.draw_text_absolute(button['text'], button['rect'].center, color=self.color_text,
                                                    size=self.size_text, centered=True)
 
-        # Renderizar la imagen y el nombre del mapa
+        # Render map image and name
         self._game.renderer.draw_image_absolute(self.maps[self.current_map_index], self.image_rect.topleft)
         self._game.renderer.draw_rect_absolute(self.image_rect, (0, 0, 0), 5)
 
@@ -62,21 +87,40 @@ class MenuState(IGameState):
                                                size=self.size_text, centered=True)
 
     @overrides
-    def render_debug(self):
+    def render_debug(self) -> None:
+        """
+        Render the debug information of the menu state
+        Nothing to render in this state
+        :return: None
+        """
         pass
 
     @overrides
-    def destruct(self):
+    def destruct(self) -> None:
+        """
+        Destruct the menu state by removing all the buttons and maps
+        :return: None
+        """
         self.buttons = []
         self.maps = []
         print("Exiting Menu State")
 
-    def handle_mouse_event(self, mouse_pos):
+    def handle_mouse_event(self, mouse_pos) -> None:
+        """
+        Handle the mouse event by checking if the mouse is over a button and execute the command of the button
+        :param mouse_pos:
+        :return: None
+        """
         for button in self.buttons:
             if button['rect'].collidepoint(mouse_pos):
                 button['command'].execute()
 
-    def setup_menu(self):
+    def setup_menu(self) -> None:
+        """
+        Set up the menu state by creating the buttons and loading the maps
+        This will call auxiliar functions to create the buttons and load the maps
+        :return: None
+        """
         print("Setting up Menu State")
         self.font = pygame.font.SysFont("Arial", 48)
 
@@ -112,7 +156,17 @@ class MenuState(IGameState):
             self.create_button("Exit", (50, 50 + 9 * distance_between_buttons), ExitGameCommand(self._game))
         ]
 
-    def create_button(self, text, topleft, command, size=(200, 50)):
+    @staticmethod
+    def create_button(text: str, topleft: tuple[float, float], command: Command, size: tuple[int, int] = (200, 50))\
+            -> dict:
+        """
+        Auxiliar function to create a button by passing the text, topleft position, command and size
+        :param text: Text to show in the button
+        :param topleft: Topleft position of the button
+        :param command: Command to execute when the button is clicked
+        :param size: Size of the button
+        :return: Dictionary with the button information
+        """
         button_rect = pygame.Rect(topleft, size)
         return {
             'rect': button_rect,

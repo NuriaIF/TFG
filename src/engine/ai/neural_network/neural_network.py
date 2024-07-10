@@ -1,15 +1,23 @@
+"""
+This module contains the NeuralNetwork class, which represents a neural network.
+"""
 import numpy as np
 
 from src.engine.ai.neural_network.layer import Layer
 
 
 class NeuralNetwork:
+    """
+    This class represents a neural network
+    """
     def __init__(self, layer_sizes: list[int], parameters=None):
         """
-        Initialize the neural network with a list of layers.
-
-        :param layers: A list containing the number of nodes in each layer (including input and output)
+        Initialize the neural network with the given layer sizes.
+        :param layer_sizes: The sizes of the layers in the network
         """
+        if any(n <= 0 for n in layer_sizes):
+            raise ValueError("All layer sizes must be positive integers.")
+
         self.layer_sizes: list[int] = layer_sizes
         self.layers: list[Layer] = []
         for i in range(len(layer_sizes) - 1):
@@ -22,7 +30,8 @@ class NeuralNetwork:
         self.inputs = []
         self.outputs = []
 
-    def relu(self, z):
+    @staticmethod
+    def relu(z):
         """
         Apply the ReLU activation function.
 
@@ -31,7 +40,8 @@ class NeuralNetwork:
         """
         return np.maximum(0, z)
 
-    def sigmoid(self, z):
+    @staticmethod
+    def sigmoid(z):
         """
         Apply the sigmoid activation function.
 
@@ -40,7 +50,8 @@ class NeuralNetwork:
         """
         return 1 / (1 + np.exp(-z))
 
-    def softmax(self, x):
+    @staticmethod
+    def softmax(x):
         """
         Apply the softmax activation function.
 
@@ -50,7 +61,8 @@ class NeuralNetwork:
         exp_x = np.exp(x - np.max(x))
         return exp_x / exp_x.sum(axis=0, keepdims=True)
 
-    def leaky_relu(self, z, alpha=0.01):
+    @staticmethod
+    def leaky_relu(z, alpha=0.01):
         """
         Apply the Leaky ReLU activation function, with a default alpha value of 0.01.
         Return z if z > 0, otherwise return z * alpha.
@@ -78,49 +90,6 @@ class NeuralNetwork:
         self.outputs = self.custom_activation(output.flatten())
         return self.outputs
 
-    def backward(self, inputs, targets):
-        # Convertir inputs y targets a columnas
-        inputs = np.array(inputs, ndmin=2).T
-        targets = np.array(targets, ndmin=2).T
-
-        # Forward pass
-        activations = [inputs]
-        for layer in self.layers:
-            layer.forward(activations[-1])
-            activations.append(layer.outputs)
-
-        # Calcula el error en la capa de salida
-        error = activations[-1] - targets
-
-        # Retropropagación
-        for i in reversed(range(len(self.layers))):
-            layer = self.layers[i]
-            inputs = activations[i]
-
-            if layer.activation_function == self.relu:
-                delta = error * (layer.outputs > 0)
-            elif layer.activation_function == self.leaky_relu:
-                delta = error * np.where(layer.outputs > 0, 1, 0.01)
-            else:
-                delta = error
-
-            gradient_weights = np.dot(delta, inputs.T)
-            gradient_biases = delta
-
-            # Actualiza los pesos y biases
-            layer.weights -= self.learning_rate * gradient_weights
-            layer.biases -= self.learning_rate * gradient_biases
-
-            # Propaga el error a la capa anterior
-            if i != 0:
-                error = np.dot(layer.weights.T, delta)
-
-    def train(self, inputs, targets, epochs=10):
-        for epoch in range(epochs):
-            for x, y in zip(inputs, targets):
-                self.forward(x)
-                self.backward(x, y)
-
     def get_activations(self, input_data):
         """
         Perform a forward pass and return the activations of all layers.
@@ -144,7 +113,7 @@ class NeuralNetwork:
         expected_length = sum(layer.weights.size + layer.biases.size for layer in self.layers)
 
         if len(parameters) != expected_length:
-            raise ValueError(f"Length of parameters {len(parameters)} does not match expected length {expected_length}.")
+            raise ValueError(f"Length of parameters {len(parameters)} does not match expected length {expected_length}")
 
         start = 0
         for layer in self.layers:
@@ -190,7 +159,15 @@ class NeuralNetwork:
         """
         return sum(layer.weights.size + layer.biases.size for layer in self.layers)
 
-    def custom_activation(self, outputs):
+    @staticmethod
+    def custom_activation(outputs):
+        """
+        Custom activation function for the network to ensure that the network outputs are valid.
+        :param outputs: The outputs of the network
+        :return: The modified outputs of the network
+        """
+        if len(outputs) < 4:
+            return outputs
         if outputs[2] > 0.5 and outputs[3] > 0.5:
             outputs[2] = 0
             outputs[3] = 0

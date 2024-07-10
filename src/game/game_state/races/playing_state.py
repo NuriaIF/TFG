@@ -1,3 +1,6 @@
+"""
+This module contains the PlayingState class
+"""
 from overrides import overrides
 from pygame import Vector2
 
@@ -6,13 +9,23 @@ from src.game.entities.car import Car
 from src.game.entities.tile import Tile
 from src.game.game_state.races.race_state import RaceState
 
+
 class PlayingState(RaceState):
+    """
+    This is the state of the game for single player game
+    In this state there is only the player car, where the player uses inputs to control the car
+    """
     @overrides
     def initialize(self):
         super().initialize_race(1)
 
     @overrides
     def update(self, delta_time):
+        """
+        Update the playing state by updating the car and handling the input of the player for that car
+        :param delta_time: Delta time for the update
+        :return: None
+        """
         cars = self._game.get_cars_manager().get_cars()
         i: int
         car: Car
@@ -34,6 +47,11 @@ class PlayingState(RaceState):
 
     @overrides
     def render_debug(self):
+        """
+        Render the debug information of the playing state
+        It renders the checkpoints and the car knowledge
+        :return:
+        """
         self._game.render_checkpoints()
         self._game.get_cars_manager().render_car_knowledge()
 
@@ -44,6 +62,10 @@ class PlayingState(RaceState):
 
     @overrides
     def _create_cars(self):
+        """
+        Creates the single car for the player
+        :return:
+        """
         entity = self._game.get_cars_manager().create_car_entity()
         self._game.get_cars_manager().add_car(
             Car(entity, self._game.get_entity_manager(), self._game.get_input_manager()))

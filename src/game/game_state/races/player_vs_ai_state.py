@@ -1,3 +1,6 @@
+"""
+This module contains the PlayerVsAIState class.
+"""
 from overrides import overrides
 from pygame import Vector2
 
@@ -10,13 +13,27 @@ from src.game.game_state.races.race_state import RaceState
 
 
 class PlayerVsAIState(RaceState):
+    """
+    This is the state of the game of player vs. AI
+    In this state the trained AI plays against the player
+    """
     @overrides
     def initialize(self):
+        """
+        Initialize the player vs. AI state, it creates two car entities
+        :return:
+        """
         super().initialize_race(2)
         self._game.get_cars_manager().set_ai_manager(AIManager(self._game.get_entity_manager(), training=False))
 
     @overrides
     def update(self, delta_time):
+        """
+        Update the player vs. AI state by updating the cars and the AI.
+        The AI gives the input to the AI cars and the player gives the input to the player car
+        :param delta_time:
+        :return:
+        """
         cars = self._game.get_cars_manager().get_cars()
         i: int
         car: Car
@@ -37,6 +54,10 @@ class PlayerVsAIState(RaceState):
 
     @overrides
     def render(self):
+        """
+        This renders the text that marks the player and the AI to be able to differentiate them
+        :return:
+        """
         car_player_position = self._game.get_entity_manager().get_transform(
             self._game.get_cars_manager().get_cars()[0].entity_ID).get_position()
         car_ai_position = self._game.get_entity_manager().get_transform(
@@ -47,6 +68,12 @@ class PlayerVsAIState(RaceState):
 
     @overrides
     def render_debug(self):
+        """
+        This renders the debugging information for the player vs. AI state
+        Will render the checkpoint number of the player and the AI
+        Checkpoints are the tiles that the cars have to pass through
+        :return:
+        """
         cars = self._game.get_cars_manager().get_cars()
         self._game.get_debug_renderer().draw_text_absolute(
             f"Checkpoint number (AI): {cars[1].car_knowledge.checkpoint_number}",
@@ -57,7 +84,12 @@ class PlayerVsAIState(RaceState):
 
     @overrides
     def _create_cars(self):
+        """
+        This creates all the cars for the player vs. AI state
+        :return:
+        """
         entity = self._game.get_cars_manager().create_car_entity()
-        self._game.get_cars_manager().add_car(Car(entity, self._game.get_entity_manager(), self._game.get_input_manager()))
+        self._game.get_cars_manager().add_car(Car(entity, self._game.get_entity_manager(),
+                                                  self._game.get_input_manager()))
         entity = self._game.get_cars_manager().create_car_entity()
         self._game.get_cars_manager().add_car(Car(entity, self._game.get_entity_manager(), AIInputManager()))

@@ -1,4 +1,6 @@
-from __future__ import annotations
+"""
+AI Manager class that manages the AI agents
+"""
 
 import json
 
@@ -19,6 +21,7 @@ from src.game.ai.ai_info.chronometer import Chronometer
 population_size = 15
 NEURAL_NET_LAYER_SIZES = [147, 32, 6]
 
+
 class AIManager:
     """
     AI Manager class that manages the AI agents
@@ -26,15 +29,11 @@ class AIManager:
 
     def __init__(self, entity_manager: EntityManager, training=True) -> None:
         self.entity_manager: EntityManager = entity_manager
-        self.current_agent_index: int = 0
         self.training: bool = training
         if training:
             self.genetic_algorithm: GeneticAlgorithm = GeneticAlgorithm()
         self._agents: list[AIAgent] = []
         self.state: AIState = AIState.SIMULATION
-
-        self.no_improvement_counter = 0
-        self.no_improvement_limit = 200
 
         self.fitness_scores = {}
 
@@ -98,7 +97,7 @@ class AIManager:
 
     def evolve_agents(self, frame_chronometer) -> None:
         """
-        Evolve agents
+        Evolve agents to the next generation based on the fitness scores of the current generation
         """
         if self.data_collector_activated:
             self.data_collector.change_generation(frame_chronometer.get_elapsed_time(), self.get_agents(),
@@ -136,26 +135,32 @@ class AIManager:
         :param car: car to get the inputs from
         :return: list of inputs for the neural network of the car
         """
+        # 1. Velocity
         physics = self.entity_manager.get_physics(car.entity_ID)
 
         agent_velocity: float = physics.get_velocity()
 
+        max_velocity = car.accelerate_max_speed
+        min_velocity = -car.base_max_speed
+        normalized_velocity = (agent_velocity - min_velocity) / (max_velocity - min_velocity)
+
+        # 2. Relative position to next checkpoint
         next_checkpoint_position = car.car_knowledge.get_next_checkpoint_position()
 
         car_position = self.entity_manager.get_transform(car.entity_ID).get_position()
         relative_position = (next_checkpoint_position[0] - car_position[0],
                              next_checkpoint_position[1] - car_position[1])
-        max_velocity = car.accelerate_max_speed
-        min_velocity = -car.base_max_speed
-        normalized_velocity = (agent_velocity - min_velocity) / (max_velocity - min_velocity)
+
         distance = np.linalg.norm(relative_position)
-        # Normalize relative vector
         if distance != 0:
             normalized_relative_position = relative_position / distance
         else:
             normalized_relative_position = np.zeros_like(relative_position)
 
+        # 3. Field of view
         agent_field_of_view: list[float] = car.car_knowledge.field_of_view.get_encoded_version()
+
+        # Add all inputs
         inputs = [normalized_velocity] + list(normalized_relative_position)
         inputs.extend(agent_field_of_view)
         return inputs
@@ -179,7 +184,8 @@ class AIManager:
         for agent, car in zip(self.get_agents(), cars):
             agent.reset(car)
 
-    def _create_new_population(self, cars):
+    @staticmethod
+    def _create_new_population(cars):
         agents: list[AIAgent] = []
         for i in range(population_size):
             agents.append(CarAIAgent(cars[i], NeuralNetwork(layer_sizes=NEURAL_NET_LAYER_SIZES)))
@@ -187,9 +193,14 @@ class AIManager:
         return agents
 
     def handle_user_inputs(self, input_manager, frame_chronometer):
+        """
+        Handle user inputs for the AI manager
+        :param input_manager: input manager to get the keys pressed by the user
+        :param frame_chronometer: chronometer to get the elapsed time of the game
+        :return:
+        """
         # check if generation is over
         if input_manager.is_key_down(Key.K_S):
-            cars = [agent.controlled_entity for agent in self.get_agents()]
             if self.data_collector_activated:
                 self.data_collector.save_data(frame_chronometer.get_elapsed_time())
         # detect keys pressed, 'N' for next generation
@@ -204,5 +215,4 @@ class AIManager:
             with open('fitness_scores.json', 'w') as f:
                 json.dump(self.fitness_scores, f)
 
-            self.no_improvement_counter = 0
             self.state = AIState.EVOLVING

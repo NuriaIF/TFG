@@ -1,17 +1,24 @@
+"""
+Main file of the game
+"""
+
 import pygame
 
 from src.engine.managers.fps_manager import FPSManager
-from src.game.game import Game
 from src.game.ai.ai_info.chronometer import Chronometer
+from src.game.game import Game
 
 
 def main():
+    """
+    Main function of the game
+    """
     # Initialize Pygame
     pygame.init()
 
     FPSManager(max_fps=30, time_increment=1)
     chrono = Chronometer()
-    # chrono.start()
+
     game = Game(chrono)
     game.initialize()
 

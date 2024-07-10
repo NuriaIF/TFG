@@ -1,3 +1,7 @@
+"""
+This module contains the GeneticAlgorithm class that manages the genetic algorithm
+"""
+
 import numpy as np
 
 from src.engine.ai.ai_agent import AIAgent
@@ -10,7 +14,6 @@ class GeneticAlgorithm:
     """
 
     def __init__(self):
-        self.current_agent_index: int = 0
         self._agents: list[AIAgent] = []
         self.mutation_rate: float = 0.04
         self.mutation_strength: float = 0.1
@@ -35,32 +38,34 @@ class GeneticAlgorithm:
         """
         return self._agents
 
-    def evolve_agents(self):
+    def evolve_agents(self) -> list[np.ndarray]:
         """
-        Evolve the agents
+        Evolve the agents and return the new population of agents for the next generation based on the fitness scores
+        of the current generation and the genetic algorithm parameters
+        :return: genomes of the new population of agents
         """
         population = self.get_agents()
 
-        # Ordenar la población por fitness score en orden descendente
+        # Sort the population by fitness score in descending order
         sorted_population = sorted(population, key=lambda x: x.fitness_score, reverse=True)
         top_agent = sorted_population[0]
         top_agent.neural_network.save_parameters()
         self.top_fitness = top_agent.fitness_score
 
-        # Determinar el número de individuos élite a conservar
+        # Determine number of elite agents to keep
         num_elite = int(round(self.elite_fraction * len(population)))
         if self.elite_fraction > 0 and len(population) > 0:
             num_elite = max(1, num_elite)
         elite = sorted_population[:num_elite]
 
         next_generation = []
-        # Mantener los genomas de los élites sin cambios
+        # Preserve the elite agents for the next generation without changes
         for agent in elite:
             genome_copy = agent.get_genome().copy()
             next_generation.append(genome_copy)
         parent1 = sorted_population[0]
         parent2 = sorted_population[1]
-        # Generar el resto de la nueva generación
+        # Crossover and mutate for generating the rest of the population
         while len(next_generation) < len(population):
             child1, child2 = self._crossover(parent1.get_genome().copy(), parent2.get_genome().copy())
             child1, child2 = self._mutate(child1), self._mutate(child2)
@@ -73,7 +78,8 @@ class GeneticAlgorithm:
         self.current_generation += 1
         return next_generation
 
-    def _crossover(self, genome1, genome2):
+    @staticmethod
+    def _crossover(genome1, genome2):
         """
         Crossover two genomes
         :param genome1: weights and biases of the neural network of the first parent
@@ -89,15 +95,13 @@ class GeneticAlgorithm:
         return child_genome1, child_genome2
 
     def _mutate(self, genome):
+        """
+        Mutate the genome of an agent
+        :param genome: weights and biases of the neural network of the agent
+        :return: mutated genome
+        """
+        genome_copy = genome.copy()
         for i in range(len(genome)):
             if np.random.rand() < self.mutation_rate:
-                genome[i] += np.random.normal(0, self.mutation_strength)
-        return genome
-
-    def get_generation_number(self):
-        return self.current_generation
-
-    def reintroduce_diversity(self):
-        for agent in self._agents:
-            if np.random.rand() < 0.1:  # Reintroducción de diversidad con una probabilidad del 10%
-                agent.genome = np.random.uniform(-1, 1, len(agent.get_genome())).tolist()
+                genome_copy[i] += np.random.normal(0, self.mutation_strength)
+        return genome_copy

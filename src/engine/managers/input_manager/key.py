@@ -1,9 +1,16 @@
+"""
+This module contains the Key enum.
+"""
 from enum import Enum
 
 import pygame
 
 
 class Key(Enum):
+    """
+    Enum for keys.
+    This is a mapping of the keys to their respective pygame key values for uniformity.
+    """
     # WASD
     K_W = pygame.K_w
     K_A = pygame.K_a
@@ -30,6 +37,9 @@ class Key(Enum):
 
 
 class Mouse(Enum):
+    """
+    Enum for mouse buttons.
+    """
     # Mouse buttons
     MOUSE_LEFT = 1
     MOUSE_MIDDLE = 2

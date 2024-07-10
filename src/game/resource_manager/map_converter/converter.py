@@ -1,3 +1,6 @@
+"""
+This script converts an image to a map file.
+"""
 from PIL import Image
 
 TERRAIN_COLOR = (0, 255, 0)  # Green
@@ -17,22 +20,43 @@ color_to_char = {
 }
 
 
-def within_tolerance(color1, color2, tolerance=4):
+def within_tolerance(color1: tuple[int, int, int], color2: tuple[int, int, int], tolerance: int = 4):
+    """
+    Check if two colors are within a certain tolerance.
+    :param color1:
+    :param color2:
+    :param tolerance: the maximum difference between the RGB values
+    :return: true if the colors are within the tolerance, false otherwise
+    """
     return all(abs(a - b) <= tolerance for a, b in zip(color1, color2))
 
 
-def image_to_mlmap():
-    image_name = input("Introduce el nombre del archivo de imagen (sin extensión): ")
+def image_to_map():
+    """
+    Convert an image to a map file.
+    This function will prompt the user for the name of the image file (without extension) and will save the
+    ASCII content to a file with the same name and a .mlmap extension.
+    :return: None
+    """
+    image_name = input("Introduce the name of the image file (without extension): ")
 
-    image = Image.open("../tracks_images/" + image_name + ".png").convert('RGB')
+    # Load the image and convert to RGB mode
+    try:
+        image = Image.open("../tracks_images/" + image_name + ".png").convert('RGB')
+    except FileNotFoundError:
+        print(f"Image {image_name} not found")
+        return
+
     pixels = image.load()
-
     width, height = image.size
 
     ascii_str = ""
 
     for y in range(height):
         for x in range(width):
+            if pixels is None:
+                raise ValueError(f"Image {image_name} not found")
+            # noinspection PyUnresolvedReferences
             color = pixels[x, y]
             tile_char = '*'  # Default if no match found
 
@@ -58,4 +82,4 @@ def image_to_mlmap():
     print(f"ASCII content saved to {output_name}")
 
 
-image_to_mlmap()
+image_to_map()

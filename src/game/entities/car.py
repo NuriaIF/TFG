@@ -1,3 +1,6 @@
+"""
+This module contains the Car class that represents a car entity in the game.
+"""
 from pygame import Vector2
 
 from src.engine.managers.entity_manager.entity_manager import EntityManager
@@ -10,6 +13,7 @@ from src.game.ai.ai_info.car_knowledge import CarKnowledge
 class Car:
     """
     Car class that represents a car entity in the game.
+    This is a wrapper and configuration class for the car entity. It also handles the car's input and movement.
     """
 
     def __init__(self, entity: int, entity_manager: EntityManager, input_manager: InputManager):
@@ -30,7 +34,6 @@ class Car:
         self.entity_manager.get_transform(entity).debug_config_show_transform()
         self.entity_manager.get_transform(entity).debug_config_show_forward()
         self.input_manager: InputManager = input_manager
-        self.selected_as_parent = False
 
         self.car_knowledge = CarKnowledge()
         self.fitness_score = 0
@@ -38,7 +41,8 @@ class Car:
 
     def update_input(self) -> None:
         """
-        Update the input of the car entity
+        Update the input of the car entity.
+        Checks if the keys are pressed and calls the corresponding functions for the car movement.
         """
         self._is_accelerating = False
         if self.input_manager.is_key_down(Key.K_W):
@@ -128,21 +132,28 @@ class Car:
         Reset the car attributes
         """
         self.car_knowledge = CarKnowledge()
-        self.selected_as_parent = False
         self.fitness_score = 0
         self.current_rotation_speed = 0
         self._is_accelerating = False
         self.disabled = False
 
-    def set_fitness(self, fitness_score):
+    def set_fitness(self, fitness_score) -> None:
         """
         Set the fitness score of the car
         :param fitness_score: fitness score to be set
         """
         self.fitness_score = fitness_score
 
-    def disable(self):
+    def disable(self) -> None:
+        """
+        Disable the car, this is useful for the genetic algorithm to disable the car when it crashes.
+        :return: None
+        """
         self.disabled = True
 
-    def is_disabled(self):
+    def is_disabled(self) -> bool:
+        """
+        Check if the car is disabled, this is useful for the genetic algorithm to disable the car when it crashes.
+        :return: True if the car is disabled, False otherwise
+        """
         return self.disabled

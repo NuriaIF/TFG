@@ -1,7 +1,13 @@
+"""
+This module contains the MapType enum.
+"""
 from enum import Enum
 
 
 class MapType(Enum):
+    """
+    Enum class for the type of tile in the map
+    """
     TRACK = 1
     CROSSWALK = 2
     SIDEWALK = 3
@@ -11,6 +17,9 @@ class MapType(Enum):
 
 
 class MapTypeFile(Enum):
+    """
+    This enum class is used to map the MapType to the file that contains the information of the tile
+    """
     TRACK = "track"
     CROSSWALK = "crosswalk"
     SIDEWALK = "sidewalk"
@@ -20,6 +29,10 @@ class MapTypeFile(Enum):
 
 
 class EncodedValue(Enum):
+    """
+    This enum class is used to map the MapType to the encoded value of the tile
+    The encodings are used to train the AI
+    """
     TRACK = 1.0
     CROSSWALK = 1.0
     SIDEWALK = -0.5
@@ -29,6 +42,11 @@ class EncodedValue(Enum):
 
 
 def map_type_to_file(map_type: MapType) -> str:
+    """
+    This function maps the MapType to the file that contains the information of the tile
+    :param map_type: The type of tile
+    :return: The file that contains the information of the tile
+    """
     if map_type == MapType.TRACK:
         return str(MapTypeFile.TRACK.value)
     elif map_type == MapType.CROSSWALK:
@@ -44,6 +62,11 @@ def map_type_to_file(map_type: MapType) -> str:
 
 
 def map_type_to_encoded_value(map_type: MapType) -> float:
+    """
+    This function maps the MapType to the encoded value of the tile
+    :param map_type: The type of tile
+    :return: The encoded value of the tile
+    """
     if map_type == MapType.TRACK:
         return float(EncodedValue.TRACK.value)
     elif map_type == MapType.CROSSWALK:

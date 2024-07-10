@@ -1,3 +1,6 @@
+"""
+Module that contains the class that represents the car knowledge in the game.
+"""
 import math
 
 from pygame import Vector2
@@ -8,9 +11,12 @@ from src.game.ai.ai_info.interval import Interval
 from src.game.map.map_types import MapType
 
 
-class CarKnowledge():
+class CarKnowledge:
     """
     Class that represents the car knowledge in the game.
+    It includes the field of view, the chronometers, the intervals, the speeds, the distances and the angles to the
+    next checkpoint, the traveled distance, the collisions count, the tile type, the nearest tile, the checkpoint
+    number, the checkpoint value, the lap number, the position of the next checkpoint, and the has collided flag.
     """
 
     def __init__(self) -> None:
@@ -46,9 +52,13 @@ class CarKnowledge():
         self.traveled_distance = 0
 
     def initialize(self, position_next_checkpoint) -> None:
+        """
+        Initialize the car knowledge
+        :param position_next_checkpoint: position of the next checkpoint
+        """
         self.position_of_next_checkpoint = position_next_checkpoint
 
-    def update(self, on_tile: MapType, next_checkpoint_position: tuple[float, float], forward: Vector2, speed: float,
+    def update(self, on_tile: MapType, next_checkpoint_position: tuple[float, float], speed: float,
                collider, car_in_tile_position: Vector2, frame_chronometer, checkpoint_distances) -> None:
         """
         Update the car knowledge
@@ -58,7 +68,6 @@ class CarKnowledge():
         :param collider:
         :param on_tile: type of the tile the car is on
         :param next_checkpoint_position: position of the next checkpoint
-        :param forward: vector forward of the car
         :param speed: speed of the car
         """
         self.position_of_next_checkpoint = next_checkpoint_position
@@ -66,7 +75,7 @@ class CarKnowledge():
         self._update_tile_chronometers(on_tile)
         self._update_still_chronometer(speed)
         self._update_speed_accumulator(speed)
-        self._update_distance_and_angle_to_next_checkpoint(next_checkpoint_position, forward, car_in_tile_position)
+        self._update_distance_and_angle_to_next_checkpoint(next_checkpoint_position, car_in_tile_position)
         self._update_tile_type(on_tile)
         self._update_collisions_count(collider)
 
@@ -74,6 +83,7 @@ class CarKnowledge():
 
         self.traveled_distance = 0
         if self.checkpoint_number != -1:
+            self.traveled_distance = 0
             self.traveled_distance += self.lap_number * sum(checkpoint_distances)
             for i in range(len(checkpoint_distances)):
                 if i <= self.checkpoint_number:
@@ -143,45 +153,16 @@ class CarKnowledge():
         self.accumulator_speed += speed
 
     def _update_distance_and_angle_to_next_checkpoint(self, next_checkpoint_position: tuple[float, float],
-                                                      forward: Vector2, car_in_tile_position) -> None:
+                                                      car_in_tile_position) -> None:
         """
         Update the distance and angle to the next checkpoint
         :param next_checkpoint_position: position of the next checkpoint
-        :param forward: vector forward of the car
         """
-        # nearest_tile = self.field_of_view.get_nearest_tile()
-        # car_in_tile_position = entity_manager.get_transform(nearest_tile.entity_ID).get_position()
-
         self.distance_to_next_checkpoint = math.sqrt((next_checkpoint_position[0] - car_in_tile_position[0]) ** 2 +
                                                      (next_checkpoint_position[1] - car_in_tile_position[1]) ** 2)
 
         self.distances_to_checkpoints.append(math.sqrt((next_checkpoint_position[0] - car_in_tile_position[0]) ** 2 +
                                                        (next_checkpoint_position[1] - car_in_tile_position[1]) ** 2))
-        # entity_direction = math.degrees(math.atan2(forward.y, forward.x))
-        # angle_to_checkpoint = math.degrees(math.atan2(next_checkpoint_position[1] - car_in_tile_position[1],
-        #                                               next_checkpoint_position[0] - car_in_tile_position[0]))
-        # self.angle_to_next_checkpoint = (angle_to_checkpoint - entity_direction)
-        self.angle_to_next_checkpoint = self.calculate_angle_to_checkpoint(forward, car_in_tile_position,
-                                                                           next_checkpoint_position)
-
-    def calculate_angle_to_checkpoint(self, forward, car_position, checkpoint_position):
-        # Calcula el ángulo de la dirección del coche
-        entity_direction = math.degrees(math.atan2(forward[1], forward[0]))
-
-        # Calcula el ángulo hacia el checkpoint
-        angle_to_checkpoint = math.degrees(math.atan2(checkpoint_position[1] - car_position[1],
-                                                      checkpoint_position[0] - car_position[0]))
-
-        # Calcula la diferencia de ángulos
-        angle_difference = angle_to_checkpoint - entity_direction
-
-        # Normaliza el ángulo a estar en el rango -180 a 180 grados
-        while angle_difference > 180:
-            angle_difference -= 360
-        while angle_difference < -180:
-            angle_difference += 360
-
-        return angle_difference
 
     def _update_tile_type(self, on_tile) -> None:
         """

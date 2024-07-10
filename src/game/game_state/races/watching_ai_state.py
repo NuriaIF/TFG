@@ -1,3 +1,6 @@
+"""
+This module contains the WatchingAIState class
+"""
 from overrides import overrides
 from pygame import Vector2
 
@@ -11,14 +14,27 @@ from src.game.game_state.races.race_state import RaceState
 
 
 class WatchingAIState(RaceState):
+    """
+    This is the state of the game of watching AI
+    In this state the trained AI plays by itself and does not train
+    """
     @overrides
-    def initialize(self):
+    def initialize(self) -> None:
+        """
+        Initialize the watching AI state, it creates one car entity
+        :return: None
+        """
         super().initialize_race(1)
         self._game.get_cars_manager().set_ai_manager(AIManager(self._game.get_entity_manager(), training=False))
         self._game.set_explainability_manager(ExplainabilityManager(self._game.renderer))
 
     @overrides
-    def update(self, delta_time):
+    def update(self, delta_time) -> None:
+        """
+        Update the watching AI state by updating the cars and the AI.
+        :param delta_time:
+        :return: None
+        """
         cars = self._game.get_cars_manager().get_cars()
         i: int
         car: Car
@@ -35,7 +51,12 @@ class WatchingAIState(RaceState):
         super().update(delta_time)
 
     @overrides
-    def render(self):
+    def render(self) -> None:
+        """
+        This renders the state of the watching AI
+        It renders the explainability of the AI, including the inputs and outputs of the neural network
+        :return: None
+        """
         if len(self._game.get_cars_manager().get_ai_manager().get_agents()) == 0:
             return
         agent = self._game.get_cars_manager().get_ai_manager().get_agents()[0]
@@ -47,7 +68,12 @@ class WatchingAIState(RaceState):
         self._game.get_explainability_manager().render_explainability(inputs, outputs)
 
     @overrides
-    def render_debug(self):
+    def render_debug(self) -> None:
+        """
+        This renders the debug information of the watching AI state
+        It renders the checkpoints and the car knowledge
+        :return: None
+        """
         for car in self._game.get_cars_manager().get_cars():
             self._game.get_debug_renderer().draw_text_absolute(
                 f"Checkpoint number: {car.car_knowledge.checkpoint_number}",
@@ -57,6 +83,10 @@ class WatchingAIState(RaceState):
                 Vector2(100, 20), (255, 255, 255))
 
     @overrides
-    def _create_cars(self):
+    def _create_cars(self) -> None:
+        """
+        Create the car for the watching AI state
+        :return: None
+        """
         entity = self._game.get_cars_manager().create_car_entity()
         self._game.get_cars_manager().add_car(Car(entity, self._game.get_entity_manager(), AIInputManager()))

@@ -1,3 +1,6 @@
+"""
+This module contains the RenderLayer enum class for the different render layers.
+"""
 from enum import Enum
 
 

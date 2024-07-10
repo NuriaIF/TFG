@@ -1,10 +1,21 @@
+"""
+This module contains functions for geometry calculations.
+"""
 import numpy as np
 from numpy import ndarray
-from numba import njit, boolean, float64, uint32
+from numba import njit, boolean, float64, uint32, uint64, int64
 
 
 @njit(boolean(float64[:], float64[:, :]))
 def point_in_polygon(point: ndarray, polygon: ndarray[ndarray]) -> bool:
+    """
+    Check if a point is inside a polygon.
+    This uses the ray-casting algorithm for checking if a point is inside a polygon.
+    :param point: Point to check if it is inside the polygon
+    :param polygon: list of points that form the polygon to check if the point is inside
+    :return: True if the point is inside the polygon, False otherwise.
+    This is optimized using Numba.
+    """
     intersection_x = 0
     x, y = point
     n = len(polygon)
@@ -26,6 +37,18 @@ def point_in_polygon(point: ndarray, polygon: ndarray[ndarray]) -> bool:
 
 @njit(float64[:](float64, float64, float64, float64, float64))
 def rotate_point(x, y, center_x, center_y, angle):
+    """
+    Rotate a point around a center.
+    This function rotates a point around a center by a given angle.
+    Uses the rotation matrix to rotate the point.
+    It is optimized using Numba.
+    :param x: The x coordinate of the point
+    :param y: The y coordinate of the point
+    :param center_x: The x coordinate of the center
+    :param center_y: The y coordinate of the center
+    :param angle: The angle to rotate the point
+    :return: The new coordinates of the point after rotation
+    """
     angle_rad = np.radians(angle)
     cos_angle = np.cos(angle_rad)
     sin_angle = np.sin(angle_rad)
@@ -48,15 +71,25 @@ def rotate_point(x, y, center_x, center_y, angle):
 @njit(float64[:, :](float64, float64[:], float64[:], float64, uint32))
 def calculate_polygon(angle: float, direction: ndarray, position: ndarray, tile_size: int,
                       radius: float = 6) -> ndarray:
+    """
+    Create the polygon for the field of view of the car in form of list of points (4 points).
+    This also rotates the polygon around the center of the car by the angle.
+    :param angle: The angle to rotate the polygon
+    :param direction: The direction of the car
+    :param position: The position of the car
+    :param tile_size: The size of the tiles
+    :param radius: The radius of the field of view
+    :return: The rotated polygon of the field of view
+    """
     center = np.zeros(2, dtype=np.float64)
     points = np.zeros((4, 2), dtype=np.float64)
     rotated_points = np.zeros((4, 2), dtype=np.float64)
-    # desplazar la posición 6 en dirección del forward
+    # Display the position 6 tiles in front of the car
     center[0] = position[0] + direction[0] * radius * tile_size
     center[1] = position[1] + direction[1] * radius * tile_size
     radius_pixels = radius * tile_size
 
-    # Calculamos las esquinas del Polygon
+    # Calculate the edges of the polygon
     points[0, 0] = center[0] + radius_pixels
     points[0, 1] = center[1] - radius_pixels
     points[1, 0] = center[0] + radius_pixels
@@ -66,8 +99,8 @@ def calculate_polygon(angle: float, direction: ndarray, position: ndarray, tile_
     points[3, 0] = center[0] - radius_pixels
     points[3, 1] = center[1] - radius_pixels
 
-    # Rotamos cada punto alrededor del centro
+    # Rotate each point of the polygon around the center
     for i in range(4):
         rotated_points[i] = rotate_point(points[i, 0], points[i, 1], center[0], center[1], angle)
-    # Dibujamos el Rect rotado
+
     return rotated_points

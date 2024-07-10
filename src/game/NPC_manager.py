@@ -1,3 +1,6 @@
+"""
+This module contains the NPCManager class
+"""
 import random
 
 from pygame import Vector2
@@ -6,13 +9,17 @@ from src.engine.components.collider import Collider
 from src.engine.managers.entity_manager.entity_manager import EntityManager
 from src.engine.managers.render_manager.renderer import DebugRenderer
 from src.game.entities.NPC import NPC
-from src.game.game import Car
+from src.game.entities.car import Car
 from src.game.map.map_types import MapType
 from src.game.game import TileMap
 
 seed = 1234
 
+
 class NPCManager:
+    """
+    This class manages the NPCs of the game.
+    """
     def __init__(self, entity_manager: EntityManager, tile_map: TileMap, debug_renderer: DebugRenderer):
         self._entity_manager = entity_manager
         self._debug_renderer: DebugRenderer = debug_renderer
@@ -26,6 +33,10 @@ class NPCManager:
         self._map_margin_invalid: int = 8 + 4
 
     def get_NPCs(self) -> list[NPC]:
+        """
+        Get the list of NPCs
+        :return:
+        """
         return self._NPCs
 
     def is_npc_initial_pos_invalid(self, pos: Vector2) -> bool:
@@ -57,6 +68,10 @@ class NPCManager:
             or tile_index_y < self._map_margin_invalid
 
     def npc_get_initial_random_pos(self) -> Vector2:
+        """
+        Get a random position for the NPC to spawn
+        :return:
+        """
         while True:
             random_value_x: float = random.uniform(0, self._tile_map.width)
             random_value_y: float = random.uniform(0, self._tile_map.height)
@@ -65,6 +80,11 @@ class NPCManager:
                 return goal_position
 
     def npc_get_random_pos(self, npc: NPC) -> Vector2:
+        """
+        Get a random goal for the NPC to move towards
+        :param npc: npc to get the goal for
+        :return: goal position for the npc to move towards to
+        """
         npc_position = npc.get_position()
         road_probability = npc.get_road_probability()
         goal_range = npc.get_goal_range()
@@ -84,6 +104,9 @@ class NPCManager:
                 return goal_position
 
     def render_debug(self):
+        """
+        Render the debug information of the NPCs
+        """
         for npc in self._NPCs:
             self._debug_renderer.draw_circle(npc.get_goal().copy(), 5, (255, 0, 0), 3)
             self._debug_renderer.draw_line(npc.get_position().copy(), npc.get_goal().copy(), (255, 0, 0), 3)
@@ -114,6 +137,9 @@ class NPCManager:
         pass
 
     def create_npc_entities(self):
+        """
+        Create the NPC entities in the game
+        """
         number_of_people = 15
         number_of_bikes = 5
         if len(self._NPCs) == 0:
@@ -133,7 +159,12 @@ class NPCManager:
                 self._NPCs[j].set_goal_range(self._goal_range_bike)
                 self._NPCs[j].set_road_probability(self._road_probability_bike)
 
-    def configure_npcs(self, cars: list[Car]):
+    def configure_npcs(self, cars: list[Car]) -> None:
+        """
+        Configure the NPCs in the game by setting their initial position and goal and adding the colliders they can't
+        collide with to their collider component
+        :param cars: list of cars in the game
+        """
         random.seed(seed)
         for npc in self._NPCs:
             npc.set_position(self.npc_get_initial_random_pos())
@@ -146,11 +177,15 @@ class NPCManager:
                 other_npc_collider: Collider = self._entity_manager.get_collider(other_npc.entity_ID)
                 if npc_collider is not other_npc_collider:
                     npc_collider.add_non_collideable_collider(other_npc_collider)
-            # if self._game_mode is GameMode.AI_TRAINING:
-            #     for car in cars:
-            #         car_collider: Collider = self._entity_manager.get_collider(car.entity_ID)
-            #         npc_collider.add_non_collideable_collider(car_collider)
+
+            for car in cars:
+                car_collider: Collider = self._entity_manager.get_collider(car.entity_ID)
+                npc_collider.add_non_collideable_collider(car_collider)
 
     def initialize(self, cars: list[Car]):
+        """
+        Initialize the NPCs in the game
+        :param cars: list of cars in the game
+        """
         # self.create_npc_entities()
         self.configure_npcs(cars)

@@ -1,9 +1,16 @@
+"""
+This module contains the AIInputManager class
+"""
+
 import pygame
 
 from src.engine.managers.input_manager.input_manager import InputManager
 
 
 class AIInputManager(InputManager):
+    """
+    Input manager for AI agents. This class is responsible for converting the outputs of the neural network to commands.
+    """
     def __init__(self):
         # outputs to commands
 
@@ -19,11 +26,13 @@ class AIInputManager(InputManager):
         }
         self.keys = list(self.key_states.keys())
 
-    def convert_outputs_to_commands(self, outputs: list[float]):
-        # Keys corresponding with outputs > 0.5 are pressed
-        # If there are two keys > 0.5, both are pressed
-        # Convert list of outputs to list of keys
-        # Update key states
+    def convert_outputs_to_commands(self, outputs: list[float]) -> None:
+        """
+        Convert the outputs of the neural network to commands, which are then used to update the key states.
+        Keys corresponding with outputs > 0.5 are pressed.
+        If there are two keys > 0.5, both are pressed.
+        :param outputs: The outputs of the neural network
+        """
         for i in range(len(outputs)):
             if outputs[i] > 0.5:
                 self.key_states[self.keys[i]] = True
@@ -37,5 +46,8 @@ class AIInputManager(InputManager):
         return self.key_states
 
     def stop_keys(self):
+        """
+        Stop all keys from being pressed
+        """
         for key in self.key_states:
             self.key_states[key] = False
